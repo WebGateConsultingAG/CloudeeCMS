@@ -1,0 +1,26 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} Variable</h1>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Variable Name" type="text" [(ngModel)]="variable.variablename">
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Value" type="text" [(ngModel)]="variable.value">
+        </mat-form-field>
+
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDone()">
+            <mat-icon matListIcon>done</mat-icon>
+            Done
+        </button>
+        <button mat-button *ngIf="isNew" (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

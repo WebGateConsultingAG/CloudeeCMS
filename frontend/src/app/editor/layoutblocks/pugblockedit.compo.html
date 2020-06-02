@@ -1,0 +1,73 @@
+<div class="container" *ngIf="block">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/layoutblocks" target="_blank" title="Help">
+            <mat-icon>help_outline</mat-icon>
+        </a>
+        <button mat-button *ngIf="block.id" (click)="btnDelete()">Delete</button>
+        <button mat-stroked-button (click)="saveBlock()">Save</button>
+    </div>
+    <h3>Edit Layout Block {{block.id?'(ID:'+block.id+')':''}}</h3>
+    <div class="clrhdr"></div>
+    <div class="row">
+        <div class="col-md-6">
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Block title" type="text" [(ngModel)]="block.title" required>
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Description" type="text" [(ngModel)]="block.descr" required>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <mat-form-field class="full-width">
+                <input matInput [disabled]="block.id" placeholder="Key name" type="text" [(ngModel)]="block.okey"
+                    required>
+            </mat-form-field>
+        </div>
+        <div class="col-md-6" *ngIf="block.okey && block.okey!==''">
+            To import this layout-block in a layout use:<br />
+            <em>inlcude {{block.okey}}.pug</em>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <mat-form-field class="full-width codeField">
+                <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
+                <textarea matInput style="min-height: 360px" placeholder="block content (pug syntax)" type="text"
+                    [(ngModel)]="block.body"></textarea>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <mat-card>
+        <div style="float: right">
+            <a mat-button class="mat-button" href="https://www.cloudee-cms.com/tools/pug-tester" target="_blank">
+                Pug-Syntax Testpage <mat-icon>open_in_new</mat-icon>
+            </a>
+            <a mat-button class="mat-button" href="https://pugjs.org/language/interpolation.html" target="_blank">
+                Pug.js Documentation <mat-icon>open_in_new</mat-icon>
+            </a>
+        </div>
+        <button mat-button (click)="btnTogglePugHelp()">
+            <mat-icon *ngIf="!showPugHelp">keyboard_arrow_right</mat-icon>
+            <mat-icon *ngIf="showPugHelp">keyboard_arrow_down</mat-icon>
+            Pug Syntax Help
+        </button>
+        <div class="row" *ngIf="showPugHelp">
+            <div class="col-md-12">
+                <pre>
+#{{'{'}}fieldname{{'}'}} Print contents of field (escaped)
+!{{'{'}}fieldname{{'}'}} Print unfiltered HTML contents of field
+#{{'{'}}env.navtree{{'}'}} Access navigation tree, if enabled in settings.
+#{{'{'}}env.[variablename]]{{'}'}} Access global variables defined in settings.
+                </pre>
+            </div>
+        </div>
+    </mat-card>
+    <br />
+</div>

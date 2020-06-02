@@ -1,0 +1,31 @@
+<div class="container">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <button mat-stroked-button (click)="btnNavigateTo('editor/microtemplates/edit/NEW')">
+            <mat-icon matListIcon>dns</mat-icon> New Micro Template
+        </button>
+    </div>
+    <h3>Micro Templates</h3>
+    <div class="clrhdr"></div>
+    <table class="viewTable clickableRows">
+        <thead>
+            <tr>
+                <th style="width: 1%">
+                    <button mat-icon-button (click)="loadView(true)" title="Click to refresh"> 
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </th>
+                <th style="width: 30%">Title</th>
+                <th style="width: 70%">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of viewList | orderBy: {property: 'title', direction: 1}" (click)="btnNavigateTo('editor/microtemplates/edit/'+item.id)" class="clickable">
+                <td><mat-icon matListIcon>dns</mat-icon></td>
+                <td>{{item.title}}</td>
+                <td>{{item.descr}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>

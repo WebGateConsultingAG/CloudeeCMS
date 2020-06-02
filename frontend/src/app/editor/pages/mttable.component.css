@@ -1,0 +1,17 @@
+.mat-card { margin-left: 3px; margin-right: 3px; margin-top: 5px; }
+.permaActions { text-align: right; }
+.hoverActions { text-align: right; float: right; }
+.toggler .mat-icon { vertical-align: bottom; border-radius: 3px; font-size: 23px; width: 24px; height: 24px; margin-right: 6px; margin-top: 2px; margin-bottom: 2px; border: 1px solid lightgray; background-color: white; }
+.toggler .mat-icon:hover { background-color: #5ad1ff; color: black; }
+
+.fieldsTable { width: 100%; border-spacing: 0; border-collapse: collapse; font-size: 14px; }
+.fieldsTable th { text-align: left; border-bottom: 2px solid lightgray; padding: 6px; }
+.fieldsTable tbody td { border-bottom: 1px solid lightgray; padding: 6px; vertical-align: top; }
+.fieldsTable.clickableRow TBODY TR:hover > TD { background-color: #f2f8ff; transition: background-color 0.3s linear; }
+.fieldsTable.clickableRow TBODY TR > TD { cursor: pointer; transition: background-color 0.4s linear; }
+.fieldsTable.clickableRow THEAD TR:hover > TD, .wgc .clickableRows THEAD TR > TD { background-color: white !important; }
+
+.fieldsTable .hoverActions { white-space: nowrap; }
+.fieldsTable .hoverActions .mat-icon { visibility: hidden; margin-left: 6px; }
+.fieldsTable tr:hover > TD .hoverActions .mat-icon, .fieldsTable .permaActions .mat-icon { visibility: visible; cursor: pointer; cursor: pointer; margin-left: 6px; border-radius: 3px; }
+.fieldsTable tr:hover > TS .hoverActions .mat-icon:hover, .fieldsTable .permaActions .mat-icon:hover { background-color: #f5a30f;  }

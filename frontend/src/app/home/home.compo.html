@@ -1,0 +1,74 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <br>
+            <div class="copy">
+                CloudeeCMS - by <a href="https://www.webgate.biz" target="_blank"><img class="logoWGC" src="assets/img/WebGateLogo.svg"></a>
+            </div>
+            <br><br>
+        </div>
+    </div>
+    
+    <div *ngIf="!backendSVC.configLoaded" class="loaderMessage">
+        <mat-spinner></mat-spinner>
+        Loading..
+    </div>
+    
+    <div class="row buttonlist" *ngIf="backendSVC.configLoaded">
+        <div class="col-md-4">
+
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/pages')">
+                <mat-icon matListIcon>description</mat-icon>
+                Pages
+            </button>
+            <br>
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/pubqueue')">
+                <mat-icon matListIcon>library_books</mat-icon>
+                Publication Queue
+            </button>
+            <br>
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/fileexplorer')">
+                <mat-icon matListIcon>insert_drive_file</mat-icon>
+                File Explorer
+            </button>
+            <br>
+        </div>
+
+        <div class="col-md-4" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/layouts')">
+                <mat-icon matListIcon>table_chart</mat-icon>
+                Layouts
+            </button>
+            <br>
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/blocks')">
+                <mat-icon matListIcon>art_track</mat-icon>
+                Layout Blocks
+            </button>
+            <br>
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/microtemplates')">
+                <mat-icon matListIcon>dns</mat-icon>
+                Micro Templates
+            </button>
+            <br>
+        </div>
+        <div class="col-md-4">
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('editor/forms')">
+                <mat-icon matListIcon>assignments</mat-icon>
+                Forms
+            </button>
+            <br>
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('formsinbox')">
+                <mat-icon matListIcon>inbox</mat-icon>
+                Form Inbox
+            </button>
+            <br>
+            <button mat-stroked-button (click)="tabsSVC.navigateTo('settings')" *ngIf="backendSVC.isAdmin">
+                <mat-icon matListIcon>build</mat-icon>
+                Settings
+            </button>
+            <br><br>
+        </div>
+
+    </div>
+
+</div>

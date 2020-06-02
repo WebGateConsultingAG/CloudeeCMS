@@ -1,0 +1,57 @@
+.logo { width: 225px; }
+.logoWGC { height: 17px; vertical-align: middle; margin-left: 6px; }
+.copy { font-size: 14px; }
+a, a:visited { color: #3a77c0; text-decoration: none; }
+a:hover { color: #3a77c0; text-decoration: underline; }
+.btnClose { float: right; }
+
+.versionInfo { 
+    opacity: 0;
+}
+.reveal{ 
+    opacity: 1; 
+    transition: all 6s linear; 
+}
+.thesky .cloudContainer { 
+    position: relative;
+    background-repeat: repeat-x;
+    background-image: url( "../../assets/img/clouds1.svg" );
+    background-size: 140% 100%;
+    background-position: -320px 7px;
+    width: 100%;
+    height: 166px;
+}
+
+.thesky.move-it .cloudContainer { 
+    background-position: -430px 7px;
+    transition: all 6s ease-in-out;
+}
+
+.thesky .cloudContainer > div { width: 100%; }
+
+.thesky .clouds2 { z-index: 20; background-image: url( '../../assets/img/clouds2.svg' );
+    position: absolute;
+    height: 160px;
+    background-size: cover;
+    background-position: 56% 10%;
+    bottom: 27px;
+}
+
+.thesky.move-it .clouds2 { 
+    background-position: 45% 10%;
+    transition: all 9s ease-in-out;
+    bottom: 32px;
+}
+.thesky .clouds3 { z-index: 30; background-image: url( '../../assets/img/clouds3.svg' );
+    position: absolute;
+    bottom: 0px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 20% 10%;
+    height: 90px;
+}
+
+.thesky.move-it .clouds3 { 
+    background-position: 34% 10%;
+    transition: all 9s ease-in-out;
+}

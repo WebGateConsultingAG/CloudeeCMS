@@ -1,0 +1,29 @@
+<div>
+    <div mat-dialog-content>
+        <button mat-icon-button class="btnClose" (click)="btnCancel()">
+            <mat-icon>close</mat-icon>
+        </button>
+        <h1 mat-dialog-title>
+            <img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" class="logo" />
+        </h1>
+
+        <div class="versionInfo{{cssAlt2?' reveal':''}}">
+            <a href="https://www.cloudee-cms.com" target="_blank">cloudee-cms.com</a>
+            <br>
+            Version {{APP_VERSION}}
+        </div>
+        <div class="thesky{{cssAlt1?' move-it':''}}" id="thesky" (click)="init3d()">
+            <div class="cloudContainer">
+                <div class="clouds2"></div>
+                <div class="clouds3"></div>
+            </div>
+        </div>    
+
+        <div class="copy">
+            &copy; 2019 - 2020 <a href="https://www.webgate.biz" target="_blank"><img class="logoWGC" src="assets/img/WebGateLogo.svg"></a>
+            | <a href="https://github.com/WebGateConsultingAG/CloudeeCMS/LICENSE" target="_blank">License</a> | <a href="https://github.com/WebGateConsultingAG/CloudeeCMS/NOTICE" target="_blank">Notice</a>
+            <br/>
+            <div id="flx3d"></div>
+        </div>
+    </div>
+</div>

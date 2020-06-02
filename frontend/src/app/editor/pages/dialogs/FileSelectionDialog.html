@@ -1,0 +1,70 @@
+<div>
+    <div mat-dialog-actions>
+        <div class="row hdr-row">
+            <div class="col-md-6">
+                <h1 mat-dialog-title>{{dlgTitle}}</h1>
+            </div>
+            <div class="col-md-5">
+                <mat-form-field class="full-width" *ngIf="configLoaded && config.buckets">
+                    <mat-select placeholder="Environment" [(ngModel)]="selectedBucket" (selectionChange)="loadBucket()" [disabled]="!allowBucketSelection">
+                        <mat-option *ngFor="let bucket of config.buckets" value="{{bucket.bucketname}}">
+                            {{bucket.label}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-md-1">
+                <button mat-icon-button (click)="btnClose()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div mat-dialog-content>
+
+        <div class="loader" *ngIf="loading">
+            <br>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+        <div *ngIf="!loading">
+            <table class="viewTable fileExplorer" *ngIf="showListing">
+                <thead>
+                    <tr>
+                        <th style="width: 1%"></th>
+                        <th style="width: 91%"></th>
+                        <th style="width: 8%"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngIf="currentKey!==''">
+                        <td>
+                            <mat-icon>folder_open</mat-icon>
+                        </td>
+                        <td class="clickable" (click)="openParentFolder()">..</td>
+                        <td></td>
+                    </tr>
+                    <tr *ngFor="let item of viewList">
+                        <td>
+                            <mat-icon *ngIf="item.otype==='Folder'">folder_open</mat-icon>
+                            <mat-icon *ngIf="item.otype==='File'">description</mat-icon>
+                        </td>
+
+                        <td *ngIf="item.otype==='Folder'" class="clickable" (click)="openItem(item)">{{item.label}}</td>
+                        <td *ngIf="item.otype==='File'" (click)="selectFile(item)" class="clickable">{{item.label}}</td>
+
+                        <td class="hoverActions" style="text-align: right;">
+                            <a *ngIf="item.otype==='File' && cdnURL" href="{{cdnURL}}/{{item.Key}}" target="_blank">
+                                <mat-icon title="CDN Link">link</mat-icon>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,327 @@
+<div class="container inputform" *ngIf="!loading">
+    <div class="actionbar">
+        <button mat-button *ngIf="restartRequired" class="icnRestartReq"
+            title="Some of your changes will not be effective until you reload the webapplication">
+            <mat-icon>sync_problem</mat-icon> Restart recommended
+        </button>
+        <button mat-stroked-button (click)="btnSave()">Save</button>
+    </div>
+    <h3>Settings</h3>
+    <div class="clrhdr"></div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <mat-card>
+                <div class="row">
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="App title" type="text" [(ngModel)]="config.apptitle"
+                                (ngModelChange)="setRestartRequired()">
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="row multiTiles">
+        <div class="col-md-6">
+            <mat-card>
+                <button mat-stroked-button
+                    title="{{restartRequired?'You must save configuration and reload the webapp first.':'Launch Software Updater'}}"
+                    (click)="btnShowUpdater()" style="float:right" [disabled]="restartRequired">Check for
+                    updates</button>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-onlineupdate"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Software Updates
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="CloudeeCMS Version" type="text" [(ngModel)]="APP_VERSION"
+                                readonly>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="Branch name for updates" type="text"
+                                [(ngModel)]="config.repobranch" [disabled]="!enableOnlineUpdates"
+                                (ngModelChange)="setRestartRequired()">
+                        </mat-form-field>
+                        <!-- 
+                            <mat-checkbox [(ngModel)]="config.dnt"> Hide Instance ID when searching for updates</mat-checkbox>
+                        -->
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+
+        <div class="col-md-6">
+            <mat-card>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/layouts-navtree"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Navigation tree
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="row" *ngIf="!bkupLoading">
+                    <div class="col-md-12">
+                        <mat-checkbox [(ngModel)]="config.enablenavtree"> Enable navigation tree renderer
+                        </mat-checkbox><br><br>
+                        When enabled, a navigation tree object will be available as 'env.navtree' in layouts to render
+                        navigation menus. <a href="https://www.cloudee-cms.com/documentation#!/doc/layouts-navtree"
+                            target="_blank">Check the documentation</a> for examples.
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="row multiTiles">
+        <div class="col-md-6">
+            <mat-card>
+                <div class="actionbar">
+                    <mat-form-field>
+                        <input matInput placeholder="Add Page Category" type="text" [(ngModel)]="tmpAddCat">
+                    </mat-form-field>
+                    <button mat-stroked-button (click)="btnAddCategory()">Add</button>
+                </div>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-page-categories"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Page Categories
+                </h4>
+                <div class="clrhdr"></div>
+                <table class="viewTable">
+                    <tbody>
+                        <tr *ngFor="let cat of config.categories">
+                            <td style="width: 95%;">{{cat}}</td>
+                            <td style="width: 5%; text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnRemoveCategory(cat)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+
+        <div class="col-md-6">
+            <mat-card>
+                <mat-icon title="Add bookmark" (click)="btnEditBM(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-bookmarks"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Bookmarks
+                </h4>
+                <div class="clrhdr"></div>
+                <table class="viewTable clickableRows" *ngIf="config.bookmarks">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Label</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let bm of config.bookmarks | orderBy: {property: 'label', direction: 1}"
+                            (click)="btnEditBM(bm)">
+                            <td>{{bm.label}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteBM(bm)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="row multiTiles">
+
+        <div class="col-md-6">
+            <mat-card>
+                <mat-icon title="Add bucket" (click)="btnEditVariable(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-globalvariables"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Global Variables
+                </h4>
+                <div class="clrhdr"></div>
+
+                <table class="viewTable clickableRows" *ngIf="config.variables">
+                    <thead>
+                        <tr>
+                            <th style="width: 45%">Variable Name</th>
+                            <th style="width: 50%">Value</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let variable of config.variables | orderBy: {property: 'label', direction: 1}"
+                            (click)="btnEditVariable(variable)">
+                            <td>env.{{variable.variablename}}</td>
+                            <td>{{variable.value}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteVariable(variable)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+
+        <div class="col-md-6" *ngIf="config.buckets">
+            <mat-card>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-backup"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Database Backup and Package Import
+                </h4>
+                <div class="clrhdr"></div>
+
+                <div class="row" *ngIf="bkupLoading">
+                    <div class="col-md-12">
+                        <div class="loader">
+                            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" *ngIf="!bkupLoading">
+                    <div class="col-md-12">
+                        <mat-form-field class="full-width" disabled="!loading">
+                            <mat-select placeholder="Select bucket for backup file" [(ngModel)]="selectedTargetEnv"
+                                required>
+                                <mat-option *ngFor="let bucket of config.buckets" value="{{bucket.bucketname}}">
+                                    {{bucket.label}}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="row" *ngIf="!bkupLoading">
+                    <div class="col-md-12">
+                        <button mat-stroked-button [disabled]="loading || !selectedTargetEnv"
+                            (click)="btnBackup()">Create Backup Package</button> &nbsp;
+
+                            <mat-menu #importMenu="matMenu">
+                                <button mat-menu-item (click)="btnImportDialog()" [disabled]="loading || !selectedTargetEnv">Import from selected bucket</button>
+                                <button mat-menu-item (click)="btnPkgUploadDialog()">Upload package</button>
+                              </mat-menu>
+                              
+                              <button mat-stroked-button [matMenuTriggerFor]="importMenu" [disabled]="loading">
+                                Import package <mat-icon>keyboard_arrow_down</mat-icon>
+                              </button>
+                    </div>
+                </div>
+                <div class="row" *ngIf="backupLog.length>0">
+                    <div class="col-md-12">
+                        <br>
+                        <div class="logdisplay">
+                            <div *ngFor="let row of backupLog">{{row}}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </mat-card>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <mat-card>
+                <mat-icon title="Add bucket" (click)="btnEditBucket(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-s3buckets"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    S3 Buckets
+                </h4>
+                <div class="clrhdr"></div>
+                <table class="viewTable clickableRows" *ngIf="config.buckets">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Label</th>
+                            <th style="width: 40%">Bucket Name</th>
+                            <th style="width: 30%">Search Index</th>
+                            <th style="width: 5%">Publish</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}"
+                            (click)="btnEditBucket(bucket)">
+                            <td>{{bucket.label}}</td>
+                            <td>{{bucket.bucketname}}</td>
+                            <td>{{bucket.ftindex}}</td>
+                            <td>
+                                <mat-icon *ngIf="!bucket.noPublish" matListIcon>visibility</mat-icon>
+                                <mat-icon *ngIf="bucket.noPublish" matListIcon>visibility_off</mat-icon>
+                            </td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon *ngIf="!bucket.preventDelete" title="Delete" (click)="btnDeleteBucket(bucket)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <mat-card>
+                <mat-icon title="Add distribution" (click)="btnEditCFDist(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-cfdists"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    CloudFront Distributions
+                </h4>
+                <div class="clrhdr"></div>
+                <table class="viewTable clickableRows" *ngIf="config.cfdists">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Label</th>
+                            <th style="width: 20%">CloudFront ID</th>
+                            <th style="width: 55%">URL</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let dist of config.cfdists | orderBy: {property: 'label', direction: 1}"
+                            (click)="btnEditCFDist(dist)">
+                            <td>{{dist.label}}</td>
+                            <td>{{dist.cfid}}</td>
+                            <td>{{dist.webURL}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon *ngIf="!dist.preventDelete" title="Delete" (click)="btnDeleteCFDist(dist)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+    </div>
+
+    <br><br><br>
+</div>

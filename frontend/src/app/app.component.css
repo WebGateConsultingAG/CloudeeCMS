@@ -1,0 +1,65 @@
+mat-sidenav { width: 200px; }
+mat-sidenav a { cursor: pointer; }
+
+.mainLoader { height: 3px; background-color: #f5f5f5;}
+.notifyIcon { color: indianred; }
+/* you must add "encapsulation: ViewEncapsulation.None" to your component, to override mat-tabs styles */
+.flxtabs .mat-tab-label { background-color: #e1e1e1; border: 1px solid lightgray !important; padding: 0 33px 0 9px; justify-content: left; }
+.flxtabs .mat-tab-label-active { background-color: white;}
+.flxtabs .closeIcon { 
+    border: 1px solid black;
+    font-size: 18px;
+    width: 19px;
+    height: 19px;
+    position: absolute; right: 9px; 
+}
+.flxtabs .tabtitle { max-width: 120px; overflow: hidden; font-size: 12px;  }
+.flxtabs .closeIcon:hover { background-color: lightgray; }
+.flxtabs .tabIcon { font-size: 15px; margin-right: 2px; width: 18px; height: 16px; }
+.flxtabs .mat-tab-list, .flxtabs .mat-tab-body { background-color: #ffffff; }
+.flxtabs { margin-top: 7px; background-color: #f5f5f5; }
+
+.loginpage { margin-left: auto; margin-right: auto; margin-top: 64px; 
+    width: 50%; min-width: 380px; background-color: white;
+    border: 1px solid #d6d3d3;
+    box-shadow: 0 1px 3px rgba(0,0,0,.16),5px 6px 12px rgba(0,0,0,.23);
+}
+.loginpage h2 { font-size: 20px; font-weight: normal; margin-top: 4px; }
+.loginpage .logintitle { 
+    border-bottom: 1px solid #d6d3d3;
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(left, #ffffff 0%, #f1f1f1 16%, #e1e1e1 32%, #e1e1e1 32%, #f6f6f6 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #ffffff 0%,#f1f1f1 16%,#e1e1e1 32%,#e1e1e1 32%,#f6f6f6 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #ffffff 0%,#f1f1f1 16%,#e1e1e1 32%,#e1e1e1 32%,#f6f6f6 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=1 ); 
+    color: #616161;
+    padding: 9px 12px;
+    font-size: 18px;
+}
+.loginpage .logintitle img { width: 212px; margin-top: 4px; }
+.loginpage .loginblock { padding: 16px 12px; color: black; }
+.loginpage .amplify-form-input { border-radius: 3px; border: 1px solid #d6d3d3; padding: 7px; background-color: transparent; color: black; margin-bottom: 16px; width: 100%; }
+.loginpage .amplify-form-header { margin-bottom: 12px; }
+.loginpage .amplify-form-input::placeholder { color: rgb(83, 83, 83); }
+.loginpage button { margin-bottom: 10px; border-radius: 4px; background-color: rgb(69, 105, 151); color: white; border: 1px solid rgb(0, 0, 0); padding: 9px 14px; cursor: pointer; font-size: 14px; } 
+.loginpage button:hover { background-color: rgb(98, 126, 161); } 
+.loginpage .amplify-form-action, .loginpage .amplify-form-actions { font-size: 12px; color: rgb(104, 104, 104); }
+
+.loginpage .amplify-form-link { color: rgb(69, 105, 151); cursor: pointer; }
+.loginpage .amplify-form-link:focus { text-decoration: underline; }
+
+.loginpage .amplify-input-label[for="passwordField"] { display: none; }
+.loginpage .amplify-input-label[for="usernameField"] { display: none; }
+.loginpage .footer { text-align: right; margin: 3px 12px; font-size: 12px; color: #a0a0a0; border-top: 1px solid lightgray; padding: 3px 0; }
+.loginpage .footer img { height: 12px; vertical-align: middle; margin-left: 3px;  }
+
+.loginpage .amplify-form-cell-left { float: left; }
+.loginpage .amplify-form-cell-right { float: right; }
+
+.loginpage .amplify-alert { margin-top: 8px; font-size: 13px; background-color: #ffb000; padding: 3px 8px; float: left; border-radius: 3px; }
+.loginpage .amplify-alert-icon { float: left; margin-right: 8px; }
+.loginpage .amplify-alert-message { float: left; }
+.loginpage .amplify-alert-close {}
+
+.loginpage .oauth h2 { margin-top: 0; }
+.loginpage .oauth button { float: right; }

@@ -1,0 +1,98 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Edit {{fldMT.title}}</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+        <div *ngIf="!loading">
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Enter a short description of this element" type="text" [(ngModel)]="fldMT.shortdesc">
+            </mat-form-field>
+
+            <div *ngFor="let fld of fldMT.custFields">
+                <mat-form-field class="full-width" *ngIf="fld.fldType==='text'">
+                    <input matInput placeholder="{{fld.fldTitle}}" type="text" [(ngModel)]="fld.fldValue">
+                </mat-form-field>
+               
+                <mat-form-field class="full-width" *ngIf="fld.fldType==='textarea'">
+                    <!-- cdkTextareaAutosize removed due to scrolling bug -->
+                    <textarea style="min-height: 100px" matInput placeholder="{{fld.fldTitle}}" type="text"
+                        [(ngModel)]="fld.fldValue"></textarea>
+                </mat-form-field>
+
+                <div class="row" *ngIf="fld.fldType==='image'">
+                    <div class="col-md-10">
+                        <mat-form-field class="full-width" *ngIf="fld.fldType==='image'">
+                            <input matInput placeholder="{{fld.fldTitle}}" type="text"
+                                [(ngModel)]="fld.fldValue">
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-1">
+                        <button mat-stroked-button (click)="btnDlgSelectImage(fld)" title="Select image">
+                            <mat-icon>photo_library</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <mat-checkbox *ngIf="fld.fldType==='checkbox'" [(ngModel)]="fld.fldValue">
+                    {{fld.fldTitle}}
+                </mat-checkbox>
+
+                <mat-form-field class="full-width" *ngIf="fld.fldType==='dropdown'">
+                    <mat-select [multiple]="fld.multiple" placeholder="{{fld.fldTitle}}"
+                        [(ngModel)]="fld.fldValue">
+                        <mat-option *ngFor="let sv of fld.selValues" value="{{sv.val}}"> {{sv.label}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <div *ngIf="fld.fldType==='richtext'">
+                    <ngx-trumbowyg-editor name="{{fld.fldName}}" [(ngModel)]="fld.fldValue"
+                        [options]="trumbooptions"></ngx-trumbowyg-editor>
+                </div>
+
+                <div class="nestedMTcontainer" *ngIf="fld.fldType==='container'">                    
+                    <table class="viewTable fieldsTable sortable">
+                        <thead>
+                            <tr>
+                                <td style="width: 20px;"></td>
+                                <td colspan="2">
+                                    <b>{{fld.fldTitle}} - ({{fld.fldName}})</b>
+                                </td>
+                                <td class="permaActions">
+                                    <mat-icon title="Add new field" (click)="btnAddNewObj(fld)">add</mat-icon>
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody cdkDropList
+                            (cdkDropListDropped)="dropSortObj(fld.lstObj, $event)">
+
+                            <tr *ngFor="let fldMT of fld.lstObj; let i=index" cdkDrag
+                                title="Drag to change sort order">
+                                <td class="drag-handle">
+                                    <mat-icon>drag_indicator</mat-icon>
+                                </td>
+                                <td>{{fldMT.title}}</td>
+                                <td>{{fldMT.shortdesc}}</td>
+                                <td class="hoverActions" style="text-align: right;">
+                                    <mat-icon title="Edit field" (click)="btnEditObj(fldMT)">edit</mat-icon>
+                                    <mat-icon title="Delete"
+                                        (click)="btnDeleteObj(fld.lstObj, fldMT, i)">delete
+                                    </mat-icon>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>            
+        </div>
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

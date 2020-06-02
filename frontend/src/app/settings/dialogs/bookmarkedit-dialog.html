@@ -1,0 +1,26 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} Bookmark</h1>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Label" type="text" [(ngModel)]="bm.label">
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Web URL" type="text" [(ngModel)]="bm.webURL">
+        </mat-form-field>
+
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDone()">
+            <mat-icon matListIcon>done</mat-icon>
+            Done
+        </button>
+        <button mat-button *ngIf="isNew" (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

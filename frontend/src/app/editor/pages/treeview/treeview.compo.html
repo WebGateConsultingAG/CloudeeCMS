@@ -1,0 +1,18 @@
+<ul class="flx-tree">
+    <li *ngFor="let row of treeBranch | orderBy: {property: 'label', direction: 1}">
+        <div class="treeRow">
+
+            <span *ngIf="row.childs && row.childs.length>0">
+                <mat-icon matListIcon class="clickable" *ngIf="!row.expanded" (click)="toggleExpand(row)">chevron_right</mat-icon>
+                <mat-icon matListIcon class="clickable" *ngIf="row.expanded" (click)="toggleExpand(row)">expand_more</mat-icon>
+            </span>
+            <span></span>
+            <span *ngIf="!row.childs || row.childs.length<1">
+                <mat-icon matListIcon style="color: lightgray">arrow_right</mat-icon>
+            </span>
+
+            <a (click)="branchClick(row)">{{row.label}}</a>
+        </div>
+        <app-flx-treeview *ngIf="row.expanded" [treeBranch]="row.childs" [pagelinkprefix]="pagelinkprefix"></app-flx-treeview>
+    </li>
+</ul>

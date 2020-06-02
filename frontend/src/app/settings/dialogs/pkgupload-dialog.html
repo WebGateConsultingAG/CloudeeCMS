@@ -1,0 +1,35 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Package import</h1>
+        
+        <div *ngIf="showFileSelection">
+            <input style="display:none;" id="input-file-upl" type="file" accept="{{accept}}" (change)="startFileUpload($event.target.files)"/>
+            <label for="input-file-upl" class="mat-stroked-button mat-default" title="Upload files" *ngIf="!uploading">
+                    <mat-icon>add_box</mat-icon><span> &nbsp;Select a 'CloudeeCMS Package' file to import</span>
+            </label>
+            
+            <div class="uplProgress" *ngIf="showUploader">
+                <div class="uplFile" *ngFor="let file of files">
+                    {{file.name}}<br/>
+                    <mat-progress-bar *ngIf="progress" [value]="progress[file.name].progress | async" mode="determinate" value=40 color="warn"></mat-progress-bar>
+                </div>
+            </div>
+        </div>
+
+        <div class="loader" *ngIf="installing">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div *ngIf="!showFileSelection">
+            {{installMsg}}
+            <div class="logdisplay" *ngIf="installLog.length>0">
+                <div *ngFor="let row of installLog">{{row}}</div>
+            </div>
+        </div>
+
+        <br/><br/>
+    </div>
+    <div class="warning" style="white-space: pre-line;" *ngIf="errorMessage!==''" color="accent" selected="true">{{errorMessage}}</div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDialogClose()">Close</button>
+    </div>
+</div>

@@ -1,0 +1,197 @@
+<div class="loginpage" *ngIf="!cognitoSVC.signedIn">
+  <div class="logintitle"><img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" /></div>
+  <div class="loginblock" *ngIf="cognitoSVC.cognitoAllowUserPassLogin">
+    <amplify-authenticator [hide]="['Greetings','SignUp','ConfirmSignUp']"></amplify-authenticator>
+    <div style="clear: both;"></div>
+  </div>
+  <div class="loginblock oauth" *ngIf="cognitoSVC.cognitoAllowOAuthLogin">
+    <button (click)="cognitoSVC.openFederatedLogin()">Sign In</button>
+    <h2>Sign in with {{cognitoSVC.federatedLoginLabel}}</h2>
+    <div style="clear: both;"></div>
+  </div>
+  <div class="footer">
+    CloudeeCMS - by <a href="https://www.webgate.biz" target="_blank"><img alt="WebGate Consulting AG" src="assets/img/WebGateLogo.svg" /></a>
+  </div>
+</div>
+
+<ng-container *ngIf="cognitoSVC.signedIn">
+  <mat-sidenav-container style="height: 100%;">
+    <mat-sidenav #sidenav mode="over" fixedInViewport>
+      <mat-toolbar>
+
+        <div>Menu</div>
+        <button mat-icon-button (click)="sidenav.toggle()" style="position: absolute; right: 6px;">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-toolbar>
+
+      <mat-list role="list">
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/pages')">
+          <mat-icon matListIcon>description</mat-icon> Pages
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/pubqueue')">
+          <mat-icon matListIcon>library_books</mat-icon> Publication Queue
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/layouts')" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+          <mat-icon matListIcon>table_chart</mat-icon> Layouts
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/blocks')" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+          <mat-icon matListIcon>art_track</mat-icon> Layout Blocks
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/microtemplates')" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+          <mat-icon matListIcon>dns</mat-icon> Micro Templates
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/fileexplorer')">
+          <mat-icon matListIcon>insert_drive_file</mat-icon> File Explorer
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/forms')">
+          <mat-icon matListIcon>assignment</mat-icon> Forms
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('formsinbox')">
+          <mat-icon matListIcon>inbox</mat-icon> Form Inbox
+        </a>
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('settings')" *ngIf="backendSVC.isAdmin">
+          <mat-icon matListIcon>build</mat-icon> Settings
+        </a>
+      </mat-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="app-body">
+
+      <div class="mainLoader">
+        <mat-progress-bar *ngIf="tabsSVC.loading" mode="indeterminate"></mat-progress-bar>
+      </div>
+
+      <div class="app-header">
+        <div class="app-header-container">
+          <div class="app-header-content-left">
+
+            <button mat-icon-button (click)="sidenav.toggle()" (mouseover)="sidenav.toggle()">
+              <mat-icon>menu</mat-icon>
+            </button>
+
+            <img class="appLogo" src="assets/img/CloudeeCMS.svg" (click)="btnNavigateTo('home')" alt="CloudeeCMS" />
+            <div class="appTitle" (click)="btnNavigateTo('home')">{{ apptitle }}</div>
+          </div>
+
+          <div class="app-header-content-right">
+
+            <mat-menu #aboutMenu="matMenu">
+              <a class="mat-button mat-menu-item" href="https://www.cloudee-cms.com/documentation" target="_blank">
+                <mat-icon>help_outline</mat-icon> Help
+              </a>
+
+              <button mat-button class="mat-menu-item" (click)="btnShowAboutDialog()">
+                <mat-icon>mode_comment</mat-icon> About
+              </button>
+
+            </mat-menu>
+
+            <mat-menu #notifyMenu="matMenu">
+                <div *ngFor="let nEntry of notifications">
+                  <button *ngIf="nEntry.otype==='button'" mat-button class="mat-menu-item"><mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}</button>
+                  <button *ngIf="nEntry.otype==='updateavailable'" mat-button class="mat-menu-item" (click)="btnShowUpdater()"><mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}</button>
+                  <a *ngIf="nEntry.otype==='link'" class="mat-button mat-menu-item" href="{{nEntry.webURL}}" target="_blank"><mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}</a>
+                </div>
+            </mat-menu>
+
+            <mat-menu #linksMenu="matMenu">
+              <div *ngIf="config && config.bookmarks">
+                <a *ngFor="let bm of config.bookmarks | orderBy: {property: 'label', direction: 1}"
+                  class="mat-button mat-menu-item" href="{{bm.webURL}}" target="_blank"> {{bm.label}}</a>
+              </div>
+            </mat-menu>
+
+            <mat-menu #appMenu="matMenu">
+              <button mat-button class="mat-menu-item" *ngIf="!configLoaded" (click)="tabsSVC.navigateTo('settings')">
+                Configuration missing
+              </button>
+              <button mat-button class="mat-menu-item" *ngIf="configLoaded && !config.buckets"
+                (click)="tabsSVC.navigateTo('settings')">
+                Configure Buckets..
+              </button>
+              <div *ngIf="config && config.buckets">
+                <a *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}"
+                  class="mat-button mat-menu-item" href="{{bucket.webURL}}" target="_blank">Open {{bucket.label}}</a>
+              </div>
+            </mat-menu>
+
+            <mat-menu #userMenu="matMenu">
+              <button mat-button class="mat-menu-item" (click)="tabsSVC.navigateTo('myprofile')"
+                title="Edit user profile">
+                <mat-icon>person</mat-icon> {{ cognitoSVC.username }}
+              </button>
+              <button mat-button class="mat-menu-item" (click)="tabsSVC.navigateTo('useradmin')" *ngIf="backendSVC.isUserAdmin">
+                <mat-icon>supervisor_account</mat-icon> User Administration
+              </button>
+              <button mat-button class="mat-menu-item" (click)="btnLogout()">
+                <mat-icon>exit_to_app</mat-icon> Logout
+              </button>
+            </mat-menu>
+
+            <button mat-icon-button [matMenuTriggerFor]="notifyMenu" class="notifyIcon" title="Notifications"
+              *ngIf="notifications.length>0">
+              <mat-icon>notification_important</mat-icon>
+            </button>
+
+            <button mat-icon-button [matMenuTriggerFor]="linksMenu" title="Bookmarks.."
+              *ngIf="config && config.bookmarks">
+              <mat-icon>bookmark_border</mat-icon>
+            </button>
+
+            <button mat-icon-button [matMenuTriggerFor]="appMenu" title="View Website..">
+              <mat-icon>personal_video</mat-icon>
+            </button>
+
+            <button mat-icon-button [matMenuTriggerFor]="aboutMenu">
+              <mat-icon>help_outline</mat-icon>
+            </button>
+
+            <button mat-icon-button [matMenuTriggerFor]="userMenu" title="Account">
+              <mat-icon>account_box</mat-icon>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <mat-tab-group class="flxtabs" mat-align-tabs="start" animationDuration="0"
+        [selectedIndex]="tabsSVC.selectedTabIndex" (selectedIndexChange)="tabsSVC.onTabSwitch($event)">
+        <mat-tab *ngFor="let tab of tabsSVC.lstTabs; let i=index" [attr.data-index]="i">
+
+          <ng-template mat-tab-label>
+            <mat-icon class="tabIcon" *ngIf="tab.icon">{{tab.icon}}</mat-icon>
+            <span class="tabtitle">{{tab.title.substring(0, 25)}}</span>
+            <mat-icon class="closeIcon" *ngIf="i==tabsSVC.selectedTabIndex && !tab.preventClose"
+              (click)="tabsSVC.closeTab(i)" title="Close this tab">close</mat-icon>
+          </ng-template>
+
+          <app-home *ngIf="tab.compo==='app-home'"></app-home>
+          <app-settings *ngIf="tab.compo==='app-settings'"></app-settings>
+          <app-pages *ngIf="tab.compo==='app-pages'"></app-pages>
+          <app-layouts *ngIf="tab.compo==='app-layouts'"></app-layouts>
+          <app-listfiles *ngIf="tab.compo==='app-listfiles'"></app-listfiles>
+          <app-mtlist *ngIf="tab.compo==='app-mtlist'"></app-mtlist>
+          <app-compos *ngIf="tab.compo==='app-compos'"></app-compos>
+          <app-myprofile *ngIf="tab.compo==='app-myprofile'"></app-myprofile>
+          <app-userlist *ngIf="tab.compo==='app-userlist'"></app-userlist>
+          <app-pubqueue *ngIf="tab.compo==='app-pubqueue'"></app-pubqueue>
+          <app-forms *ngIf="tab.compo==='app-forms'"></app-forms>
+          <app-formsinbox *ngIf="tab.compo==='app-formsinbox'"></app-formsinbox>
+
+          <app-layoutedit *ngIf="tab.compo==='app-layoutedit'" [docid]=tab.docid [tabid]=tab.tabid></app-layoutedit>
+          <app-pageedit *ngIf="tab.compo==='app-pageedit'" [docid]=tab.docid [tabid]=tab.tabid></app-pageedit>
+          <app-blockedit *ngIf="tab.compo==='app-blockedit'" [docid]=tab.docid [tabid]=tab.tabid></app-blockedit>
+          <app-mtedit *ngIf="tab.compo==='app-mtedit'" [docid]=tab.docid [tabid]=tab.tabid></app-mtedit>
+          <app-formedit *ngIf="tab.compo==='app-formedit'" [docid]=tab.docid [tabid]=tab.tabid></app-formedit>
+          <app-submittedform *ngIf="tab.compo==='app-submittedform'" [docid]=tab.docid [tabid]=tab.tabid></app-submittedform>
+          <app-fileeditor *ngIf="tab.compo==='app-fileeditor'" [docid]=tab.docid [tabid]=tab.tabid></app-fileeditor>
+          
+        </mat-tab>
+      </mat-tab-group>
+
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+</ng-container>

@@ -1,0 +1,339 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: CloudeeCMS Backend Auto Deployment 2020-06-02 09:20
+Parameters:
+  AdminBucket:
+    Type: String
+    Default: ''
+  TestBucket:
+    Type: String
+    Default: ''
+  ProdBucket:
+    Type: String
+    Default: ''
+  CDNBucket:
+    Type: String
+    Description: CDN S3 Bucket
+    Default: ''
+  CloudFrontCDNDistId:
+    Type: String
+    Description: CND CloudFront Distribution ID
+    Default: ''
+  CloudFrontProdDistId:
+    Type: String
+    Description: Production CloudFront Distribution ID
+    Default: ''
+  CognitoUserPoolID:
+    Type: String
+    Description: Cognito User Pool ID
+    Default: ''
+  CognitoUserPoolARN:
+    Type: String
+    Description: Cognito User Pool ARN
+    Default: ''
+  CognitoClientID:
+    Type: String
+    Description: Cognito App Client ID
+    Default: ''
+  DBTableName:
+    Type: String
+    Description: Lambda database table name
+    Default: ''
+  PipelineName:
+    Type: String
+    Description: Name of the CodePipeline
+    Default: ''
+  PipelineBucket:
+    Type: String
+    Description: Name of the Sourcecode Bucket of CodePipeline for updates
+    Default: ''
+Resources:
+
+  SCMSLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: "Policy for SCMS Lambda Functions"
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: s3
+            Effect: Allow
+            Action: [
+              "s3:GetObject",
+              "s3:ListBucket",
+              "s3:GetBucketLocation",
+              "s3:GetObjectVersion",
+              "s3:PutObject",
+              "s3:PutObjectAcl",
+              "s3:GetLifecycleConfiguration",
+              "s3:PutLifecycleConfiguration",
+              "s3:DeleteObject"
+            ]
+            Resource: [
+              !Sub 'arn:aws:s3:::${AdminBucket}',
+              !Sub 'arn:aws:s3:::${AdminBucket}/*',
+              !Sub 'arn:aws:s3:::${TestBucket}',
+              !Sub 'arn:aws:s3:::${TestBucket}/*',
+              !Sub 'arn:aws:s3:::${ProdBucket}',
+              !Sub 'arn:aws:s3:::${ProdBucket}/*',
+              !Sub 'arn:aws:s3:::${CDNBucket}',
+              !Sub 'arn:aws:s3:::${CDNBucket}/*',
+              !Sub 'arn:aws:s3:::${PipelineBucket}',
+              !Sub 'arn:aws:s3:::${PipelineBucket}/*'
+            ]
+          - Sid: cloudwatch
+            Effect: Allow
+            Action: [
+              "logs:CreateLogStream",
+              "logs:PutLogEvents",
+              "logs:CreateLogGroup"
+            ]
+            Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
+          - Sid: cloudfront
+            Effect: Allow
+            Action: [
+              "cloudfront:CreateInvalidation"
+            ]
+            Resource: [
+              !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontProdDistId}',
+              !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontCDNDistId}'
+            ]
+          - Sid: cognito
+            Effect: Allow
+            Action: [
+              "cognito-idp:*"            ]
+            Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPoolID}'
+          - Sid: sqs
+            Effect: Allow
+            Action: [
+              "sqs:*"
+            ]
+            Resource: !Sub '*'
+          - Sid: dynamo
+            Effect: Allow
+            Action: [
+              "dynamodb:GetItem",
+              "dynamodb:DeleteItem",
+              "dynamodb:PutItem",
+              "dynamodb:Scan",
+              "dynamodb:Query",
+              "dynamodb:UpdateItem",
+              "dynamodb:BatchWriteItem",
+              "dynamodb:BatchGetItem",
+              "dynamodb:DescribeTable",
+              "dynamodb:ConditionCheckItem"
+            ]
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}'
+          - Sid: codepipeline
+            Effect: Allow
+            Action: [
+              "codepipeline:GetPipelineState",
+              "codepipeline:StartPipelineExecution",
+              "codepipeline:StopPipelineExecution"
+            ]
+            Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineName}'
+
+  SCMSLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns: [
+        !Ref SCMSLambdaPolicy
+      ]
+
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+
+  WebGateSCMSAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      BinaryMediaTypes:
+        - multipart~1form-data
+      Cors:
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+      Auth:
+        AddDefaultAuthorizerToCorsPreflight: False
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !Ref CognitoUserPoolARN
+
+  scmsapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms
+      Description: CloudeeCMS API for content admin interface
+      MemorySize: 128
+      Timeout: 3
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          CognitoUserPoolID: !Ref CognitoUserPoolID
+          DB_TABLE: !Ref DBTableName
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /content-admin
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
+  scmspublishapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-publish
+      Description: CloudeeCMS API for content publishing
+      MemorySize: 128
+      Timeout: 180
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          DB_TABLE: !Ref DBTableName
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /content-publish
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
+  scmsfileapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-fileadmin
+      Description: CloudeeCMS API for file explorer
+      MemorySize: 128
+      Timeout: 15
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /file-admin
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
+  scmsfileuploadapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-fileupload
+      Description: CloudeeCMS Upload images pasted in trumbowyg editor
+      MemorySize: 128
+      Timeout: 10
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          DB_TABLE: !Ref DBTableName
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /trumbowyg-file-upload
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
+  scmsbackupapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-backup
+      Description: CloudeeCMS API for backup and restore
+      MemorySize: 128
+      Timeout: 120
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          DB_TABLE: !Ref DBTableName
+          PIPELINE_NAME: !Ref PipelineName
+          PIPELINE_BUCKET: !Ref PipelineBucket
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /content-backup
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+  scmsformsapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-forms
+      Description: CloudeeCMS API for user submitted forms
+      MemorySize: 128
+      Timeout: 5
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          DB_TABLE: !Ref DBTableName
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /user-forms
+            Method: post
+            RestApiId:
+              Ref: WebGateSCMSAPI
+  scmsnewsapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-listcontent
+      Description: CloudeeCMS API to get pages by category
+      MemorySize: 128
+      Timeout: 4
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          DB_TABLE: !Ref DBTableName
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /getnews
+            Method: get
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
+Outputs:
+
+  APIGWURL:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${WebGateSCMSAPI}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Export: 
+      Name: !Sub "${AWS::StackName}-APIGWURL"
+

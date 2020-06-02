@@ -1,0 +1,38 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{regDone?'User registered':'Create new User'}}</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage && !loading">
+            {{errorMessage}}
+        </div>
+        <div *ngIf="!loading && !regDone">
+            <br>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Username" [(ngModel)]="usr.Username" required>
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="E-Mail" [(ngModel)]="usr.email" required>
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Lastname" [(ngModel)]="usr.family_name">
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Firstname" [(ngModel)]="usr.given_name">
+            </mat-form-field>
+        </div>
+        <div *ngIf="!loading && regDone">
+            Username: {{usr.Username}}<br/><br/>
+            E-Mail: {{usr.email}}<br/><br/>
+            Temporary password: <b>{{tempPwd}}</b><br><br>
+            User will be prompted to change password on first login.<br/><br/>
+        </div>
+       
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button *ngIf="regDone" (click)="btnClose(true)">Close</button>
+        <button mat-stroked-button *ngIf="!regDone" (click)="btnCreateUser()" [disabled]="loading">Create user</button>
+        <button mat-button *ngIf="!regDone" (click)="btnClose(false)">Cancel</button>
+    </div>
+</div>

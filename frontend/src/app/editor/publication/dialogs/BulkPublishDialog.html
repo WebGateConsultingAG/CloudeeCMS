@@ -1,0 +1,41 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Publish {{pubtype}} pages</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <p *ngIf="pubtype==='all'">
+            You are about to (re-)publish <b>ALL</b> pages of your website project!<br/><br/>
+            <b>Note:</b> In most cases, this is only required after a layout change affecting every page in your project.
+        </p>
+        <p *ngIf="pubtype==='selected'">You are about to publish selected {{lstPageIDs.length}} pages!</p>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            <pre>{{errorMessage}}</pre>
+            <button mat-button (click)="btnViewLog()" *ngIf="lstLog">View Log</button>
+        </div>
+        <div *ngIf="published" class="isOKBox">
+            <mat-icon matListIcon>cloud_done</mat-icon> Published!
+            <button mat-button (click)="btnViewLog()" *ngIf="lstLog" style="float: right;">View Log</button>
+        </div>
+        <div *ngIf="!loading">
+            <mat-form-field class="full-width" >
+                <mat-select placeholder="Publish to" [(ngModel)]="selectedTargetEnv" required>
+                    <mat-option *ngFor="let bucket of buckets" value="{{bucket.bucketname}}"> {{bucket.label}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <div *ngIf="pubtype==='selected'">
+                <mat-checkbox [(ngModel)]="removeFromQueue"></mat-checkbox> Remove pages from queue when published
+            </div>
+        </div>
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnPublish()">
+            <mat-icon matListIcon>cloud_upload</mat-icon>
+            Publish now
+        </button>
+        <button mat-stroked-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

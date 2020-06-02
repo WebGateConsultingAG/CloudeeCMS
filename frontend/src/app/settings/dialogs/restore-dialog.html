@@ -1,0 +1,34 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Import package</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+        <div class="isErrorBox" *ngIf="!loading && files.length<1">No files found in backup folder of selected bucket</div>
+        <div *ngIf="!loading && files.length>0">
+            Place your package file (.zip) in the <em>backup</em> folder of the selected bucket.
+            <br/><br/>
+            <mat-form-field class="full-width" *ngIf="!failed">
+                <mat-select placeholder="Select a file to import" [(ngModel)]="s3key" required>
+                    <mat-option *ngFor="let file of files" value="{{file.Key}}"> {{file.label}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <br />
+            <div class="logdisplay" *ngIf="backupLog.length>0">
+                <div *ngFor="let row of backupLog">{{row}}</div>
+            </div>
+        </div>
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button [disabled]="!s3key" *ngIf="!loading && showImportButton" (click)="btnImport()">
+            <mat-icon matListIcon>input</mat-icon>
+            Import
+        </button>
+        <button mat-button (click)="btnCancel()" *ngIf="!loading">{{showImportButton?'Cancel':'Exit'}}</button>
+    </div>
+</div>
