@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-21 17:53 - RSC
+ * File Version: 2020-06-02 11:30 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -81,7 +81,7 @@ async function getConfigVariables(cfg) {
             TableName: tableName,
             FilterExpression : 'otype = :fld AND listnav = :lnav',
             ExpressionAttributeValues : {':fld' : 'Page', ':lnav': true},
-            ProjectionExpression: 'id, opath, title, navlabel, navsort'
+            ProjectionExpression: 'id, opath, title, navlabel, navsort, dt, descr'
         };
 
         let lst = await DDBScan(params);
@@ -548,6 +548,8 @@ const flxTree = {
                     thisBranch.link = pgEntry.opath;
                     thisBranch.navlabel = pgEntry.navlabel;
                     thisBranch.navsort = pgEntry.navsort;
+                    thisBranch.dt = pgEntry.dt;
+                    thisBranch.descr = pgEntry.descr;
                 }
             }        
         });
@@ -560,7 +562,7 @@ const flxTree = {
         for (let row in branch) {
             let thisRow = branch[row];
             // IMPORTANT: Properties to ignore!!
-            if (row!=="id" && row!=="link" && row!=="navlabel" && row!=="navsort") {
+            if (row!=="id" && row!=="link" && row!=="navlabel" && row!=="navsort" && row!=="dt" && row!=="descr") {
                 let addElem = { "label": row };
                 if (thisRow.id) {
                     addElem.etype="Page";
@@ -568,6 +570,8 @@ const flxTree = {
                     addElem.link = '/'+thisRow.link;
                     addElem.label = thisRow.navlabel;
                     addElem.navsort = thisRow.navsort;
+                    addElem.dt = thisRow.dt;
+                    addElem.descr = thisRow.descr;
                 } else {
                     addElem.etype="Folder";
                 }
