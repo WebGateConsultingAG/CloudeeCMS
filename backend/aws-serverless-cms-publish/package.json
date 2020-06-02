@@ -1,0 +1,14 @@
+{
+  "name": "aws-serverless-cms-publish",
+  "version": "1.0.0",
+  "description": "AWS Lambda backend to publish pages to S3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WebGate RSC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "pug": "^2.0.4"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "aws-serverless-cms-search",
+  "version": "1.0.0",
+  "description": "Algolia Search Index",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WebGate RSC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "algoliasearch": "^4.1.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+    "name": "aws-serverless-cms-mailer",
+    "version": "1.0.0",
+    "description": "Poll SQS queue and send outgoing smtp mails",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "RSC",
+    "license": "Apache-2.0",
+    "dependencies": {
+      "nodemailer": "^6.2.1"
+    }
+  }
+  

@@ -1,0 +1,14 @@
+{
+  "name": "aws-serverless-cms-sitemap",
+  "version": "1.0.0",
+  "description": "sitemap.xml generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WebGate RSC",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "sitemap": "^5.1.0"
+  }
+}
