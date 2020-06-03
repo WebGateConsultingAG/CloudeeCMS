@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment (Online Update) 2020-05-15 05:50
+Description: CloudeeCMS Auto Deployment (Online Update) 2020-06-02 09:50
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -781,12 +781,32 @@ Resources:
         - zoneinfo
         - updated_at
         - website
+  CognitoGroupAdmins:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: CloudeeCMS Full Admins (full access to all functions)
+      GroupName: CloudeeCMS-Admin
+      UserPoolId: !Ref UserPool
+  CognitoGroupLayoutEditors:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: CloudeeCMS Layout Editors (can edit layouts, layout blocks, micro templates)
+      GroupName: CloudeeCMS-LayoutEditor
+      UserPoolId: !Ref UserPool
+  CognitoGroupUserAdmins:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: CloudeeCMS User Admins (can view and edit cognito users)
+      GroupName: CloudeeCMS-UserAdmin
+      UserPoolId: !Ref UserPool
   StartFirstRunLambda:
     Type: Custom::StartFirstRunLambda
     Properties:
       ServiceToken: !GetAtt CloudeeFirstRunLambda.Arn
       Region: !Ref "AWS::Region"
-      
   CloudeeFirstRunLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -886,6 +906,6 @@ Resources:
           }
 Outputs:
   AdminBucket:
-    Value: !Sub '${AdminBucket.WebsiteURL}/scms/index.html'
+    Value: !Sub 'https://${AdminBucket.RegionalDomainName}/scms/index.html'
     Export:
       Name: WebsiteURL
