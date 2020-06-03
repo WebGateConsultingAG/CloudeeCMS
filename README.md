@@ -3,7 +3,7 @@
 ## Serverless CMS for AWS
 by [WebGate Consulting AG](https://www.webgate.biz) - Switzerland
 
-CloudeeCMS is a serverless content management system 
+CloudeeCMS is a serverless web content management system 
 to manage and publish serverless webpages in the Amazon Web Services cloud!
 No EC2 servers required!
 
