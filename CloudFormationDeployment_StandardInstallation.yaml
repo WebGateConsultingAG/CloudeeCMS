@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment (Online Update) 2020-06-02 09:50
+Description: CloudeeCMS Auto Deployment (Online Update) 2020-06-06 08:00
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -21,6 +21,10 @@ Metadata:
           - CognitoDecision
           - EnableOAUTH
       - Label:
+          default: Optional Settings - Cognito - only required if (A) = true
+        Parameters:
+          - CognitoUserEmail
+      - Label:
           default: Optional Settings - Cognito - only required if (A) = false
         Parameters:
           - BYOCognitoPoolARN
@@ -37,6 +41,8 @@ Metadata:
         default: (A) Cognito Decision
       CognitoIdPCondition:
         default: Cognito IdP Decision
+      CognitoUserEmail:
+        default: Email address of admin user
       CdnURL:
         default: CDN URL
       ProdURL:
@@ -75,6 +81,10 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
+  CognitoUserEmail:
+    Type: String
+    Description: "Enter a valid email address for the admin user login."
+    Default: ""
   BYOCognitoPoolARN:
     Type: String
     Default: ""
@@ -801,6 +811,34 @@ Resources:
     Properties: 
       Description: CloudeeCMS User Admins (can view and edit cognito users)
       GroupName: CloudeeCMS-UserAdmin
+      UserPoolId: !Ref UserPool
+  CognitoAdminUser:
+    Condition: CognitoCondition
+    DependsOn: UserPool
+    Type: AWS::Cognito::UserPoolUser
+    Properties: 
+      DesiredDeliveryMediums: 
+        - 'EMAIL'
+      Username: "cloudeecmsadmin"
+      UserPoolId: !Ref UserPool
+      UserAttributes:
+        - Name: email
+          Value: !Sub ${CognitoUserEmail}
+  CognitoAdminGroupMembership1:
+    Condition: CognitoCondition
+    DependsOn: CognitoAdminUser
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: CloudeeCMS-Admin
+      Username: cloudeecmsadmin
+      UserPoolId: !Ref UserPool
+  CognitoAdminGroupMembership2:
+    Condition: CognitoCondition
+    DependsOn: CognitoAdminUser
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: CloudeeCMS-UserAdmin
+      Username: cloudeecmsadmin
       UserPoolId: !Ref UserPool
   StartFirstRunLambda:
     Type: Custom::StartFirstRunLambda
