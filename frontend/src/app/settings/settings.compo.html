@@ -245,6 +245,25 @@
     <div class="row">
         <div class="col-md-12">
             <mat-card>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-global-pug"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Global Pug Scripts
+                </h4>
+                <mat-form-field class="full-width codeField">
+                    <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
+                    <textarea style="min-height: 60px" matInput placeholder="Scripts to add to all Layouts and Micro Templates" type="text"
+                        [(ngModel)]="config.pugGlobalScripts"></textarea>
+                </mat-form-field>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <mat-card>
                 <mat-icon title="Add bucket" (click)="btnEditBucket(null)" class="addBtn">add_box</mat-icon>
                 <h4>
                     <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-s3buckets"

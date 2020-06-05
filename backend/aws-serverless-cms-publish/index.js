@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-02 11:30 - RSC
+ * File Version: 2020-06-05 13:30 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -149,6 +149,9 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
         var layoutID = "";
         if (page.layout) layoutID = page.layout;
 
+        // Get global Pug scripts prefix
+        let globalScripts = cfg.pugGlobalScripts || '';
+        if (globalScripts !== '') globalScripts += '\n';
 
         // Get all layouts and blocks, and save as pug files in session folder
         let params = {
@@ -161,12 +164,12 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
         let lstLayouts = await DDBScan(params);
         lstLayouts.forEach(layout => {
             lstLog.push("Downloaded layout:" + sDir + layout.okey + '.pug');
-            fs.writeFileSync(sDir + layout.okey + '.pug', layout.body, {});
+            fs.writeFileSync(sDir + layout.okey + '.pug', globalScripts + layout.body, {});
             if (layout.id === layoutID) layoutKey = layout.okey;
         });
 
         // Render microtemplates
-        await loadMicroTemplates();
+        await loadMicroTemplates(globalScripts);
         renderMicroTemplates(page);
 
         lstLog.push("Rendering page " + page.id + " with layout " + layoutKey);
@@ -209,8 +212,12 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
         // create session folder
         fs.mkdirSync(sDir);
 
+        // Get global Pug scripts prefix
+        let globalScripts = cfg.pugGlobalScripts || '';
+        if (globalScripts !== '') globalScripts += '\n';
+
         // prepare microtemplates
-        await loadMicroTemplates();
+        await loadMicroTemplates(globalScripts);
 
         // Get all layouts and blocks, and save as pug files in session folder
         let params = {
@@ -223,7 +230,7 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
         let lstLayouts = await DDBScan(params);
         lstLayouts.forEach(layout => {
             lstLog.push("Downloaded layout:" + sDir + layout.okey + '.pug');
-            fs.writeFileSync(sDir + layout.okey + '.pug', layout.body, {});
+            fs.writeFileSync(sDir + layout.okey + '.pug', globalScripts + layout.body, {});
         });
 
         // get pages to publish
@@ -492,7 +499,7 @@ function getMicroTemplateByID(id) {
     return tobj.body || '';
 }
 
-async function loadMicroTemplates() {
+async function loadMicroTemplates(globalScripts) {
     let params = {
         TableName: tableName,
         FilterExpression: 'otype = :fld',
@@ -502,7 +509,7 @@ async function loadMicroTemplates() {
 
     let lstMTs = await DDBScan(params);
     lstMTs.forEach(mt => {
-        MTTemplates[mt.id] = { body: mt.body };
+        MTTemplates[mt.id] = { body: globalScripts + mt.body };
     });
 }
 
