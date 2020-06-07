@@ -168,6 +168,11 @@
                                 [(ngModel)]="page.doc[fld.fldName]">
                         </mat-form-field>
 
+                        <mat-form-field class="full-width" *ngIf="fld.fldType==='number'">
+                            <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="number"
+                                [(ngModel)]="page.doc[fld.fldName]">
+                        </mat-form-field>
+
                         <div class="row" *ngIf="fld.fldType==='image'">
                             <div class="col-md-11">
                                 <mat-form-field class="full-width" *ngIf="fld.fldType==='image'">

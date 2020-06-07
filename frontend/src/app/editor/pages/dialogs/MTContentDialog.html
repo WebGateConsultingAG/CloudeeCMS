@@ -16,6 +16,10 @@
                 <mat-form-field class="full-width" *ngIf="fld.fldType==='text'">
                     <input matInput placeholder="{{fld.fldTitle}}" type="text" [(ngModel)]="fld.fldValue">
                 </mat-form-field>
+
+                <mat-form-field class="full-width" *ngIf="fld.fldType==='number'">
+                    <input matInput placeholder="{{fld.fldTitle}}" type="number" [(ngModel)]="fld.fldValue">
+                </mat-form-field>
                
                 <mat-form-field class="full-width" *ngIf="fld.fldType==='textarea'">
                     <!-- cdkTextareaAutosize removed due to scrolling bug -->

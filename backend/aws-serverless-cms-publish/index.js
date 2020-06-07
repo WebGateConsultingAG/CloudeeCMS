@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-05 13:30 - RSC
+ * File Version: 2020-06-07 22:43 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -150,7 +150,7 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
         if (page.layout) layoutID = page.layout;
 
         // Get global Pug scripts prefix
-        let globalScripts = cfg.pugGlobalScripts || '';
+        var globalScripts = cfg.pugGlobalScripts || '';
         if (globalScripts !== '') globalScripts += '\n';
 
         // Get all layouts and blocks, and save as pug files in session folder
@@ -158,15 +158,22 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
             TableName: tableName,
             FilterExpression: 'ptype = :fld',
             ExpressionAttributeValues: { ':fld': 'pugfile' },
-            ProjectionExpression: 'id, body, okey'
+            ProjectionExpression: 'id, body, okey, custFields'
         };
 
-        let lstLayouts = await DDBScan(params);
+        var thisLayout = null;
+        var lstLayouts = await DDBScan(params);
         lstLayouts.forEach(layout => {
             lstLog.push("Downloaded layout:" + sDir + layout.okey + '.pug');
             fs.writeFileSync(sDir + layout.okey + '.pug', globalScripts + layout.body, {});
-            if (layout.id === layoutID) layoutKey = layout.okey;
+            if (layout.id === layoutID) {
+                layoutKey = layout.okey;
+                thisLayout = layout;
+            }
         });
+
+        // Convert JSON dropdown fields (defined in layout)
+        convertJSONFields(page, thisLayout);
 
         // Render microtemplates
         await loadMicroTemplates(globalScripts);
@@ -195,7 +202,24 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
         done.done({ published: false, errorMessage: e.toString(), log: lstLog });
     }
 }
-
+function convertJSONFields(page, thisLayout) {
+    try {
+        if (thisLayout && thisLayout.custFields) {
+            thisLayout.custFields.forEach( fld => {
+                if (fld.fldValueType === 'JSON') {
+                    let docfld = page.doc[fld.fldName];
+                    try {
+                        if (docfld) { page.doc[fld.fldName] = JSON.parse(docfld); }
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
 async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueue, cfg, done) {
     let lstLog = [];
     try {
@@ -224,7 +248,7 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
             TableName: tableName,
             FilterExpression: 'ptype = :fld',
             ExpressionAttributeValues: { ':fld': 'pugfile' },
-            ProjectionExpression: 'id, body, okey'
+            ProjectionExpression: 'id, body, okey, custFields'
         };
 
         let lstLayouts = await DDBScan(params);
@@ -261,7 +285,11 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
 
             var layoutID = "";
             if (page.layout) layoutID = page.layout;
-            var layoutKey = getLayoutKeyByID(lstLayouts, layoutID) || "default";
+            var thisLayout = getLayoutByID(lstLayouts, layoutID);
+            var layoutKey = thisLayout.okey || "default";
+
+            // Convert JSON dropdown fields (defined in layout)
+            convertJSONFields(page, thisLayout);
 
             // Render microtemplates
             renderMicroTemplates(page);
@@ -317,12 +345,12 @@ function getIndexerConfig(cfg, s3BucketName) {
     }
 }
 
-function getLayoutKeyByID(lstLayouts, layoutID) {
-    let key = null;
+function getLayoutByID(lstLayouts, layoutID) {
+    let theLayout = null;
     lstLayouts.forEach(layout => {
-        if (layout.id === layoutID) key = layout.okey;
+        if (layout.id === layoutID) theLayout = layout;
     });
-    return key;
+    return theLayout;
 }
 async function s3upload(s3BucketName, opath, html) {
     console.log("Upload to S3:", s3BucketName, opath);
