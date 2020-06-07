@@ -98,12 +98,6 @@ export class BackendService {
                 return result.data || null;
             });
     }
-    public getMicroTemplateByID(theID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getmicrotemplatebyid', id: theID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
     public saveMicroTemplate(mt: any) {
         this.lstMicroTemplates = null; // invalidate cache
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,

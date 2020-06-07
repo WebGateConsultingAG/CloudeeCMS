@@ -21,6 +21,7 @@ import { MatDialog } from '@angular/material';
 import { MTSelectDialogComponent } from '../dialogs/MTSelectDialog';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FileSelectionDialogComponent } from './FileSelectionDialog';
+import { BackendService } from 'src/app/services/backend.service';
 
 
 @Component({
@@ -35,6 +36,7 @@ import { FileSelectionDialogComponent } from './FileSelectionDialog';
 export class MTContentDialogComponent implements OnInit {
     constructor(
         public dialogRef: MatDialogRef<Component>,
+        private backendSVC: BackendService,
         public dialog: MatDialog,
         @Inject(MAT_DIALOG_DATA) public data: any) { }
 
@@ -68,11 +70,48 @@ export class MTContentDialogComponent implements OnInit {
     };
 
     ngOnInit(): void {
+        const that = this;
         this.fldMT = this.data.fldMT;
         this.fldMT.custFields.forEach(fld => {
             if (typeof fld.fldValue === 'undefined') { fld.fldValue = ''; }
         });
+        that.refreshMTParams(this.fldMT.id);
         this.loading = false;
+    }
+
+    refreshMTParams(MTid: string) {
+        const that = this;
+        this.loading = true;
+        this.backendSVC.getAllMicroTemplates(false).then(
+            (data: any) => {
+                that.loading = false;
+                const thisMT = that.getMTByID(data, MTid);
+                // Replace nested fldMT.custFields with custFields of MT and append existing fldValue
+                thisMT.custFields.forEach(fld => {
+                    // tslint:disable-next-line: prefer-for-of
+                    for (let fi = 0; fi < that.fldMT.custFields.length; fi++) {
+                        if (that.fldMT.custFields[fi].fldName === fld.fldName) {
+                            fld.fldValue = that.fldMT.custFields[fi].fldValue || '';
+                            if (fld.fldType === 'container') {
+                                fld.lstObj = that.fldMT.custFields[fi].lstObj || [];
+                            }
+                        }
+                    }
+                });
+                that.fldMT.custFields = thisMT.custFields; // Update from MT
+            },
+            (err) => {
+                that.loading = false;
+                console.log('Error while loading microtemplates', err);
+            }
+        );
+    }
+    getMTByID(lstMT: any, id: string): any {
+        // tslint:disable-next-line: prefer-for-of
+        for (let i = 0; i < lstMT.length; i++) {
+            if (lstMT[i].id === id) { return JSON.parse(JSON.stringify(lstMT[i])); }
+        }
+        return null;
     }
 
     btnCancel(): void {
