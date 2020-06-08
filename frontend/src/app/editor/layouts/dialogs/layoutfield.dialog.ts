@@ -18,10 +18,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BackendService } from 'src/app/services/backend.service';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'app-layoutfield-dialog',
-    templateUrl: 'layoutfield.dialog.html'
+    templateUrl: 'layoutfield.dialog.html',
+    styles: ['.dropDownSelTable input { width: 100%; }']
 })
 
 export class LayoutFieldDialogComponent implements OnInit {
@@ -74,22 +76,20 @@ export class LayoutFieldDialogComponent implements OnInit {
         if (this.lstMTLoaded) { return; }
         const that = this;
         this.backendSVC.getAllMicroTemplates(false).then(
-          (data: any) => {
-            that.lstMT = JSON.parse(JSON.stringify(data)); // decouple
-            that.lstMTLoaded = true;
-            that.loading = false;
-          },
-          (err) => {
-            that.loading = false;
-            console.log('Error while loading microtemplates', err);
-          }
+            (data: any) => {
+                that.lstMT = JSON.parse(JSON.stringify(data)); // decouple
+                that.lstMTLoaded = true;
+                that.loading = false;
+            },
+            (err) => {
+                that.loading = false;
+                console.log('Error while loading microtemplates', err);
+            }
         );
-      }
+    }
 
     btnApply(): void {
-        this.onSelValueChange();
-        if (this.selValueValidation !== '') {
-            alert(this.selValueValidation);
+        if (!this.validateDropDown()) {
             return;
         }
         if (!this.isNew) {
@@ -98,7 +98,6 @@ export class LayoutFieldDialogComponent implements OnInit {
             this.orgFld.fldTitle = this.fld.fldTitle;
             if (this.fld.fldType === 'dropdown') {
                 this.orgFld.multiple = this.fld.multiple;
-                this.orgFld.selectionValues = this.fld.selectionValues;
                 this.orgFld.selValues = this.fld.selValues;
                 this.orgFld.selType = this.fld.selType;
                 this.orgFld.fldValueType = this.fld.fldValueType;
@@ -111,31 +110,37 @@ export class LayoutFieldDialogComponent implements OnInit {
             this.dialogRef.close({ action: 'addnew', fld: this.fld });
         }
     }
-    onSelValueChange(): void {
+    validateDropDown(): boolean {
         this.selValueValidation = '';
-        if (this.fld.fldType !== 'dropdown') { return; }
-        if (this.fld.selectionValues.startsWith('[')) { // JSON
-            this.fld.selValues = JSON.parse(this.fld.selectionValues);
-            // tslint:disable-next-line: prefer-for-of
-            for (let x = 0; x < this.fld.selValues.length; x++) {
-                if (typeof this.fld.selValues[x].val === 'undefined' || typeof this.fld.selValues[x].label === 'undefined') {
-                    this.selValueValidation = 'Each JSON array entry must have both a \'val\' and \'label\' property!';
-                }
-            }
-        } else {
-            const lstTmp = this.fld.selectionValues.split('\n');
-            this.fld.selValues = lstTmp.map(row => {
-                if (row.indexOf('|') > 0) {
-                    const tmp = row.split('|');
-                    return { label: tmp[0], val: tmp[1] };
-                } else {
-                    return { label: row, val: row };
-                }
-            });
-        }
+        if (this.fld.fldType !== 'dropdown') { return true; }
         if (this.fld.fldValueType === 'JSON' && this.fld.multiple) {
             this.selValueValidation = 'Field value type cannot be JSON for multivalue fields';
+            return false;
         }
+
+        // tslint:disable-next-line: prefer-for-of
+        for (let x = 0; x < this.fld.selValues.length; x++) {
+            if (this.fld.fldValueType === 'JSON') { // verify JSON values
+                if (this.fld.selValues[x].val === '') {
+                    this.selValueValidation = 'Please specify JSON value for \'' + this.fld.selValues[x].label + '\'.';
+                    return false;
+                }
+                try {
+                    JSON.parse(this.fld.selValues[x].val);
+                } catch (e) {
+                    // tslint:disable-next-line: max-line-length
+                    this.selValueValidation = 'Failed to parse JSON value of \'' + this.fld.selValues[x].label + '\'. Check the JSON syntax and make sure property names are enclosed in quotation marks!';
+                    return false;
+                }
+            } else {
+                if (this.fld.selValues[x].val === '') {
+                    this.fld.selValues[x].val = this.fld.selValues[x].label;
+                } else if (this.fld.selValues[x].label === '') {
+                    this.fld.selValues[x].label = this.fld.selValues[x].val;
+                }
+            }
+        }
+        return true;
     }
     isValidated(): boolean {
         let isOK = true;
@@ -147,5 +152,15 @@ export class LayoutFieldDialogComponent implements OnInit {
     btnCancel(): void {
         this.dialogRef.close(null);
     }
-
+    dropSortObj(lst, event: CdkDragDrop<string[]>) {
+        moveItemInArray(lst, event.previousIndex, event.currentIndex);
+    }
+    btnAddDDEntry(): void {
+        this.fld.selValues.push({ label: '', val: '' });
+    }
+    btnDeleteDDEntry(entry: any) {
+        for (let i = 0; i < this.fld.selValues.length; i++) {
+            if (this.fld.selValues[i] === entry) { this.fld.selValues.splice(i, 1); }
+        }
+    }
 }
