@@ -156,6 +156,7 @@ export class LayoutFieldDialogComponent implements OnInit {
         moveItemInArray(lst, event.previousIndex, event.currentIndex);
     }
     btnAddDDEntry(): void {
+        if (typeof this.fld.selValues === 'undefined') { this.fld.selValues = []; }
         this.fld.selValues.push({ label: '', val: '' });
     }
     btnDeleteDDEntry(entry: any) {

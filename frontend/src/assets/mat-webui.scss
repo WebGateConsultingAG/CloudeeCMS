@@ -117,7 +117,7 @@ body.wgc { background-color: #f5f5f5; }
 
 .wgc .isOKBox { border: 1px solid rgb(35, 150, 0); background-color: #b9ffd1; border-radius: 3px; padding: 12px; margin-bottom: 16px; }
 .wgc .isErrorBox { border: 1px solid red; background-color: #ffe6e0; border-radius: 3px; padding: 12px; margin-bottom: 16px; }
-.wgc .isOKBox .mat-button { background-color: white; }
+.wgc .isOKBox BUTTON { background-color: white; }
 .wgc .inputform mat-card { margin-bottom: 20px !important; }
 .wgc .codeField textarea { font-family: monospace; font-size: 13px !important; }
 
