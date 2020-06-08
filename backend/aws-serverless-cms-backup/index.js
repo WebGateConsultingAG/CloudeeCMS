@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-22 23:08 - RSC
+ * File Version: 2020-06-08 09:06 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -233,13 +233,13 @@ async function importPackage(s3BucketName, s3key, done) {
             lstLog.push('Error: Not a valid CloudeeCMS-Package');
             return done.done({ errorMessage: 'Not a valid CloudeeCMS-Package', log: lstLog });
         }
-        lstLog.push('Importing Package: '+pkg.title);
+        lstLog.push('Importing Package: ' + pkg.title);
 
         // Upload resources to CDN bucket
         if (pkg.resources.filesCDN) {
             const cdnBucket = getBucketByName('CDN', config.buckets);
-            const s3BucketName = cdnBucket?cdnBucket.bucketname:'';
-            if (s3BucketName==='') {
+            const s3BucketName = cdnBucket ? cdnBucket.bucketname : '';
+            if (s3BucketName === '') {
                 lstLog.push("CDN Bucket config not found");
                 return done.done({ errorMessage: "CDN Bucket config not found", log: lstLog });
             } else {
@@ -247,8 +247,8 @@ async function importPackage(s3BucketName, s3key, done) {
                 let lstFiles = [];
                 getFileStructure(sDir + 'unpack/' + pkg.resources.filesCDN, '', lstFiles);
                 console.log('CDN Files', lstFiles);
-    
-                for (let f=0; f < lstFiles.length; f++) {
+
+                for (let f = 0; f < lstFiles.length; f++) {
                     let fKey = lstFiles[f];
                     let thisFile = sDir + 'unpack/' + pkg.resources.filesCDN + '/' + fKey;
                     let fbuf = fs.readFileSync(thisFile);
@@ -269,7 +269,7 @@ async function importPackage(s3BucketName, s3key, done) {
             if (!config.variables) config.variables = [];
             pkg.resources.variables.forEach(vEntry => {
                 console.log("Set variable", vEntry.variablename, vEntry.value);
-                setVariable(config.variables, vEntry);
+                setVariable(config.variables, vEntry, false);
             });
             await documentClient.put({ TableName: tableName, Item: config }).promise();
         }
@@ -291,7 +291,7 @@ async function importPackage(s3BucketName, s3key, done) {
                 });
             lstLog.push("Imported " + pc + " entries to database table " + tableName);
         }
-        
+
         done.done({ success: true, log: lstLog });
 
     } catch (e) {
@@ -300,9 +300,11 @@ async function importPackage(s3BucketName, s3key, done) {
         done.done({ errorMessage: e.toString(), log: lstLog });
     }
 }
-function setVariable(lst, vEntry) {
-    for (let i=0; i < lst.length; i++) {
+function setVariable(lst, vEntry, force) {
+    // Do not overwrite variables unless 'force is true'
+    for (let i = 0; i < lst.length; i++) {
         if (lst[i].variablename === vEntry.variablename) {
+            if (!force) return; // do not overwrite existing variables
             lst[i].value = vEntry.value;
             return;
         }
@@ -310,13 +312,13 @@ function setVariable(lst, vEntry) {
     lst.push(vEntry);
 }
 function getBucketByName(nm, lstBuckets) {
-    for (let i=0; i < lstBuckets.length; i++) {
+    for (let i = 0; i < lstBuckets.length; i++) {
         if (lstBuckets[i].label === nm) return lstBuckets[i];
     }
     return null;
 }
 async function getConfig() {
-    let doc = await documentClient.get({ TableName: tableName, Key: { id:  "config" }}).promise();
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: "config" } }).promise();
     if (doc && doc.Item) {
         console.log(tableName, doc);
         return doc.Item;
@@ -326,15 +328,15 @@ async function getConfig() {
     }
 }
 function getFileStructure(rootPath, thisPath, lst) {
-	fs.readdirSync(rootPath+thisPath,  { withFileTypes: true})
-	.forEach((file) => {
-		if (file.isDirectory()) {
-			getFileStructure(rootPath, thisPath+'/'+file.name, lst);
-		} else {
-			let fKey = thisPath +'/' + file.name;
-			lst.push( fKey.substr(1, fKey.length) );
-		}
-	});
+    fs.readdirSync(rootPath + thisPath, { withFileTypes: true })
+        .forEach((file) => {
+            if (file.isDirectory()) {
+                getFileStructure(rootPath, thisPath + '/' + file.name, lst);
+            } else {
+                let fKey = thisPath + '/' + file.name;
+                lst.push(fKey.substr(1, fKey.length));
+            }
+        });
 }
 function downloadS3(s3params, destFile) {
     console.log("downloadS3", s3params);
