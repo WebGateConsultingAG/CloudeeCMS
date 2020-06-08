@@ -11,7 +11,6 @@ const CFDIST_CDN_ID = process.env.CFDIST_CDN_ID || '';
 const CFDIST_CDN_URL = process.env.CFDIST_CDN_URL || '';
 const CFDIST_PROD_ID = process.env.CFDIST_PROD_ID || '';
 const CFDIST_PROD_URL = process.env.CFDIST_PROD_URL || '';
-const STACKNAME = process.env.STACKNAME || '';
 const REGION = process.env.REGION || 'eu-central-1';
 
 async function createInitialConfig() {
@@ -28,7 +27,7 @@ async function createInitialConfig() {
         return;
     } else { // Create initial config
         console.log('Creating initial configuration document in DynamoDB');
-        const cfgdoc = { id: 'config', apptitle: 'CloudeeCMS', buckets: [], cfdists: [] };
+        const cfgdoc = { id: 'config', apptitle: CFDIST_PROD_URL, buckets: [], cfdists: [] };
 
         cfgdoc.buckets.push({
             bucketname: S3BUCKET_CDN,
