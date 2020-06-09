@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment (Online Update) 2020-06-06 08:00
+Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2020-06-09 16:45
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -11,62 +11,45 @@ Metadata:
       - Label:
           default: Website Settings
         Parameters:
+          - CloudFrontParam
           - ProdURL
-          - BYOCloudfrontDistProdID
+          - AcmCertificatePROD
           - CdnURL
-          - BYOCloudfrontDistCDNID
+          - AcmCertificateCDN
+          - CognitoUserEmail
       - Label:
           default: Decisions
         Parameters:
-          - CognitoDecision
           - EnableOAUTH
       - Label:
-          default: Optional Settings - Cognito - only required if (A) = true
-        Parameters:
-          - CognitoUserEmail
-      - Label:
-          default: Optional Settings - Cognito - only required if (A) = false
-        Parameters:
-          - BYOCognitoPoolARN
-          - BYOCognitoPoolID
-          - BYOCognitoClientID
-      - Label:
-          default: Optional Settings - External IdP - only required if (B) = true
+          default: Optional Settings - External IdP - only required if (A) = true
         Parameters:
           - OAUTHDOMAIN
           - OAUTHLoginLabel
           - SAMLMetadataURL
     ParameterLabels:
-      CognitoDecision:
-        default: (A) Cognito Decision
-      CognitoIdPCondition:
-        default: Cognito IdP Decision
       CognitoUserEmail:
         default: Email address of admin user
       CdnURL:
-        default: CDN URL
+        default: Content Delivery Network (CDN) CloudFront URL
       ProdURL:
-        default: Production URL
+        default: Production Website URL
       ProjectName:
         default: Project Name
       EnableOAUTH:
-        default: (B) External IdP Login?
+        default: (A) External IdP Login?
       OAUTHLoginLabel:
         default: Login Label for IdP
       SAMLMetadataURL:
         default: URL of the SAML Metadata File
       OAUTHDOMAIN:
         default: Cognito UserPool Domain Name
-      BYOCognitoPoolARN:
-        default: Cognito UserPool ARN
-      BYOCognitoPoolID:
-        default: Cognito UserPool ID
-      BYOCognitoClientID:
-        default: Cognito UserPool App Client ID
-      BYOCloudfrontDistProdID:
-        default: CloudFront Distribution (Production Website)
-      BYOCloudfrontDistCDNID:
-        default: CloudFront Distribution (CDN)
+      AcmCertificateCDN:
+        default: SSL Certificate for Content Delivery Network
+      AcmCertificateProd:
+        defautl: SSL Certificate for Website
+      CloudFrontParam:
+        default: CloudFront Price Class
 Parameters:
   ProjectName:
     Type: String
@@ -74,29 +57,10 @@ Parameters:
     Default: "examplecms"
     AllowedPattern: '[a-z0-9\-]*'
     ConstraintDescription: "Only lowercase and alphanumeric characters."
-  CognitoDecision:
-    Type: String
-    Description: Create a Cognito UserPool? If you select false, you must specify an existing user pool id and app client id.
-    Default: "true"
-    AllowedValues:
-      - 'true'
-      - 'false'
   CognitoUserEmail:
     Type: String
     Description: "Enter a valid email address for the admin user login."
     Default: ""
-  BYOCognitoPoolARN:
-    Type: String
-    Default: ""
-    Description: The ARN of your existing Cognito User Pool.
-  BYOCognitoPoolID:
-    Type: String
-    Default: ""
-    Description: The ID of your existing Cognito User Pool.
-  BYOCognitoClientID:
-    Type: String
-    Default: ""
-    Description: The existing Cognito App Client ID.
   EnableOAUTH:
     Type: String
     Description: Allow login using IdP? (e.g. Azure AD) If you select true, you must enter a valid Metadata URL for the external IdP
@@ -124,24 +88,27 @@ Parameters:
     Type: String
     Default: www.yourdomain.com
     Description: The URL of the website
-  BYOCloudfrontDistCDNID:
+  CloudFrontParam:
+    Type: String
+    Default: PriceClass_100
+    Description: The CloudFront PriceClass
+    AllowedValues:
+      - 'PriceClass_100'
+      - 'PriceClass_200'
+      - 'PriceClass_All'
+  AcmCertificateCDN:
     Type: String
     Default: ""
-    Description: ID of CloudFront Distribution
-  BYOCloudfrontDistProdID:
+    Description: The ARN of the CDN certificate
+  AcmCertificatePROD:
     Type: String
     Default: ""
-    Description: ID of CloudFront Distribution
+    Description: The ARN of the PROD website certificate
+
 Conditions:
-  CognitoCondition: !Equals
-    - !Ref CognitoDecision
-    - 'true'
-  EnableOAUTHCondition: !Equals
+  CognitoIdPCondition: !Equals
     - !Ref EnableOAUTH
     - 'true'
-  CognitoIdPCondition: !And
-    - !Condition EnableOAUTHCondition
-    - !Condition CognitoCondition
 Resources:
   CodePipelineSourceBucket:
     Type: AWS::S3::Bucket
@@ -546,10 +513,10 @@ Resources:
             Value: !GetAtt TestBucket.WebsiteURL
           - Name: CFDIST_CDN_ID
             Type: PLAINTEXT
-            Value: !Sub ${BYOCloudfrontDistCDNID}
+            Value: !Ref CloudfrontDistCDN
           - Name: CFDIST_PROD_ID
             Type: PLAINTEXT
-            Value: !Sub ${BYOCloudfrontDistProdID}
+            Value: !Ref CloudfrontDistProd
           - Name: CFDIST_CDN_URL
             Type: PLAINTEXT
             Value: !Sub ${CdnURL}
@@ -642,7 +609,7 @@ Resources:
                 ActionMode: CHANGE_SET_REPLACE
                 StackName: !Sub ${AWS::StackName}-Backend
                 Capabilities: CAPABILITY_NAMED_IAM
-                ParameterOverrides: !If [CognitoCondition, !Sub '{"CognitoUserPoolID": "${UserPool}", "CognitoUserPoolARN": "${UserPool.Arn}", "CognitoClientID": "${UserPoolClient}", "DBTableName": "${ProjectName}-CMS", "AdminBucket": "${AdminBucket}", "TestBucket": "${TestBucket}", "ProdBucket": "${ProdBucket}", "CDNBucket": "${CDNBucket}", "PipelineName": "${ProjectName}-pipeline", "PipelineBucket": "${CodePipelineSourceBucket}", "CloudFrontProdDistId": "${BYOCloudfrontDistProdID}", "CloudFrontCDNDistId": "${BYOCloudfrontDistCDNID}"}', !Sub '{"CognitoUserPoolID": "${BYOCognitoPoolID}", "CognitoUserPoolARN": "${BYOCognitoPoolARN}", "CognitoClientID": "${BYOCognitoClientID}", "DBTableName": "${ProjectName}-CMS", "AdminBucket": "${AdminBucket}", "TestBucket": "${TestBucket}", "ProdBucket": "${ProdBucket}", "CDNBucket": "${CDNBucket}", "PipelineName": "${ProjectName}-pipeline", "PipelineBucket": "${CodePipelineSourceBucket}", "CloudFrontProdDistId": "${BYOCloudfrontDistProdID}", "CloudFrontCDNDistId": "${BYOCloudfrontDistCDNID}"}']
+                ParameterOverrides: !Sub '{"CognitoUserPoolID": "${UserPool}", "CognitoUserPoolARN": "${UserPool.Arn}", "CognitoClientID": "${UserPoolClient}", "DBTableName": "${ProjectName}-CMS", "AdminBucket": "${AdminBucket}", "TestBucket": "${TestBucket}", "ProdBucket": "${ProdBucket}", "CDNBucket": "${CDNBucket}", "PipelineName": "${ProjectName}-pipeline", "PipelineBucket": "${CodePipelineSourceBucket}", "CloudFrontProdDistId": "${CloudfrontDistProd}", "CloudFrontCDNDistId": "${CloudfrontDistCDN}"}'
                 TemplatePath: BuildArtifact::outputSAMTemplate_backend.yaml
                 RoleArn: !GetAtt  CFDeployerRole.Arn
               InputArtifacts:
@@ -698,8 +665,82 @@ Resources:
           AttributeName: "id"
           KeyType: "HASH"
       TableName: !Sub ${ProjectName}-CMS
+  CloudFrontOrigin:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub ${ProjectName}-OAI
+  CloudfrontDistCDN:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: CloudFrontOrigin
+    Properties:
+      DistributionConfig:
+        Aliases:
+        - !Ref CdnURL
+        Origins:
+        - DomainName: !GetAtt CDNBucket.DomainName
+          Id: S3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOrigin}"
+        Enabled: true
+        Comment: "CDN Content Delivery Network for CloudeeCMS website"
+        CustomErrorResponses:
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 403
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          AllowedMethods:
+          - GET
+          - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: !Ref CloudFrontParam
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateCDN
+          MinimumProtocolVersion: TLSv1.1_2016
+          SslSupportMethod: sni-only
+  CloudfrontDistProd:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: CloudFrontOrigin
+    Properties:
+      DistributionConfig:
+        Aliases:
+        - !Ref ProdURL
+        Origins:
+        - DomainName: !GetAtt ProdBucket.DomainName
+          Id: S3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOrigin}"
+        Enabled: true
+        Comment: "CloudeeCMS website"
+        CustomErrorResponses:
+        - ErrorCachingMinTTL: 0
+          ErrorCode: 403
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          AllowedMethods:
+          - GET
+          - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: !Ref CloudFrontParam
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificatePROD
+          MinimumProtocolVersion: TLSv1.1_2016
+          SslSupportMethod: sni-only
   UserPool:
-    Condition: CognitoCondition
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub ${ProjectName}-UserPool
@@ -714,7 +755,6 @@ Resources:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
   UserPoolDomain:
-    Condition: CognitoCondition
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       Domain: !Sub ${ProjectName}-${AWS::AccountId}
@@ -729,7 +769,6 @@ Resources:
       AttributeMapping: {"email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "family_name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "given_name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"}
       UserPoolId: !Ref UserPool
   UserPoolClient:
-    Condition: CognitoCondition
     Type: AWS::Cognito::UserPoolClient
     Properties:
       UserPoolId: !Ref UserPool
@@ -792,28 +831,24 @@ Resources:
         - updated_at
         - website
   CognitoGroupAdmins:
-    Condition: CognitoCondition
     Type: AWS::Cognito::UserPoolGroup
     Properties: 
       Description: CloudeeCMS Full Admins (full access to all functions)
       GroupName: CloudeeCMS-Admin
       UserPoolId: !Ref UserPool
   CognitoGroupLayoutEditors:
-    Condition: CognitoCondition
     Type: AWS::Cognito::UserPoolGroup
     Properties: 
       Description: CloudeeCMS Layout Editors (can edit layouts, layout blocks, micro templates)
       GroupName: CloudeeCMS-LayoutEditor
       UserPoolId: !Ref UserPool
   CognitoGroupUserAdmins:
-    Condition: CognitoCondition
     Type: AWS::Cognito::UserPoolGroup
     Properties: 
       Description: CloudeeCMS User Admins (can view and edit cognito users)
       GroupName: CloudeeCMS-UserAdmin
       UserPoolId: !Ref UserPool
   CognitoAdminUser:
-    Condition: CognitoCondition
     DependsOn: UserPool
     Type: AWS::Cognito::UserPoolUser
     Properties: 
@@ -825,7 +860,6 @@ Resources:
         - Name: email
           Value: !Sub ${CognitoUserEmail}
   CognitoAdminGroupMembership1:
-    Condition: CognitoCondition
     DependsOn: CognitoAdminUser
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
@@ -833,7 +867,6 @@ Resources:
       Username: cloudeecmsadmin
       UserPoolId: !Ref UserPool
   CognitoAdminGroupMembership2:
-    Condition: CognitoCondition
     DependsOn: CognitoAdminUser
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
