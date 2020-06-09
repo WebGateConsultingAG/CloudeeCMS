@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-07 22:43 - RSC
+ * File Version: 2020-06-08 09:10 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -150,8 +150,7 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
         if (page.layout) layoutID = page.layout;
 
         // Get global Pug scripts prefix
-        var globalScripts = cfg.pugGlobalScripts || '';
-        if (globalScripts !== '') globalScripts += '\n';
+        let globalScripts = getGlobalScripts(cfg);
 
         // Get all layouts and blocks, and save as pug files in session folder
         let params = {
@@ -237,8 +236,7 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
         fs.mkdirSync(sDir);
 
         // Get global Pug scripts prefix
-        let globalScripts = cfg.pugGlobalScripts || '';
-        if (globalScripts !== '') globalScripts += '\n';
+        let globalScripts = getGlobalScripts(cfg);
 
         // prepare microtemplates
         await loadMicroTemplates(globalScripts);
@@ -323,7 +321,19 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
         done.done({ published: false, errorMessage: e.toString(), log: lstLog });
     }
 }
-
+function getGlobalScripts(cfg) {
+    try {
+        var rc = '';
+        if (!cfg.pugGlobalScripts) return rc;
+            cfg.pugGlobalScripts.forEach(fn => {
+            rc += fn.body + '\n';
+        });
+        return rc;
+    } catch (e) {
+        console.log(e);
+        return rc;
+    }
+}
 function getIndexerConfig(cfg, s3BucketName) {
     try {
         let rc = null;

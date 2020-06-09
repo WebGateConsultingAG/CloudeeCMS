@@ -48,15 +48,18 @@ export class PackageUploadDialogComponent implements OnInit {
     showUploader = false;
     showImporterLoading = false;
     installMsg: string;
+    requireRestart: boolean;
 
     public files: Set<File> = new Set();
 
     ngOnInit(): void {
         this.bucket = this.data.targetEnv;
-        console.log('bucket', this.bucket);
     }
 
     btnDialogClose(): void {
+        if (this.requireRestart) {
+            if (confirm('Restart of Webapplication recommended.\nRestart now?')) { window.location.reload(); }
+        }
         this.dialogRef.close(null);
     }
 
@@ -111,6 +114,7 @@ export class PackageUploadDialogComponent implements OnInit {
                 if (data.log) { that.installLog = data.log; }
                 if (data.success) {
                     that.installMsg = 'Package imported';
+                    that.requireRestart = true;
                 }
                 that.removePackage(pkgKey);
             },

@@ -245,6 +245,7 @@
     <div class="row">
         <div class="col-md-12">
             <mat-card>
+                <mat-icon title="Add function" (click)="btnEditGlobalFunction(null)" class="addBtn">add_box</mat-icon>
                 <h4>
                     <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-global-pug"
                         target="_blank" title="Help">
@@ -252,11 +253,27 @@
                     </a>
                     Global Pug Scripts
                 </h4>
-                <mat-form-field class="full-width codeField">
-                    <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
-                    <textarea style="min-height: 60px" matInput placeholder="Scripts to add to all Layouts and Micro Templates" type="text"
-                        [(ngModel)]="config.pugGlobalScripts"></textarea>
-                </mat-form-field>
+                <div class="clrhdr"></div>
+                <table class="viewTable clickableRows" *ngIf="config.pugGlobalScripts">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Name</th>
+                            <th style="width: 75%">Function code</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let fn of config.pugGlobalScripts"
+                            (click)="btnEditGlobalFunction(fn)">
+                            <td>{{fn.fName}}</td>
+                            <td>{{fn.body}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteGlobalFunction(fn)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </mat-card>
         </div>
     </div>

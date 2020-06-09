@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-08 09:06 - RSC
+ * File Version: 2020-06-08 12:08 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -202,12 +202,13 @@ async function getPipelineStatus(done) {
 async function importPackage(s3BucketName, s3key, done) {
     let lstLog = [];
     try {
+        let saveConfig = false;
         const config = await getConfig();
         if (!config) {
             lstLog.push('Configuration document missing');
             return done.done({ errorMessage: "Configuration document missing", log: lstLog });
         }
-        console.log("config", JSON.stringify(config));
+
         let sessionID = guid();
         let sDir = "/tmp/" + sessionID + "/";
 
@@ -271,7 +272,23 @@ async function importPackage(s3BucketName, s3key, done) {
                 console.log("Set variable", vEntry.variablename, vEntry.value);
                 setVariable(config.variables, vEntry, false);
             });
-            await documentClient.put({ TableName: tableName, Item: config }).promise();
+            saveConfig = true;
+        }
+
+        // Import global Pug script functions
+        if (pkg.resources && pkg.resources.globalfunctions && pkg.resources.globalfunctions !=='') {
+            lstLog.push("Importing global functions");
+            if (!config.pugGlobalScripts) config.pugGlobalScripts = [];
+            try {
+                var lstFn = JSON.parse(fs.readFileSync(xDir + pkg.resources.globalfunctions));
+                lstFn.forEach(fn => {
+                    lstLog.push("Function: "+fn.fName);
+                    setGlobalFunction(config.pugGlobalScripts, fn, false);
+                });
+            } catch (e) {
+                lstLog.push("Error while importing global functions!");
+            }
+            saveConfig = true;
         }
 
         // Import DynamoDB database entries
@@ -291,7 +308,10 @@ async function importPackage(s3BucketName, s3key, done) {
                 });
             lstLog.push("Imported " + pc + " entries to database table " + tableName);
         }
-
+        if (saveConfig === true) {
+            lstLog.push("Saving configuration");
+            await documentClient.put({ TableName: tableName, Item: config }).promise();
+        }
         done.done({ success: true, log: lstLog });
 
     } catch (e) {
@@ -300,12 +320,105 @@ async function importPackage(s3BucketName, s3key, done) {
         done.done({ errorMessage: e.toString(), log: lstLog });
     }
 }
+
+async function createBackup(s3BucketName, done) {
+    let lstLog = [];
+    try {
+        const config = await getConfig();
+        if (!config) {
+            lstLog.push('Configuration document missing');
+            return done.done({ errorMessage: "Configuration document missing", log: lstLog });
+        }
+
+        let sessionID = guid();
+        let sDir = "/tmp/" + sessionID + "/";
+        let thisDate = getDateString();
+        let compressedFilePath = 'backup_' + thisDate + '_' + sessionID + '.zip';
+        let s3key = 'backup/' + compressedFilePath;
+
+        lstLog.push("Export table " + tableName + " to " + sDir);
+
+        // create session folder
+        fs.mkdirSync(sDir);
+        fs.mkdirSync(sDir + 'db/');
+
+        let lstEntries = await DDBScan({ TableName: tableName });
+        lstEntries.forEach(entry => {
+            if (entry.id !== 'config') fs.writeFileSync(sDir + 'db/' + entry.id + '.json', JSON.stringify(entry), {});
+        });
+
+        let pkgInfo = {
+            "type": "CloudeeCMS-Package",
+            "title": "CloudeeCMS - Backup",
+            "description": "Database backup " + thisDate,
+            "categories": ["Backup"],
+            "packageformat": "1.0",
+            "resources": { "database": "db" }
+        };
+
+        // Export Pug global script functions
+        if (config.variables && config.variables.length > 0) {
+            lstLog.push("Exporting global variables");
+            pkgInfo.resources.variables = config.variables;
+        }
+        
+        // Export global variables
+        if (config.pugGlobalScripts && config.pugGlobalScripts.length > 0) {
+            lstLog.push("Exporting global functions");
+            try {
+                pkgInfo.resources.globalfunctions = "globalFunctions.json";
+                fs.writeFileSync(sDir + '/'+pkgInfo.resources.globalfunctions, JSON.stringify(config.pugGlobalScripts));
+            } catch (e) {
+                lstLog.push("Error while exporting global functions!");
+            }
+        }
+
+        lstLog.push('Creating package.json');
+        fs.writeFileSync(sDir + '/package.json', JSON.stringify(pkgInfo));
+
+        lstLog.push('Compressing: ' + sDir + compressedFilePath);
+        let zip = new admZIP();
+        //zip.addLocalFolder(sDir + 'db/');
+        zip.addLocalFolder(sDir);
+        zip.writeZip(sDir + compressedFilePath);
+
+        lstLog.push('Uploading zip file to S3');
+        let fbuf = fs.readFileSync(sDir + compressedFilePath);
+
+        await s3.putObject({
+            Bucket: s3BucketName,
+            Key: s3key,
+            Body: fbuf,
+            ACL: 'public-read', ContentType: "application/zip"
+        }).promise();
+
+        lstLog.push('Uploaded to S3 Bucket: ' + s3BucketName + '/' + s3key);
+        done.done({ success: true, filename: s3key, log: lstLog });
+
+    } catch (e) {
+        console.error(e);
+        lstLog.push(e.toString());
+        done.done({ errorMessage: e.toString(), log: lstLog });
+    }
+}
+
 function setVariable(lst, vEntry, force) {
     // Do not overwrite variables unless 'force is true'
     for (let i = 0; i < lst.length; i++) {
         if (lst[i].variablename === vEntry.variablename) {
             if (!force) return; // do not overwrite existing variables
             lst[i].value = vEntry.value;
+            return;
+        }
+    }
+    lst.push(vEntry);
+}
+function setGlobalFunction(lst, vEntry, force) {
+    // Do not overwrite functions unless 'force is true'
+    for (let i = 0; i < lst.length; i++) {
+        if (lst[i].fName === vEntry.fName) {
+            if (!force) return; // do not overwrite existing function
+            lst[i].body = vEntry.body;
             return;
         }
     }
@@ -349,63 +462,6 @@ function downloadS3(s3params, destFile) {
             })
             .on('error', (ee) => { console.warn(ee) });
     });
-}
-
-async function createBackup(s3BucketName, done) {
-    let lstLog = [];
-    try {
-        let sessionID = guid();
-        let sDir = "/tmp/" + sessionID + "/";
-        let thisDate = getDateString();
-        let compressedFilePath = 'backup_' + thisDate + '_' + sessionID + '.zip';
-        let s3key = 'backup/' + compressedFilePath;
-
-        lstLog.push("Export table " + tableName + " to " + sDir);
-
-        // create session folder
-        fs.mkdirSync(sDir);
-        fs.mkdirSync(sDir + 'db/');
-
-        let lstEntries = await DDBScan({ TableName: tableName });
-        lstEntries.forEach(entry => {
-            if (entry.id !== 'config') fs.writeFileSync(sDir + 'db/' + entry.id + '.json', JSON.stringify(entry), {});
-        });
-
-        let pkgInfo = {
-            "type": "CloudeeCMS-Package",
-            "title": "CloudeeCMS - Backup",
-            "description": "Database backup " + thisDate,
-            "categories": ["Backup"],
-            "packageformat": "1.0",
-            "resources": { "database": "db" }
-        };
-        lstLog.push('Creating package.json');
-        fs.writeFileSync(sDir + '/package.json', JSON.stringify(pkgInfo));
-
-        lstLog.push('Compressing: ' + sDir + compressedFilePath);
-        let zip = new admZIP();
-        //zip.addLocalFolder(sDir + 'db/');
-        zip.addLocalFolder(sDir);
-        zip.writeZip(sDir + compressedFilePath);
-
-        lstLog.push('Uploading zip file to S3');
-        let fbuf = fs.readFileSync(sDir + compressedFilePath);
-
-        await s3.putObject({
-            Bucket: s3BucketName,
-            Key: s3key,
-            Body: fbuf,
-            ACL: 'public-read', ContentType: "application/zip"
-        }).promise();
-
-        lstLog.push('Uploaded to S3 Bucket: ' + s3BucketName + '/' + s3key);
-        done.done({ success: true, filename: s3key, log: lstLog });
-
-    } catch (e) {
-        console.error(e);
-        lstLog.push(e.toString());
-        done.done({ errorMessage: e.toString(), log: lstLog });
-    }
 }
 
 async function DDBScan(params) {

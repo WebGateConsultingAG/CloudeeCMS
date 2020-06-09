@@ -1,0 +1,29 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} Global Pug Script Function</h1>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Namespace of function" type="text" [(ngModel)]="fn.fName">
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <textarea matInput placeholder="Function code" type="text"
+                [(ngModel)]="fn.body" (ngModelChange)="checkFn()">
+            </textarea>
+            <mat-hint *ngIf="fnHint">{{fnHint}}</mat-hint>
+        </mat-form-field>
+
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDone()">
+            <mat-icon matListIcon>done</mat-icon>
+            Done
+        </button>
+        <button mat-button *ngIf="isNew" (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

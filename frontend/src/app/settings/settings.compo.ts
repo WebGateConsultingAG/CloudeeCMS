@@ -28,6 +28,7 @@ import { versioninfo } from '../version';
 import { environment } from 'src/environments/environment';
 import { VariableEditDialogComponent } from './dialogs/variableedit-dialog';
 import { PackageUploadDialogComponent } from './dialogs/pkgupload-dialog';
+import { GlobalFunctionEditDialogComponent } from './dialogs/fnedit-dialog';
 
 @Component({
   selector: 'app-settings',
@@ -120,6 +121,16 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
+  btnEditGlobalFunction(thisFN: any) {
+    const that = this;
+    const dialogRef = this.dialog.open(GlobalFunctionEditDialogComponent, { width: '800px', disableClose: false, data: { fn: thisFN } });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'add') {
+        if (!that.config.pugGlobalScripts) { that.config.pugGlobalScripts = []; }
+        that.config.pugGlobalScripts.push(result.fn);
+      }
+    });
+  }
   btnEditBM(thisBM: any) {
     const that = this;
     const dialogRef = this.dialog.open(BookmarkEditDialogComponent, { width: '450px', disableClose: false, data: { bm: thisBM } });
@@ -147,6 +158,15 @@ export class SettingsComponent implements OnInit {
     for (let i = 0; i < this.config.cfdists.length; i++) {
       if (this.config.cfdists[i] === dist) {
         this.config.cfdists.splice(i, 1);
+        return;
+      }
+    }
+  }
+  btnDeleteGlobalFunction(fn) {
+    if (!confirm('Delete this entry?')) { return; }
+    for (let i = 0; i < this.config.pugGlobalScripts.length; i++) {
+      if (this.config.pugGlobalScripts[i] === fn) {
+        this.config.pugGlobalScripts.splice(i, 1);
         return;
       }
     }

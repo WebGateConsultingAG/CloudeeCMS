@@ -41,6 +41,7 @@ export class ImportDialogComponent implements OnInit {
     backupLog = [];
     s3key = '';
     files = [];
+    requireRestart: boolean;
 
     ngOnInit(): void {
         this.bucket = this.data.bucket;
@@ -79,6 +80,7 @@ export class ImportDialogComponent implements OnInit {
                 if (data.success) {
                     that.message = 'Package imported';
                     that.showImportButton = false;
+                    that.requireRestart = true;
                 }
             },
             (err) => {
@@ -92,6 +94,9 @@ export class ImportDialogComponent implements OnInit {
     }
 
     btnCancel(): void {
+        if (this.requireRestart) {
+            if (confirm('Restart of Webapplication recommended.\nRestart now?')) { window.location.reload(); }
+        }
         this.dialogRef.close(null);
     }
 }

@@ -103,6 +103,7 @@ import { MTTableComponent } from './editor/pages/mttable.component';
 import { FileEditorComponent } from './editor/fileexplorer/fileeditor/fileeditor.compo';
 import { PackageUploadDialogComponent } from './settings/dialogs/pkgupload-dialog';
 import { FileBrowserService } from './services/filebrowser.service';
+import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dialog';
 
 @NgModule({
   declarations: [
@@ -148,6 +149,7 @@ import { FileBrowserService } from './services/filebrowser.service';
     FileUploadDialogComponent,
     LayoutFieldDialogComponent,
     PasswordChangeDialogComponent,
+    GlobalFunctionEditDialogComponent,
     ImportDialogComponent,
     OrderByPipe,
     TreeViewComponent
@@ -218,6 +220,7 @@ import { FileBrowserService } from './services/filebrowser.service';
     FileUploadDialogComponent,
     MTSelectDialogComponent,
     MTContentDialogComponent,
+    GlobalFunctionEditDialogComponent,
     PubQueueComponent,
     FileSelectionDialogComponent
   ],
