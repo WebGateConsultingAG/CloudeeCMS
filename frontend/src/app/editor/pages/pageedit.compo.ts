@@ -71,7 +71,7 @@ export class PageEditComponent implements OnInit {
       ['fontsize'],
       ['strong', 'em', 'del'],
       ['link'],
-      ['insertImage'],
+      ['insertImage'], ['cdnplugin'],
       ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
       ['unorderedList', 'orderedList'],
       ['horizontalRule'],
@@ -91,6 +91,7 @@ export class PageEditComponent implements OnInit {
       // We might switch to signed S3 upload instead, as we did for ckeditor
       Auth.currentSession()
         .then(data => {
+          // TODO: move this to a window.pubfn in app.component.ts function to prevent token from expiring
           that.trumbooptions.plugins.upload.headers.Authorization = data.getIdToken().getJwtToken();
           window.loadTrumboPlugins();
         })

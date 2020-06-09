@@ -102,6 +102,7 @@ import { VariableEditDialogComponent } from './settings/dialogs/variableedit-dia
 import { MTTableComponent } from './editor/pages/mttable.component';
 import { FileEditorComponent } from './editor/fileexplorer/fileeditor/fileeditor.compo';
 import { PackageUploadDialogComponent } from './settings/dialogs/pkgupload-dialog';
+import { FileBrowserService } from './services/filebrowser.service';
 
 @NgModule({
   declarations: [
@@ -223,6 +224,7 @@ import { PackageUploadDialogComponent } from './settings/dialogs/pkgupload-dialo
   providers: [
     BackendService,
     FileAdminService,
+    FileBrowserService,
     TabsNavService,
     AmplifyService,
     WGCCognitoService,

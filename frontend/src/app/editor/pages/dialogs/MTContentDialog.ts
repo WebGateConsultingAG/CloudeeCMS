@@ -57,7 +57,7 @@ export class MTContentDialogComponent implements OnInit {
             ['fontsize'],
             ['strong', 'em', 'del'],
             ['link'],
-            ['insertImage'],
+            ['insertImage'], ['cdnplugin'],
             ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
             ['unorderedList', 'orderedList'],
             ['horizontalRule'],

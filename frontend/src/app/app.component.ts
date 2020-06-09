@@ -15,7 +15,7 @@
  *
  */
 
-import { Component, ViewChild, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, OnInit, ViewEncapsulation, OnDestroy, NgZone } from '@angular/core';
 import { MatSidenav } from '@angular/material';
 import { BackendService } from './services/backend.service';
 import { TabsNavService } from './services/tabs.service';
@@ -24,6 +24,9 @@ import { AboutDialogComponent } from './settings/AboutDialog';
 import { MatDialog } from '@angular/material';
 import { WGCCognitoService } from './services/wgccognito.service';
 import { UpdaterDialogComponent } from './settings/dialogs/updater-dialog';
+import { FileBrowserService } from './services/filebrowser.service';
+
+declare var window: any;
 
 @Component({
   selector: 'app-root',
@@ -32,14 +35,16 @@ import { UpdaterDialogComponent } from './settings/dialogs/updater-dialog';
   encapsulation: ViewEncapsulation.None
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   @ViewChild('sidenav', null) public sidenav: MatSidenav;
 
   constructor(
     public tabsSVC: TabsNavService,
     private backendSVC: BackendService,
     public dialog: MatDialog,
-    public cognitoSVC: WGCCognitoService
+    public cognitoSVC: WGCCognitoService,
+    private ngZone: NgZone,
+    private fileBrowserSVC: FileBrowserService
   ) { }
 
   loading = false;
@@ -51,6 +56,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.apptitle = environment.app_name;
+
+    // Export functions for trumbowyg external plugins
+    window.pubfn = window.pubfn || {};
+    window.pubfn.CDNListFiles = this.CDNListFiles.bind(this);
+
     this.waitForLogin(this);
   }
   btnShowAboutDialog() {
@@ -103,9 +113,18 @@ export class AppComponent implements OnInit {
     );
   }
   btnShowUpdater(): void {
-    this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: { } });
+    this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: {} });
   }
   btnLogout() {
     this.cognitoSVC.logout();
+  }
+
+  // Export functions outside angular for trumbowyg plugins
+  CDNListFiles(strPath: string, cb: any) {
+    this.ngZone.run(() => this.fileBrowserSVC.listFilesOfBucket('CDN', strPath, ['jpg', 'jpeg', 'png', 'gif', 'svg'], cb));
+  }
+  ngOnDestroy() {
+    // Remove exported functions
+    window.pubfn.CDNListFiles = null;
   }
 }

@@ -1,11 +1,97 @@
-var trumbopluginsloaded=false;
+var trumbopluginsloaded = false;
 function loadTrumboPlugins() {
     // Odd way to load plugins outside angular context, as there is no plugin loader in module ngx-trumbowyg
     if (trumbopluginsloaded) return;
     console.log("Loading trumbowyg editor plugins");
     loadUploadPlugin();
     loadFlxPasteImgPlugin();
-    trumbopluginsloaded=true;
+    loadCDNImagePlugin();
+    trumbopluginsloaded = true;
+}
+
+function loadCDNImagePlugin() {
+    var defaultOptions = {};
+    function buildButtonDef(trumbowyg) {
+        return {
+            fn: function () {
+                // Plugin button clicked
+                trumbowyg.saveRange();
+                var prefix = trumbowyg.o.prefix;
+                var iconFolder = '<mat-icon class="mat-icon material-icons mat-icon-no-color" role="img" aria-hidden="true">folder_open</mat-icon>';
+                var iconFile = '<mat-icon class="mat-icon material-icons mat-icon-no-color" role="img" aria-hidden="true">description</mat-icon>';
+                var closeBtn = '<button class="'+prefix+'cdnb-close" style="cursor: pointer; float: right; height: 20px;" title="' + trumbowyg.lang.close + '"><svg><use xlink:href="' + trumbowyg.svgPath + '#' + prefix + 'close"/></svg></button>';
+                var modalHTML = '<div style="padding: 10px 20px; text-align: left;">'+closeBtn+'<h4>Browse CDN Images</h4><div class="' + prefix + 'cdnb-modal"></div></div>';
+                modalHTML += '<style>.cdnfb {margin: 0; padding: 0; list-style: none; border-top: 1px solid lightgray;} .cdnfb li {padding: 6px; margin:0; cursor: pointer; border-bottom: 1px solid lightgray; vertical-align: middle; color: black;} .cdnfb span { vertical-align: super; }</style>';
+                var $modal = trumbowyg.openModal(null, modalHTML, false);
+                
+                var $CDNModal = $('.' + prefix + 'cdnb-modal');
+                var $CDNClose = $('.' + prefix + 'cdnb-close');
+                $CDNClose.one('click', function() {
+                    $CDNModal.trigger('tbwcancel');
+                });
+
+                window.pubfn.CDNListFiles('', listFilesCB);
+
+                // Listen clicks on modal box buttons
+                $modal.on('tbwselect', function(e, imgurl){
+                    console.log("Insert image from CDN", imgurl);
+                    trumbowyg.restoreRange();
+                    trumbowyg.execCmd('insertImage', imgurl, false, true);
+                    trumbowyg.closeModal();
+                });
+                $modal.on('tbwcancel', function(e){
+                    trumbowyg.closeModal();
+                });
+                function listFilesCB(err, data) {
+                    if (err) {
+                        alert("Failed to get file list of CDN");
+                    } else {
+                        var CDNURL = data.CDNURL;
+                        var lstHTML = '';
+                        if (data.folder !== '') lstHTML+='<li key="'+data.parentfolder+'" otype="Folder">'+iconFolder+' <span>..</span></li>';
+                        for (var i=0; i<data.lst.length; i++) {
+                            lstHTML+='<li key="'+data.lst[i].Key+'" otype="'+data.lst[i].otype+'">'+(data.lst[i].otype==='Folder'?iconFolder:iconFile)+' <span>'+data.lst[i].label+'</span></li>';
+                        };
+                        $CDNModal.html('<ul class="cdnfb">'+lstHTML+'</ul>');
+                        $('.' + prefix + 'cdnb-modal li').one('click', function() {
+                            if ($(this).attr('otype') === "Folder") {
+                                window.pubfn.CDNListFiles($(this).attr('key'), listFilesCB)
+                            } else {
+                                var fullURL = CDNURL+$(this).attr('key');
+                                $CDNModal.trigger('tbwselect', fullURL);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    $.extend(true, $.trumbowyg, {
+        // Add some translations
+        langs: {
+            en: { cdnplugin: 'Insert image from CDN' }
+        },
+        // Register plugin in Trumbowyg
+        plugins: {
+            cdnplugin: {
+                // Code called by Trumbowyg core to register the plugin
+                init: function (trumbowyg) {
+                    // Fill current Trumbowyg instance with the plugin default options
+                    trumbowyg.o.plugins.cdnplugin = $.extend(true, {},
+                        defaultOptions,
+                        trumbowyg.o.plugins.cdnplugin || {}
+                    );
+                    trumbowyg.addBtnDef('cdnplugin', buildButtonDef(trumbowyg));
+                },
+                // Return a list of button names which are active on current element
+                tagHandler: function (element, trumbowyg) {
+                    return [];
+                },
+                destroy: function (trumbowyg) { }
+            }
+        }
+    });
 }
 
 /* ===========================================================
@@ -22,7 +108,7 @@ function loadTrumboPlugins() {
  */
 
 function loadUploadPlugin() {
-    
+
     var defaultOptions = {
         serverPath: '',
         fileFieldName: 'fileToUpload',
@@ -302,76 +388,75 @@ function loadUploadPlugin() {
  */
 
 function loadFlxPasteImgPlugin() {
-        $.extend(true, $.trumbowyg, {
-            plugins: {
-                pasteImage: {
-                    init: function (trumbowyg) {
-                        if (!trumbowyg.o.plugins.upload) {
-                            console.error("flxpasteuploadimage plugin depends on the upload plugin.");
-                            return;    
-                        }
-                        console.log("[flxpasteuploadimage] loading");
-                        trumbowyg.pasteHandlers.push(function (pasteEvent) {
-                            try {
-                                var items = (pasteEvent.originalEvent || pasteEvent).clipboardData.items, reader;
-    
-                                for (var i = items.length -1; i >= 0; i += 1) {
-                                    if (items[i].type.match(/^image\//)) {
-    
-                                            var data = new FormData();
-                                            data.append(trumbowyg.o.plugins.upload.fileFieldName, items[i].getAsFile());
-    
-                                            trumbowyg.o.plugins.upload.data.map(function (cur) {
-                                                data.append(cur.name, cur.value);
-                                            });
-                                            
-                                            console.log("[flxpasteuploadimage] uploading..");
-    
-                                            $.ajax({
-                                                url: trumbowyg.o.plugins.upload.serverPath,
-                                                headers: trumbowyg.o.plugins.upload.headers,
-                                                xhrFields: trumbowyg.o.plugins.upload.xhrFields,
-                                                type: 'POST',
-                                                data: data,
-                                                cache: false,
-                                                dataType: 'json',
-                                                processData: false,
-                                                contentType: false,
-                                
-                                                progressUpload: function (e) {
-                                                    //$('.' + prefix + 'progress-bar').css('width', Math.round(e.loaded * 100 / e.total) + '%');
-                                                },
-                                
-                                                success: function (data) {
-                                                    if (trumbowyg.o.plugins.upload.success) {
-                                                        console.log("custom success handler not implemented");
-                                                        //trumbowyg.o.plugins.upload.success(data, trumbowyg, $modal, values);
-                                                    } else {
-                                                        if (data.success) {
-                                                            var url = data.url; // or use something like trumbowyg.o.plugins.upload.urlPropertyName.split('.')
-                                                            var html='<img src="'+url+'">';
-                                                            var node = $(html)[0];
-                                                            trumbowyg.range.deleteContents();
-                                                            trumbowyg.range.insertNode(node);
-                                                        } else {
-                                                            console.error("error", data.message);
-                                                        }
-                                                    }
-                                                },
-                                
-                                                error: trumbowyg.o.plugins.upload.error || function () {
-                                                    alert(trumbowyg.lang.uploadError);
-                                                }
-                                            });
-    
-                                    }
-                                }
-                            } catch (c) {
-                            }
-                        });
+    $.extend(true, $.trumbowyg, {
+        plugins: {
+            pasteImage: {
+                init: function (trumbowyg) {
+                    if (!trumbowyg.o.plugins.upload) {
+                        console.error("flxpasteuploadimage plugin depends on the upload plugin.");
+                        return;
                     }
+                    console.log("[flxpasteuploadimage] loading");
+                    trumbowyg.pasteHandlers.push(function (pasteEvent) {
+                        try {
+                            var items = (pasteEvent.originalEvent || pasteEvent).clipboardData.items, reader;
+
+                            for (var i = items.length - 1; i >= 0; i += 1) {
+                                if (items[i].type.match(/^image\//)) {
+
+                                    var data = new FormData();
+                                    data.append(trumbowyg.o.plugins.upload.fileFieldName, items[i].getAsFile());
+
+                                    trumbowyg.o.plugins.upload.data.map(function (cur) {
+                                        data.append(cur.name, cur.value);
+                                    });
+
+                                    console.log("[flxpasteuploadimage] uploading..");
+
+                                    $.ajax({
+                                        url: trumbowyg.o.plugins.upload.serverPath,
+                                        headers: trumbowyg.o.plugins.upload.headers,
+                                        xhrFields: trumbowyg.o.plugins.upload.xhrFields,
+                                        type: 'POST',
+                                        data: data,
+                                        cache: false,
+                                        dataType: 'json',
+                                        processData: false,
+                                        contentType: false,
+
+                                        progressUpload: function (e) {
+                                            //$('.' + prefix + 'progress-bar').css('width', Math.round(e.loaded * 100 / e.total) + '%');
+                                        },
+
+                                        success: function (data) {
+                                            if (trumbowyg.o.plugins.upload.success) {
+                                                console.log("custom success handler not implemented");
+                                                //trumbowyg.o.plugins.upload.success(data, trumbowyg, $modal, values);
+                                            } else {
+                                                if (data.success) {
+                                                    var url = data.url; // or use something like trumbowyg.o.plugins.upload.urlPropertyName.split('.')
+                                                    var html = '<img src="' + url + '">';
+                                                    var node = $(html)[0];
+                                                    trumbowyg.range.deleteContents();
+                                                    trumbowyg.range.insertNode(node);
+                                                } else {
+                                                    console.error("error", data.message);
+                                                }
+                                            }
+                                        },
+
+                                        error: trumbowyg.o.plugins.upload.error || function () {
+                                            alert(trumbowyg.lang.uploadError);
+                                        }
+                                    });
+
+                                }
+                            }
+                        } catch (c) {
+                        }
+                    });
                 }
             }
-        });
-    }
-    
+        }
+    });
+}
