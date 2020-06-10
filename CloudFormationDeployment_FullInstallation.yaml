@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2020-06-09 16:45
+Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2020-06-10 07:45
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -46,8 +46,8 @@ Metadata:
         default: Cognito UserPool Domain Name
       AcmCertificateCDN:
         default: SSL Certificate for Content Delivery Network
-      AcmCertificateProd:
-        defautl: SSL Certificate for Website
+      AcmCertificatePROD:
+        default: SSL Certificate for Website
       CloudFrontParam:
         default: CloudFront Price Class
 Parameters:
