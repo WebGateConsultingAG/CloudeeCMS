@@ -1,0 +1,3 @@
+.isOKBox .mat-stroked-button { margin-left: 4px; float: right; }
+.radiogrp-targets { display: flex; flex-direction: column; } 
+.radiogrp-target { margin: 5px; }

@@ -24,7 +24,7 @@ import { PublishLogDialogComponent } from '../../publication/dialogs/PublishLogD
 @Component({
   selector: 'app-publish-dialog',
   templateUrl: 'PublishDialog.html',
-  styles: ['.isOKBox .mat-stroked-button { margin-left: 4px; float: right; } ']
+  styleUrls: ['PublishDialog.css']
 })
 
 export class PublishDialogComponent implements OnInit {
@@ -34,7 +34,7 @@ export class PublishDialogComponent implements OnInit {
     private backendSVC: BackendService,
     @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-  selectedTargetEnv = '';
+  selectedTargetEnv = 'Test';
   errorMessage = '';
   published: boolean;
   unpublished: boolean;

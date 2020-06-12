@@ -1,7 +1,7 @@
 <div>
     <div mat-dialog-content>
-        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/publish-pages" target="_blank" style="float: right;"
-            title="Help">
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/publish-pages" target="_blank"
+            style="float: right;" title="Help">
             <mat-icon>help_outline</mat-icon>
         </a>
         <h1 mat-dialog-title>Publish page</h1>
@@ -13,7 +13,7 @@
             <button mat-button (click)="btnViewLog()" *ngIf="lstLog">View Log</button>
         </div>
         <div *ngIf="published" class="isOKBox">
-            <mat-icon matListIcon>cloud_done</mat-icon> Published! 
+            <mat-icon matListIcon>cloud_done</mat-icon> Published!
             <a href="{{publishedPageURL}}" target="_blank" class="mat-stroked-button">View page</a>
             <button mat-stroked-button (click)="btnViewLog()" *ngIf="lstLog">View Log</button>
             <div style="clear:both;"></div>
@@ -22,16 +22,15 @@
             <mat-icon matListIcon>cloud_off</mat-icon> Removed!
             <button mat-button (click)="btnViewLog()" *ngIf="lstLog" style="float: right;">View Log</button>
         </div>
-
-        <mat-form-field class="full-width" *ngIf="!loading">
-            <mat-select placeholder="Target" [(ngModel)]="selectedTargetEnv" required>
-                <mat-option *ngFor="let bucket of buckets" value="{{bucket.bucketname}}"> {{bucket.label}}</mat-option>
-            </mat-select>
-        </mat-form-field>
-
+        <div *ngIf="!loading">
+            Publish to:<br><br>
+            <mat-radio-group  [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
+                <mat-radio-button class="radiogrp-target" *ngFor="let bucket of buckets" value="{{bucket.bucketname}}">
+                    {{bucket.label}}
+                </mat-radio-button>
+            </mat-radio-group>
+        </div>
         <br />
-        <br />
-
     </div>
     <div mat-dialog-actions>
         <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnPublish()">

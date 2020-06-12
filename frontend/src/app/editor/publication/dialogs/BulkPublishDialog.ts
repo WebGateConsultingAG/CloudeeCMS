@@ -22,7 +22,8 @@ import { PublishLogDialogComponent } from './PublishLogDialog';
 
 @Component({
   selector: 'app-bulk-publish-dialog',
-  templateUrl: 'BulkPublishDialog.html'
+  templateUrl: 'BulkPublishDialog.html',
+  styleUrls: ['../../pages/dialogs/PublishDialog.css']
 })
 
 export class BulkPublishDialogComponent implements OnInit {
@@ -47,7 +48,7 @@ export class BulkPublishDialogComponent implements OnInit {
     this.lstPageIDs = this.data.lstPageIDs;
     if (this.data.config && this.data.config.buckets) {
       this.data.config.buckets.forEach(bucket => {
-        if (bucket.noPublish !== '1') { this.buckets.push(bucket); }
+        if (!bucket.noPublish) { this.buckets.push(bucket); }
       });
     }
   }

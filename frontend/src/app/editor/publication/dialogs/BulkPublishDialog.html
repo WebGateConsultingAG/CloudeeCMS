@@ -5,8 +5,9 @@
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
         <p *ngIf="pubtype==='all'">
-            You are about to (re-)publish <b>ALL</b> pages of your website project!<br/><br/>
-            <b>Note:</b> In most cases, this is only required after a layout change affecting every page in your project.
+            You are about to (re-)publish <b>ALL</b> pages of your website project!<br /><br />
+            <b>Note:</b> In most cases, this is only required after a layout change affecting every page in your
+            project.
         </p>
         <p *ngIf="pubtype==='selected'">You are about to publish selected {{lstPageIDs.length}} pages!</p>
         <div class="isErrorBox" *ngIf="errorMessage">
@@ -18,11 +19,13 @@
             <button mat-button (click)="btnViewLog()" *ngIf="lstLog" style="float: right;">View Log</button>
         </div>
         <div *ngIf="!loading">
-            <mat-form-field class="full-width" >
-                <mat-select placeholder="Publish to" [(ngModel)]="selectedTargetEnv" required>
-                    <mat-option *ngFor="let bucket of buckets" value="{{bucket.bucketname}}"> {{bucket.label}}</mat-option>
-                </mat-select>
-            </mat-form-field>
+            Publish to:<br><br>
+            <mat-radio-group [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
+                <mat-radio-button class="radiogrp-target" *ngFor="let bucket of buckets" value="{{bucket.bucketname}}">
+                    {{bucket.label}}
+                </mat-radio-button>
+            </mat-radio-group>
+            <br>
             <div *ngIf="pubtype==='selected'">
                 <mat-checkbox [(ngModel)]="removeFromQueue"></mat-checkbox> Remove pages from queue when published
             </div>
