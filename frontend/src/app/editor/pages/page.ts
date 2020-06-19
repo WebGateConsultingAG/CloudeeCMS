@@ -16,4 +16,5 @@ export class Page {
     listnav: boolean;
     keywords: string;
     navlabel: string;
+    img: string;
 }

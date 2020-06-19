@@ -78,11 +78,17 @@
                             </mat-autocomplete>
                         </mat-form-field>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-2">
                         <mat-form-field class="full-width">
-                            <input matInput [matDatepicker]="dp" placeholder="Entry Date (dt)" [(ngModel)]="page.dt">
+                            <input matInput [matDatepicker]="dp" placeholder="Entry Date" [(ngModel)]="page.dt">
                             <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
                             <mat-datepicker #dp></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="Cover image" title="Optional cover image used in search results or lists" type="text" [(ngModel)]="page.img">
+                            <mat-icon matSuffix (click)="btnDlgSelectCoverImage()" title="Select image" style="cursor: pointer;">photo_library</mat-icon>
                         </mat-form-field>
                     </div>
                 </div>
@@ -174,16 +180,12 @@
                         </mat-form-field>
 
                         <div class="row" *ngIf="fld.fldType==='image'">
-                            <div class="col-md-11">
+                            <div class="col-md-12">
                                 <mat-form-field class="full-width" *ngIf="fld.fldType==='image'">
                                     <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
                                         [(ngModel)]="page.doc[fld.fldName]">
+                                        <mat-icon matSuffix (click)="btnDlgSelectImage(fld.fldName)" title="Select image" style="cursor: pointer;">photo_library</mat-icon>
                                 </mat-form-field>
-                            </div>
-                            <div class="col-md-1">
-                                <button mat-stroked-button (click)="btnDlgSelectImage(fld.fldName)" title="Select image">
-                                    <mat-icon>photo_library</mat-icon>
-                                </button>
                             </div>
                         </div>
 

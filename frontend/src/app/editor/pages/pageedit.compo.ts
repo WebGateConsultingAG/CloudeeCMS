@@ -263,6 +263,19 @@ export class PageEditComponent implements OnInit {
       }
     });
   }
+  btnDlgSelectCoverImage(): void {
+    const that = this;
+    const dialogRef = this.dialog.open(FileSelectionDialogComponent,
+      { width: '650px', disableClose: false, data: {
+        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff']
+        }}
+    );
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'add') {
+        that.page.img = result.fileurl;
+      }
+    });
+  }
   btnAddNewObj(fld: any) {
     const that = this;
     const dialogRef = this.dialog.open(MTSelectDialogComponent, { width: '450px', disableClose: false, data: { fld } });

@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-02 0736 - RSC
+ * File Version: 2020-06-19 0832 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -35,7 +35,7 @@ exports.handler = async function (event, context, callback) {
             FilterExpression: "otype = :ot AND contains(#fldC, :v1)",
             ExpressionAttributeNames: { "#fldC": "categories" },
             ExpressionAttributeValues: { ":v1": thisCategory, ":ot": "Page" },
-            ProjectionExpression: 'categories, opath, title, descr, dt, pubdate'
+            ProjectionExpression: 'categories, opath, title, descr, dt, pubdate, img'
         };
         
         let lstPages = await DDBScan(params);

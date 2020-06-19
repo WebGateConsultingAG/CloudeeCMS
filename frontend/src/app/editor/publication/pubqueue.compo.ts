@@ -42,7 +42,7 @@ export class PubQueueComponent implements OnInit {
   */
   allowScrollPrev = false;
   allowScrollFwd = true;
-  maxItemsPerPage = 10;
+  maxItemsPerPage = 25;
   curViewPos = 0;
   viewList: any = []; // UI list (subset of queueList)
   queueList: any = []; // full list of pages in queue

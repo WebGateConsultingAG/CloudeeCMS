@@ -200,7 +200,7 @@ Resources:
       CodeUri: ./backend/aws-serverless-cms-publish
       Description: CloudeeCMS API for content publishing
       MemorySize: 128
-      Timeout: 180
+      Timeout: 300
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
         Variables:
