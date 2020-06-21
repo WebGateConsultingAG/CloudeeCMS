@@ -34,7 +34,7 @@ export class PublishDialogComponent implements OnInit {
     private backendSVC: BackendService,
     @Inject(MAT_DIALOG_DATA) public data: any) { }
 
-  selectedTargetEnv = 'Test';
+  selectedTargetEnv: string;
   errorMessage = '';
   published: boolean;
   unpublished: boolean;

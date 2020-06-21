@@ -46,6 +46,9 @@
       var tb = document.getElementsByClassName('flxtabs');
       if (tb && tb[0]) tb[0].style.height=(window.innerHeight-65)+'px';
     }
+    window.addEventListener('beforeunload', (event) => {
+      event.returnValue = `Do you really want to close CloudeeCMS?`;
+    });
     setTimeout(adjustTabBody, 3000);
   </script>
   <script src="assets/js/trumbowyg.plugins.js"></script>
