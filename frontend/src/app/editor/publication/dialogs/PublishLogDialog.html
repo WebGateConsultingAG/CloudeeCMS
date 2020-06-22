@@ -1,0 +1,11 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Publish Log</h1>
+        <div class="logdisplay">
+            <div *ngFor="let row of lstLog">{{row}}</div>
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

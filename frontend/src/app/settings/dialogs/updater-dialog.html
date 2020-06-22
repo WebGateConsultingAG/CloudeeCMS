@@ -1,0 +1,62 @@
+<div>
+    <div mat-dialog-content>
+        <img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" class="logo" />
+        <h1 mat-dialog-title>Software Updater</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+        <div *ngIf="updaterstatus==0" class="borderbox">
+            Version: {{APP_VERSION}} ({{updaterData.repobranch}})<br><br>
+            <b>No updates available.</b>
+        </div>
+        <div *ngIf="updaterstatus==1" class="borderbox">
+            You are using version: {{APP_VERSION}}<br />
+            A new version is available: {{updaterData.availableVersion}} ({{updaterData.repobranch}})<br /><br />
+            Please read the <a href="{{updaterData.releaseNotes}}" target="_blank">Release Notes</a> before upgrading!
+            <div *ngIf="!isAdmin" class="warn">
+                You do not have admin rights to start this update!
+            </div>
+        </div>
+        <div *ngIf="updaterstatus===99">
+            You are using version: {{APP_VERSION}}<br />
+            <div class="warn">
+                Online updates are disabled in this instance.
+            </div>
+        </div>
+        <div *ngIf="updaterstatus===2">
+            <p>Updating! This can take up to 15 minutes.</p>
+            <div class="borderbox">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            </div>
+            <div class="borderbox" *ngIf="updProgress">
+                <ul *ngIf="updProgress.pStatus" class="updStatus">
+                    <li *ngFor="let st of updProgress.pStatus.stageStates"
+                        class="{{st.latestExecution.status}}">
+                        <mat-spinner diameter="20" *ngIf="st.latestExecution.status==='InProgress'"></mat-spinner>
+                        <mat-icon *ngIf="st.latestExecution.status!=='InProgress'">filter_tilt_shift</mat-icon>
+                        {{st.stageName}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div *ngIf="updaterstatus===3">
+            <p><b>Update completed!</b></p>
+            <p>Please restart CloudeeCMS to continue.</p>
+        </div>
+        <br />
+    </div>
+    <div mat-dialog-actions *ngIf="updaterstatus!==2">
+        <button mat-stroked-button [disabled]="!isAdmin" *ngIf="updaterstatus==1" (click)="btnStartUpdate()">
+            <mat-icon matListIcon>system_update_alt</mat-icon>
+            Update now
+        </button>
+        <button mat-button (click)="btnCancel()" *ngIf="updaterstatus!==3">{{updaterstatus==0?'Close':'Cancel'}}</button>
+        <button mat-stroked-button *ngIf="updaterstatus===3" (click)="btnRestart()">
+            <mat-icon matListIcon>power_settings_new</mat-icon>
+            Restart Application
+        </button>
+    </div>
+</div>

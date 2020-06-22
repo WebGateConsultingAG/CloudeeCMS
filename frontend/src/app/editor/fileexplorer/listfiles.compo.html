@@ -1,0 +1,76 @@
+<div class="container">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/fileexplorer" target="_blank"
+            title="Help">
+            <mat-icon>help_outline</mat-icon>
+        </a>
+        <mat-form-field *ngIf="configLoaded && config.buckets">
+            <mat-select placeholder="Environment" [(ngModel)]="selectedBucket" (selectionChange)="loadBucket()">
+                <mat-option *ngFor="let bucket of config.buckets" value="{{bucket.bucketname}}"> {{bucket.label}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    </div>
+    <h3>File explorer</h3>
+    <div class="clrhdr"></div>
+
+    <div class="folderActions" *ngIf="showListing">
+        <button mat-stroked-button (click)="btnCreateNewFolder()" title="New folder..">
+            <mat-icon>create_new_folder</mat-icon>
+        </button>
+        <button mat-stroked-button (click)="btnShowFileUploadDialog(currentKey)" title="Upload files..">
+            <mat-icon>cloud_upload</mat-icon>
+        </button>
+        <button mat-stroked-button (click)="btnReloadDirectory()" title="Click to refresh directory listing">
+            <mat-icon>refresh</mat-icon> Current location: /{{currentKey}}
+        </button>
+    </div>
+
+    <table class="viewTable fileExplorer" *ngIf="showListing">
+        <thead>
+            <tr>
+                <th style="width: 1%"></th>
+                <th style="width: 64%"></th>
+                <th style="width: 10%; text-align: right">Size</th>
+                <th style="width: 17%; text-align: right">Modified</th>
+                <th style="width: 8%"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngIf="currentKey!==''">
+                <td>
+                    <mat-icon>folder_open</mat-icon>
+                </td>
+                <td class="clickable" (click)="openParentFolder()">..</td>
+                <td style="text-align: right"></td>
+                <td style="text-align: right"></td>
+                <td></td>
+            </tr>
+            <tr *ngFor="let item of viewList">
+                <td>
+                    <mat-icon *ngIf="item.otype==='Folder'">folder_open</mat-icon>
+                    <mat-icon *ngIf="item.otype==='File'">description</mat-icon>
+                </td>
+
+                <td *ngIf="item.otype==='Folder'" class="clickable" (click)="openItem(item)">{{item.label}}</td>
+                <td *ngIf="item.otype==='File'"><a href="{{item.link}}" target="_blank">{{item.label}}</a></td>
+                <td style="text-align: right">
+                    <span *ngIf="item.otype==='File'">{{toKB(item.Size)}} KB</span>
+                </td>
+                <td style="text-align: right">
+                    <span *ngIf="item.otype==='File'">{{item.LastModified | date: 'dd.MM.yyyy hh:mm'}}</span>
+                </td>
+                <td class="hoverActions" style="text-align: right;">
+                    <mat-icon *ngIf="item.editable" title="Edit {{item.otype}}" (click)="editItem(item)">edit</mat-icon>
+                    <a *ngIf="item.otype==='File' && cdnURL" href="{{cdnURL}}/{{item.Key}}" target="_blank">
+                        <mat-icon title="CDN Link">link</mat-icon>
+                    </a>
+                    <mat-icon title="Delete {{item.otype}}" (click)="deleteItem(item)">delete</mat-icon>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+</div>

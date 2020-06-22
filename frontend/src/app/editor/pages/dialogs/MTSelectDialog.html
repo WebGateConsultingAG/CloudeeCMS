@@ -1,0 +1,31 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Add Micro Template to {{fld.fldName}}</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <div *ngIf="!loading">
+            <mat-form-field class="full-width">
+                <mat-select placeholder="Select micro template" [(ngModel)]="selectedMT" required>
+                    <mat-option *ngFor="let itm of lstMT | orderBy: {property: 'title', direction: 1 }" [value]="itm">
+                        {{ itm.title }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button [disabled]="!selectedMT" (click)="btnAdd()">
+            <mat-icon matListIcon>done</mat-icon>
+            Apply
+        </button>
+        <button mat-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

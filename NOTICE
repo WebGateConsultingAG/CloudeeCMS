@@ -1,0 +1,37 @@
+## License remarks
+
+CloudeeCMS
+
+Copyright 2020 WebGate Consulting AG
+Licensed under the Apache License, Version 2.0
+
+https://www.cloudee-cms.com
+https://www.webgate.biz
+
+This project uses additional software packages by:
+
+- trumbowyg editor and plugins: http://alex-d.github.com/Trumbowyg
+- ngx-trumbowyg: https://github.com/wermerb/ngx-trumbowyg
+- Angular: https://angular.io
+- Angular/material: https://github.com/angular/components
+- aws-amplify: https://github.com/aws-amplify/amplify-js
+
+This project includes resources by:
+
+- Bootstrap Grid v4.0.0
+ Source: https://getbootstrap.com
+ Copyright 2011-2018 The Bootstrap Authors
+ Copyright 2011-2018 Twitter, Inc.
+ Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+
+- Upload plugin for Trumbowyg
+ Source: https://github.com/Alex-D/Trumbowyg/blob/develop/plugins/upload/trumbowyg.upload.js
+ License: MIT
+ Original by: Alexandre Demode 
+ Modified by: Aleksandr-ru
+
+- Modified pasteimage plugin for Trumbowyg:
+ Source: https://github.com/Alex-D/Trumbowyg/blob/develop/plugins/pasteimage/trumbowyg.pasteimage.js
+ License: MIT
+ Original by: Alexandre Demode
+ Modified by: flexion (upload pasted images to cloud instead of inline base64)

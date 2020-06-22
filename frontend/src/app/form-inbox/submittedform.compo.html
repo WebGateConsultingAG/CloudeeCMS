@@ -1,0 +1,46 @@
+<div class="container inputform" *ngIf="frm">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <button mat-stroked-button (click)="btnDelete()">Delete</button>
+    </div>
+    <h3>Submitted Form (ID:{{frm.id}})</h3>
+    <div class="clrhdr"></div>
+    <mat-card>
+        <div class="row">
+            <div class="col-md-6">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Form title" type="text" [(ngModel)]="frm.title" [readonly]=readonly>
+                </mat-form-field>
+            </div>
+            <div class="col-md-6">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Submit Date" type="text" value="{{frm.dt | date: 'dd.MM.yyyy HH:mm'}}" [readonly]=readonly>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="E-Mail" type="text" [(ngModel)]="frm.email" [readonly]=readonly>
+                </mat-form-field>
+            </div>
+            <div class="col-md-6">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="IP" type="text" [(ngModel)]="frm.ip" [readonly]=readonly>
+                </mat-form-field>
+            </div>
+        </div>
+    </mat-card>
+
+    <mat-card>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Form Data</h3>
+                {{parsedform}}
+            </div>
+        </div>
+    </mat-card>
+
+    <br />
+</div>

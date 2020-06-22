@@ -1,0 +1,34 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>CloudFront Invalidation</h1>
+        
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+        <div *ngIf="success" class="isOKBox">
+            <mat-icon matListIcon>cloud_done</mat-icon> Invalidation request submitted!<br/>
+            This will take some time to process.
+        </div>
+
+        <div *ngIf="!loading">
+            <mat-form-field class="full-width">
+                <mat-select placeholder="CloudFront Distribution" [(ngModel)]="selectedTargetCF" required>
+                    <mat-option *ngFor="let dist of cfdists" value="{{dist.cfid}}"> {{dist.label}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+                <textarea cdkTextareaAutosize matInput placeholder="Paths to invalidate (separate by new line)" type="text"
+                    [(ngModel)]="paths"></textarea>
+            </mat-form-field>
+        </div>
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnSubmit()" [disabled]="loading">Submit</button>
+        <button mat-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

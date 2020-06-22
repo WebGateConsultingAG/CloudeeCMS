@@ -1,0 +1,155 @@
+@import '~@angular/material/theming';
+@include mat-core();
+
+$wgc-primary: mat-palette($mat-indigo, 700, 200, A700);
+$wgc-accent: mat-palette($mat-grey);
+$wgc-warn: mat-palette($mat-indigo);
+
+$wgc-theme: mat-light-theme($wgc-primary, $wgc-accent, $wgc-warn);
+
+@include angular-material-theme($wgc-theme);
+
+.fixedAppHeader { overflow-y: hidden; } /* apply this to the html.BODY tag to enable scrollable tab bodies */
+.fixedAppHeader .flxtabs { height: 100%; overflow-y: auto; background-color: white; } /* scrollbar in tab body. height set using javascript onresize! */
+.fixedAppHeader mat-sidenav-content { overflow-y: hidden; } /* disable full height scrollbar */
+.fixedAppHeader mat-sidenav-container { width: 100%; }
+.fixedAppHeader .flxtabs>.mat-tab-header { height: 49px;} /* make sure header height stays consistent */
+
+body.wgc { background-color: #f5f5f5; }
+.wgc .mat-sidenav-content { background-color: #ffffff; }
+.wgc .app-header {
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(left, #ffffff 0%, #f1f1f1 16%, #e1e1e1 32%, #e1e1e1 32%, #f6f6f6 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left, #ffffff 0%,#f1f1f1 16%,#e1e1e1 32%,#e1e1e1 32%,#f6f6f6 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right, #ffffff 0%,#f1f1f1 16%,#e1e1e1 32%,#e1e1e1 32%,#f6f6f6 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=1 ); 
+    color: #616161;
+    padding: 6px 12px;
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.16),0 1px 3px rgba(0,0,0,.23);
+    height: 52px;
+}
+.wgc .app-header a, .wgc .app-header a:visited { color: black;}
+.wgc .app-header a:hover { color: #616161; }
+.wgc .app-header-container { 
+    max-width: 1920px; margin: auto; 
+    display: flex;
+    height: 100%;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-line-pack: distribute;
+    align-content: space-around;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+}
+.wgc .app-header-content-left {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    margin-right: auto;
+    width: auto;
+    max-width: 1200px;
+}
+.wgc .app-header-content-right {
+    display: flex;
+    height: 100%;
+    width: auto;
+    max-width: 1200px;
+}
+.wgc .app-header .appLogo { width: 150px; padding-left: 12px; cursor: pointer; }
+.wgc .app-header .appTitle { font-size: 14px; margin: 0 20px; font-weight: bold; cursor: pointer; }
+
+.wgc .app-header .dspUsername { padding-top: 3px; }
+.wgc .app-header ul.navHeader { margin:0; padding: 0; list-style: none; }
+.wgc .app-header ul.navHeader li { margin:0; padding: 0; float: left; border-right: 1px solid #616161; }
+.wgc .app-header ul.navHeader li .mat-button { line-height: 25px; }
+.wgc .clrhdr { clear: both; height: 16px; }
+.wgc .clr { clear: both; }
+
+.wgc .viewTable { width: 100%; border-spacing: 0; border-collapse: collapse; font-size: 14px; }
+.wgc .viewTable th { text-align: left; border-bottom: 2px solid lightgray; padding: 6px; }
+.wgc .viewTable tbody td { border-bottom: 1px solid lightgray; padding: 6px; vertical-align: middle; }
+.wgc .clickableRows TBODY TR:hover > TD { background-color: #c0dcff; transition: background-color 0.3s linear; }
+.wgc .clickableRows TBODY TR > TD { cursor: pointer; transition: background-color 0.4s linear; }
+.wgc .clickableRows THEAD TR:hover > TD, .wgc .clickableRows THEAD TR > TD { background-color: white !important; }
+
+.wgc .viewTable .hoverActions { white-space: nowrap; }
+.wgc .viewTable .hoverActions .mat-icon { visibility: hidden; margin-left: 6px; }
+.wgc .viewTable tr:hover .hoverActions .mat-icon, .wgc .viewTable .permaActions .mat-icon { visibility: visible; cursor: pointer; cursor: pointer; margin-left: 6px; border-radius: 3px; }
+.wgc .viewTable tr:hover .hoverActions .mat-icon:hover, .wgc .viewTable .permaActions .mat-icon:hover { background-color: #f5a30f;  }
+
+.wgc .blockTabs .mat-tab-body-content { padding: 20px 12px 12px 12px; background-color: white; }
+.wgc .app-footer { background-color: #f1f1f1; color: white; }
+.wgc .app-footer-bar { background-color: #d8d8d8; clear: both; color: white; font-size: 13px; }
+
+.wgc .app-footer .container { padding: 24px 10px; }
+.wgc .app-footer-bar .container { padding: 10px; }
+.wgc .app-footer .wgcLogo { float: right; width: 180px; }
+
+.wgc .app-footer a, .wgc .app-footer a:visited { color: white; text-decoration: none; }
+.wgc .app-footer a:hover { text-decoration: none; } 
+.wgc .app-footer ul { margin: 0; padding: 0; list-style: none; }
+.wgc .app-footer ul li { margin-bottom: 10px; }
+.wgc .back-to-top { 
+    box-shadow: 0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23);
+    background-color: #ffc510;
+    width: 40px;
+    height: 40px;
+    float: right;
+    color: black !important;
+    display: block;
+    text-align: center;
+    padding: 8px;
+    right: 10%;
+    position: absolute;
+    margin-top: -20px;
+}
+.wgc .back-to-top:hover { box-shadow: 0 6px 6px rgba(0,0,0,.16),0 6px 6px rgba(0,0,0,.23); }
+
+.wgc .actionbar { float: right; }
+.wgc .actionbar button { margin-left: 6px; }
+.wgc .full-width { width: 100%; }
+
+.wgc .loader { margin-top: 0; }
+.wgc .loader .mat-spinner { margin: auto; margin-top: 50px; }
+
+.wgc .isOKBox { border: 1px solid rgb(35, 150, 0); background-color: #b9ffd1; border-radius: 3px; padding: 12px; margin-bottom: 16px; }
+.wgc .isErrorBox { border: 1px solid red; background-color: #ffe6e0; border-radius: 3px; padding: 12px; margin-bottom: 16px; }
+.wgc .isOKBox .mat-stroked-button { background-color: white; }
+.wgc .inputform mat-card { margin-bottom: 20px !important; }
+.wgc .codeField textarea { font-family: monospace; font-size: 13px !important; }
+
+.wgc .fieldsTable { font-size: 12px; }
+
+.wgc .cdk-drag-preview { /* the element that you drag around */
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgb(255, 145, 0);
+    cursor: dragging;
+}
+.wgc .cdk-drag-preview td { visibility: hidden; }
+
+.wgc table.sortable .cdk-drag-placeholder {
+    /* row where element is currently positioned while dragging */
+   opacity: 0.8;
+   background-color: rgb(254, 255, 203);
+   transition: background-color 250ms linear;
+}
+.wgc table.sortable .cdk-drag-animating { transition: transform 250ms linear; }
+.wgc table.sortable .cdk-drop-list-dragging .mat-row:not(.cdk-drag-placeholder) { transition: transform 250ms linear; }
+.wgc table.sortable .drag-handle { cursor: grab; }
+
+.wgc .loaderOverlay {
+    background-color: white;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: 999;
+    opacity: 0.8;
+}
+.permaActions .mat-icon, .hoverActions .mat-icon { background-color: #69a9f9; color: white; }

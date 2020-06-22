@@ -1,0 +1,6 @@
+ul.grouplist li.add { background-color: #96c9fd; padding: 3px 2px 3px 6px; }
+ul.grouplist { font-size: 13px; list-style-type: none; margin: 0; padding: 4px; border: 1px solid lightgray; border-radius: 4px; }
+ul.grouplist li { background-color: #D0D0D0; padding: 3px 2px 3px 8px; margin: 3px; border-radius: 4px; float: left; }
+ul.grouplist li .mat-icon { font-size: 20px; margin-top: 3px; vertical-align: middle; cursor: pointer; }
+ul.grouplist li .mat-icon:hover { color: white; }
+.label { color: #737373; font-size: 13px; margin-bottom: 4px; }

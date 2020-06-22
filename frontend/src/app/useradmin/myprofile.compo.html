@@ -1,0 +1,54 @@
+<div class="container" *ngIf="!loading">
+    <div class="actionbar">
+        <button mat-stroked-button (click)="btnChangePassword()">Change password</button>
+    </div>
+    <h3>My User Profile</h3>
+    <div class="clrhdr"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div *ngIf="loading">Loading user profile..</div>
+            <mat-card *ngIf="userLoaded">
+                <mat-card-header>
+                    <div mat-card-avatar class="wd-avatar">
+                        <mat-icon>account_circle</mat-icon>
+                    </div>
+                    <mat-card-title>{{userData.username}}</mat-card-title>
+                    <mat-card-subtitle></mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="wgcFormContainer">
+                        <!-- no longer editable -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <mat-form-field class="full-width">
+                                    <input matInput readonly placeholder="Firstname" [(ngModel)]="userData.attributes.given_name">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <mat-form-field class="full-width">
+                                    <input matInput readonly placeholder="Lastname" [(ngModel)]="userData.attributes.family_name">
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <mat-form-field class="full-width">
+                                    <input matInput readonly placeholder="Phone Number" [(ngModel)]="userData.attributes.phone_number">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-6">
+                                <mat-form-field class="full-width">
+                                    <input matInput readonly placeholder="E-Mail" [(ngModel)]="userData.attributes.email">
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div class="warning" *ngIf="errorMessage" color="accent" selected="true">{{errorMessage}}</div>
+
+                    </div>
+                </mat-card-content>
+            </mat-card>
+            <br/><br/>
+        </div>
+    </div>
+</div>

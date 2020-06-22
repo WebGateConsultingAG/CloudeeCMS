@@ -1,0 +1,46 @@
+<div>
+    <div *ngIf="!pwdChangeDone">
+
+        <div mat-dialog-content>
+            <h1 mat-dialog-title>Change password</h1>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Enter current password" [type]="hidepwd ? 'password' : 'text'"
+                    [(ngModel)]="existingPassword" required>
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd">{{hidepwd ? 'visibility' : 'visibility_off'}}
+                </mat-icon>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Enter new password" [type]="hidepwd ? 'password' : 'text'"
+                    [(ngModel)]="password" required>
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd">{{hidepwd ? 'visibility' : 'visibility_off'}}
+                </mat-icon>
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Repeat new Password" [type]="hidepwd ? 'password' : 'text'"
+                    [(ngModel)]="pwdrepeat" required>
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd">{{hidepwd ? 'visibility' : 'visibility_off'}}
+                </mat-icon>
+            </mat-form-field>
+            <div class="warning" *ngIf="errorMessage" color="accent" selected="true">{{errorMessage}}</div>
+
+        </div>
+        <div mat-dialog-actions>
+            <button mat-stroked-button (click)="btnSubmitPwdChange()" [disabled]="inProgress">Submit</button>
+            <button mat-button (click)="btnClose()">Cancel</button>
+        </div>
+    </div>
+
+    <div *ngIf="pwdChangeDone">
+        <div mat-dialog-content>
+            <h1 mat-dialog-title>Change password</h1>
+            <p>Password successfully changed!</p>
+        </div>
+        <div mat-dialog-actions>
+            <div>
+                <button mat-stroked-button (click)="btnClose()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+</div>

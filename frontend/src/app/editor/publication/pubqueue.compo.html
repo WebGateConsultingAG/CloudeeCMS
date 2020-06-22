@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <button mat-stroked-button (click)="btnCFDialog()">
+            <mat-icon>cloud_off</mat-icon> CloudFront invalidation..
+        </button>
+
+        <button mat-stroked-button (click)="btnAddAllToPubQueue()">
+            <mat-icon>library_add</mat-icon> Add all pages to queue
+        </button>
+
+        <mat-menu #pubMenu="matMenu">
+            <button mat-button class="mat-menu-item" (click)="btnPublish('selected')">
+                <mat-icon matListIcon>description</mat-icon> Selected pages
+            </button>
+           <!-- <button mat-button class="mat-menu-item" disabled="disabled" (click)="btnPublish('all')">
+                <mat-icon matListIcon>description</mat-icon> All pages
+            </button> -->
+        </mat-menu>
+
+        <button mat-stroked-button [matMenuTriggerFor]="pubMenu">
+            <mat-icon>cloud_upload</mat-icon> Publish..
+        </button>
+
+
+    </div>
+    <h3>Pages marked for publication</h3>
+    <div class="clrhdr"></div>
+
+    <table class="viewTable clickableRows">
+        <thead>
+            <tr>
+                <th style="width: 1%">
+                    <button mat-icon-button (click)="loadView(true)" title="Click to refresh">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </th>
+                <th style="width: 35%">Path</th>
+                <th style="width: 63%">Title</th>
+                <th style="width: 1%">
+                    <mat-checkbox [(ngModel)]="selectAll" (change)="setSelectAll()"
+                        title="{{selectAll?'Deselect':'Select'}} all"></mat-checkbox>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of viewList | orderBy: {property: 'opath', direction: 1}">
+                <td>
+                    <mat-icon matListIcon>description</mat-icon>
+                </td>
+                <td (click)="btnNavigateTo('editor/pages/edit/'+item.id)">{{item.opath}}</td>
+                <td (click)="btnNavigateTo('editor/pages/edit/'+item.id)">{{item.title}}</td>
+                <td>
+                    <mat-checkbox [(ngModel)]="item.sel"></mat-checkbox>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="padding-top: 16px;">
+        <div style="float:right;">
+            <button mat-stroked-button [disabled]="!allowScrollPrev" (click)="scrollView(false)">
+                <mat-icon>chevron_left</mat-icon>
+            </button>&nbsp;
+            <button mat-stroked-button [disabled]="!allowScrollFwd" (click)="scrollView(true)">
+                <mat-icon>chevron_right</mat-icon>
+            </button>&nbsp;
+        </div>
+        Total Pages in Queue: {{queueList.length}}
+    </div>
+</div>

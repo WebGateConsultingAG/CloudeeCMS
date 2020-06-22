@@ -1,0 +1,179 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudeeCMS CloudFront Distributions 2020-05-25 10:00
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Settings
+        Parameters:
+          - ProjectName
+      - Label:
+          default: Website Settings
+        Parameters:
+          - CdnURL
+          - AcmCertificateCDN
+          - ProdURL
+          - AcmCertificatePROD
+          - CloudFrontParam
+    ParameterLabels:
+      CdnURL:
+        default: CDN URL
+      AcmCertificateCDN:
+        default: Certificate for CDN URL
+      ProdURL:
+        default: Production URL
+      AcmCertificatePROD:
+        default: Certificate for Production URL
+      ProjectName:
+        default: Project Name
+      CloudFrontParam:
+        default: CloudFront Price Class
+Parameters:
+  ProjectName:
+    Type: String
+    Description: The name of this CMS Project, all lower case
+    Default: "examplecms"
+    AllowedPattern: '[a-z0-9\-]*'
+    ConstraintDescription: "Only lowercase and alphanumeric characters."
+  CloudFrontParam:
+    Type: String
+    Default: PriceClass_100
+    Description: The CloudFront PriceClass (US,Canada,Europe / US,Canada,EMEA / All)
+    AllowedValues:
+      - 'PriceClass_100'
+      - 'PriceClass_200'
+      - 'PriceClass_All'
+  AcmCertificateCDN:
+    Type: String
+    Default: ""
+    Description: The ARN of the CDN certificate for CloudFront - Has to be in us-east-1
+  AcmCertificatePROD:
+    Type: String
+    Default: ""
+    Description: The ARN of the PROD certificate for CloudFront - Has to be in us-east-1
+  CdnURL:
+    Type: String
+    Default: cdn.yourdomain.com
+    Description: The URL of the CDN
+  ProdURL:
+    Type: String
+    Default: www.yourdomain.com
+    Description: The URL of the website
+    
+Resources:
+
+  TempBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-cloudeecms-temp-cfd-${AWS::AccountId}
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "Authorization"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3000
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - POST
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - PUT
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
+
+  CloudFrontOrigin:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub ${ProjectName}-OAI
+  CloudfrontDistCDN:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: CloudFrontOrigin
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref CdnURL
+        Origins:
+          - DomainName: !GetAtt TempBucket.DomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOrigin}"
+        Enabled: true
+        Comment: "CDN Content Delivery Network for CloudeeCMS website"
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 0
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          AllowedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: !Ref CloudFrontParam
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateCDN
+          MinimumProtocolVersion: TLSv1.1_2016
+          SslSupportMethod: sni-only
+  CloudfrontDistProd:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: CloudFrontOrigin
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref ProdURL
+        Origins:
+          - DomainName: !GetAtt TempBucket.DomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOrigin}"
+        Enabled: true
+        Comment: "CloudeeCMS website"
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 0
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          AllowedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: !Ref CloudFrontParam
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificatePROD
+          MinimumProtocolVersion: TLSv1.1_2016
+          SslSupportMethod: sni-only
+ 

@@ -1,0 +1,23 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>File upload</h1>
+        <p>Destination folder: /{{uplPath}}</p>
+        <input style="display:none;" id="input-file-upl" type="file" accept="{{accept}}" multiple (change)="startFileUpload($event.target.files)"/>
+        <label for="input-file-upl" class="mat-stroked-button mat-default" title="Upload files" *ngIf="!uploading">
+                <mat-icon>add_box</mat-icon><span> &nbsp;Select files..</span>
+        </label>
+        
+        <div class="uplProgress" *ngIf="showUploader">
+            <div class="uplFile" *ngFor="let file of files">
+                {{file.name}}<br/>
+                <mat-progress-bar *ngIf="progress" [value]="progress[file.name].progress | async" mode="determinate" value=40 color="warn"></mat-progress-bar>
+            </div>
+        </div>
+
+        <br/><br/>
+    </div>
+    <div class="warning" style="white-space: pre-line;" *ngIf="hasError" color="accent" selected="true">There was a problem</div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDialogClose()">Close</button>
+    </div>
+</div>

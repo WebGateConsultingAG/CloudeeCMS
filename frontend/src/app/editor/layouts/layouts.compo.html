@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <button mat-stroked-button (click)="btnNavigateTo('editor/layouts/edit/NEW')">
+            <mat-icon matListIcon>table_chart</mat-icon> New Layout
+        </button>
+    </div>
+    <h3>Layouts</h3>
+    <div class="clrhdr"></div>
+    <table class="viewTable clickableRows">
+        <thead>
+            <tr>
+                <th style="width: 1%">
+                    <button mat-icon-button (click)="loadView(true)" title="Click to refresh"> 
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </th>
+                <th style="width: 15%">Key</th>
+                <th style="width: 85%">Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of viewList | orderBy: {property: 'okey', direction: 1}" (click)="btnNavigateTo('editor/layouts/edit/'+item.id)">
+                <td><mat-icon matListIcon>table_chart</mat-icon></td>
+                <td>{{item.okey}}</td>
+                <td class="clickable">{{item.title}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,19 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Add user to group</h1>
+
+        <mat-form-field class="full-width" *ngIf="!loading">
+            <mat-select placeholder="Select group" [(ngModel)]="selectedGroup" required>
+                <mat-option *ngFor="let itm of allgroups" [value]="itm">
+                        {{itm}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <br/>
+        
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDialogConfirm()">Apply</button>
+        <button mat-button (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

@@ -1,0 +1,109 @@
+<div>
+    <div mat-dialog-content>
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/field-types" target="_blank"
+            style="float: right;" title="Help">
+            <mat-icon>help_outline</mat-icon>
+        </a>
+        <h1 mat-dialog-title>Field</h1>
+
+        <div class="row">
+            <div class="col-md-4">
+                <mat-form-field class="full-width">
+                    <mat-select placeholder="Field type" [(ngModel)]="fld.fldType" required>
+                        <mat-option *ngFor="let fldType of lstFldTypes" value="{{fldType.val}}"> {{fldType.label}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-md-4">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Field title" type="text" [(ngModel)]="fld.fldTitle" required>
+                </mat-form-field>
+            </div>
+            <div class="col-md-4">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Variable name in pug template" type="text" [(ngModel)]="fld.fldName"
+                        required>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="fld.fldType === 'container'">
+            <div class="col-md-4">
+                <mat-checkbox [(ngModel)]="fld.restrictChilds" (ngModelChange)="loadMTSelection()"> Restrict container
+                    elements
+                </mat-checkbox>
+            </div>
+            <div class="col-md-8">
+                <mat-form-field class="full-width" *ngIf="fld.restrictChilds && lstMTLoaded">
+                    <mat-select multiple="true" placeholder="Allowed Micro Templates in this container"
+                        [(ngModel)]="fld.accepts" required>
+                        <mat-option *ngFor="let itm of lstMT | orderBy: {property: 'title', direction: 1 }"
+                            [value]="itm.id">
+                            {{ itm.title }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="fld.fldType==='dropdown'">
+            <div class="col-md-4">
+                <mat-form-field class="full-width" *ngIf="fld.fldType==='dropdown'">
+                    <mat-select placeholder="Field value type" [(ngModel)]="fld.fldValueType" required>
+                        <mat-option value="text"> Text</mat-option>
+                        <mat-option value="JSON"> JSON</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="col-md-4">
+                <mat-checkbox [(ngModel)]="fld.multiple"> Allow multiple selection
+                </mat-checkbox>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="fld.fldType==='dropdown'">
+            <div class="col-md-12">
+                <table class="viewTable fieldsTable sortable dropDownSelTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 20px;"></th>
+                            <th>Label</th>
+                            <th>Value {{fld.fldValueType==='JSON'?'(JSON)':''}}</th>
+                            <th class="permaActions" style="text-align: right;">
+                                <mat-icon title="Add entry" (click)="btnAddDDEntry()">add</mat-icon>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody cdkDropList (cdkDropListDropped)="dropSortObj(fld.selValues, $event)">
+                        <tr *ngFor="let entry of fld.selValues" cdkDrag title="Drag to change sort order">
+                            <td class="drag-handle">
+                                <mat-icon>drag_indicator</mat-icon>
+                            </td>
+                            <td>
+                                <input type="text" [(ngModel)]="entry.label" placeholder="Enter label" />
+                            </td>
+                            <td>
+                                <input type="text" [(ngModel)]="entry.val" placeholder="{{fld.fldValueType==='JSON'?'Enter JSON payload':'Enter value'}}" />
+                            </td>
+                            <td class="hoverActions" style="text-align: right;">
+                                <mat-icon title="Delete" (click)="btnDeleteDDEntry(entry)">delete</mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+            </div>
+        </div>
+
+        <div class="isErrorBox" *ngIf="selValueValidation">{{selValueValidation}}</div>
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnApply()" [disabled]="!isValidated()">
+            <mat-icon matListIcon>check</mat-icon>
+            Apply
+        </button>
+        <button mat-button (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} CF Distribution</h1>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Label" type="text" [(ngModel)]="dist.label">
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Distribution ID" type="text" [(ngModel)]="dist.cfid">
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Web URL" type="text" [(ngModel)]="dist.webURL">
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Variable name to access web URL in layouts as #{env.{{dist.webURLVAR || 'VariableName'}}}" type="text" (keyup)="chkWebURLVarError()" [(ngModel)]="dist.webURLVAR">
+            <mat-hint *ngIf="webURLVarError">Illegal characters in variable name!</mat-hint>
+        </mat-form-field>
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDone()">
+            <mat-icon matListIcon>done</mat-icon>
+            Done
+        </button>
+        <button mat-button *ngIf="isNew" (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

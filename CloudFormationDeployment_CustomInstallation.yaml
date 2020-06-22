@@ -1,0 +1,949 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudeeCMS Auto Deployment Custom Installation (Online Update) 2020-06-06 08:00
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: CMS Settings
+        Parameters:
+          - ProjectName
+      - Label:
+          default: Website Settings
+        Parameters:
+          - ProdURL
+          - BYOCloudfrontDistProdID
+          - CdnURL
+          - BYOCloudfrontDistCDNID
+      - Label:
+          default: Decisions
+        Parameters:
+          - CognitoDecision
+          - EnableOAUTH
+      - Label:
+          default: Optional Settings - Cognito - only required if (A) = true
+        Parameters:
+          - CognitoUserEmail
+      - Label:
+          default: Optional Settings - Cognito - only required if (A) = false
+        Parameters:
+          - BYOCognitoPoolARN
+          - BYOCognitoPoolID
+          - BYOCognitoClientID
+      - Label:
+          default: Optional Settings - External IdP - only required if (B) = true
+        Parameters:
+          - OAUTHDOMAIN
+          - OAUTHLoginLabel
+          - SAMLMetadataURL
+    ParameterLabels:
+      CognitoDecision:
+        default: (A) Cognito Decision
+      CognitoIdPCondition:
+        default: Cognito IdP Decision
+      CognitoUserEmail:
+        default: Email address of admin user
+      CdnURL:
+        default: CDN URL
+      ProdURL:
+        default: Production URL
+      ProjectName:
+        default: Project Name
+      EnableOAUTH:
+        default: (B) External IdP Login?
+      OAUTHLoginLabel:
+        default: Login Label for IdP
+      SAMLMetadataURL:
+        default: URL of the SAML Metadata File
+      OAUTHDOMAIN:
+        default: Cognito UserPool Domain Name
+      BYOCognitoPoolARN:
+        default: Cognito UserPool ARN
+      BYOCognitoPoolID:
+        default: Cognito UserPool ID
+      BYOCognitoClientID:
+        default: Cognito UserPool App Client ID
+      BYOCloudfrontDistProdID:
+        default: CloudFront Distribution (Production Website)
+      BYOCloudfrontDistCDNID:
+        default: CloudFront Distribution (CDN)
+Parameters:
+  ProjectName:
+    Type: String
+    Description: The name of this CMS Project, all lower case
+    Default: "examplecms"
+    AllowedPattern: '[a-z0-9\-]*'
+    ConstraintDescription: "Only lowercase and alphanumeric characters."
+  CognitoDecision:
+    Type: String
+    Description: Create a Cognito UserPool? If you select false, you must specify an existing user pool id and app client id.
+    Default: "true"
+    AllowedValues:
+      - 'true'
+      - 'false'
+  CognitoUserEmail:
+    Type: String
+    Description: "Enter a valid email address for the admin user login."
+    Default: ""
+  BYOCognitoPoolARN:
+    Type: String
+    Default: ""
+    Description: The ARN of your existing Cognito User Pool.
+  BYOCognitoPoolID:
+    Type: String
+    Default: ""
+    Description: The ID of your existing Cognito User Pool.
+  BYOCognitoClientID:
+    Type: String
+    Default: ""
+    Description: The existing Cognito App Client ID.
+  EnableOAUTH:
+    Type: String
+    Description: Allow login using IdP? (e.g. Azure AD) If you select true, you must enter a valid Metadata URL for the external IdP
+    Default: "false"
+    AllowedValues:
+      - 'true'
+      - 'false'
+  OAUTHDOMAIN:
+    Type: String
+    Description: IdP domain used for oAuth login
+    Default: "YOURENDPOINT.auth.YOURREGION.amazoncognito.com"
+  OAUTHLoginLabel:
+    Type: String
+    Description: Label on login form for sign-in when using IdP.
+    Default: "Sign in with Azure AD Account"
+  SAMLMetadataURL:
+    Type: String
+    Description: URL of the SAML Metadata File.
+    Default: "https://URLTOMETADATAFILE"
+  CdnURL:
+    Type: String
+    Default: cdn.yourdomain.com
+    Description: The URL of the CDN
+  ProdURL:
+    Type: String
+    Default: www.yourdomain.com
+    Description: The URL of the website
+  BYOCloudfrontDistCDNID:
+    Type: String
+    Default: ""
+    Description: ID of CloudFront Distribution
+  BYOCloudfrontDistProdID:
+    Type: String
+    Default: ""
+    Description: ID of CloudFront Distribution
+Conditions:
+  CognitoCondition: !Equals
+    - !Ref CognitoDecision
+    - 'true'
+  EnableOAUTHCondition: !Equals
+    - !Ref EnableOAUTH
+    - 'true'
+  CognitoIdPCondition: !And
+    - !Condition EnableOAUTHCondition
+    - !Condition CognitoCondition
+Resources:
+  CodePipelineSourceBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub ${ProjectName}-pipeline-source-${AWS::AccountId}
+      VersioningConfiguration:
+        Status: Enabled
+  PipelineArtifactsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub ${ProjectName}-pipeline-artifacts-${AWS::AccountId}
+  AdminBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-cloudeecms-editor-${AWS::AccountId}
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
+  TestBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-cloudeecms-test-${AWS::AccountId}
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "Authorization"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3000
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - POST
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - PUT
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
+  ProdBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-cloudeecms-prod-${AWS::AccountId}
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "Authorization"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3000
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - POST
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - PUT
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
+  CDNBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${ProjectName}-cloudeecms-cdn-${AWS::AccountId}
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "Authorization"
+            AllowedMethods:
+              - GET
+            AllowedOrigins:
+              - "*"
+            MaxAge: 3000
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - POST
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - PUT
+            AllowedOrigins:
+              - "*"
+            ExposedHeaders:
+              - x-amz-request-id
+              - x-amz-id-2
+      MetricsConfigurations:
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Delete
+  CFDeployerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-cloudformationdeployer-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+  CFDeployerPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub ${ProjectName}-cloudformationdeployer-policy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: General
+            Effect: Allow
+            Action:
+              - iam:CreateRole
+              - iam:AttachRolePolicy
+              - iam:DetachRolePolicy
+              - iam:DeleteRole
+              - iam:GetRole
+              - iam:PassRole
+              - iam:CreatePolicy
+              - iam:CreatePolicyVersion
+              - iam:DeletePolicy
+              - iam:DeletePolicyVersion
+              - iam:GetPolicy
+              - iam:GetPolicyVersion
+              - iam:ListPolicyVersions
+              - lambda:CreateFunction
+              - lambda:GetFunction
+              - lambda:DeleteFunction
+              - lambda:GetFunctionConfiguration
+              - lambda:AddPermission
+              - lambda:RemovePermission
+              - lambda:UpdateFunctionCode
+              - lambda:UpdateFunctionConfiguration
+              - lambda:ListTags
+              - apigateway:POST
+              - apigateway:PATCH
+              - apigateway:DELETE
+              - apigateway:GET
+              - apigateway:PUT
+              - logs:*
+            Resource: "*"
+          - Sid: CodePipeline
+            Effect: Allow
+            Action:
+              - codepipeline:StartPipelineExecution
+            Resource: "*"
+          - Sid: CloudFormation
+            Effect: Allow
+            Action:
+              - cloudformation:*
+            Resource: "*"
+          - Sid: S3
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:GetBucketPolicy
+              - s3:GetObject
+              - s3:DeleteObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-artifacts-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-artifacts-${AWS::AccountId}'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-source-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-source-${AWS::AccountId}'
+      Roles:
+        -
+          !Ref CFDeployerRole
+  CodePipelinePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub ${ProjectName}-CodePipeline
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: S3
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:GetBucketPolicy
+              - s3:GetObject
+              - s3:DeleteObject
+              - s3:ListBucket
+            Resource:
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-artifacts-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-artifacts-${AWS::AccountId}'
+              - !Sub 'arn:aws:s3:::${ProjectName}-cloudeecms-editor-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-cloudeecms-editor-${AWS::AccountId}'
+          - Sid: S3PipelineSource
+            Effect: Allow
+            Action:
+              - s3:*
+            Resource:
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-source-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-source-${AWS::AccountId}'
+          - Sid: cloudformation
+            Effect: Allow
+            Action: [
+              "cloudformation:DescribeStacks",
+              "cloudformation:CreateStack",
+              "cloudformation:UpdateStack",
+              "cloudformation:DescribeChangeSet",
+              "cloudformation:CreateChangeSet",
+              "cloudformation:ExecuteChangeSet",
+              "cloudformation:DeleteChangeSet"
+            ]
+            Resource:
+              - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}*'
+          - Sid: codebuild
+            Effect: Allow
+            Action: [
+              "codebuild:StartBuild",
+              "codebuild:BatchGetBuilds"
+            ]
+            Resource:
+              - !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${ProjectName}-buildproject-backend'
+              - !Sub 'arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${ProjectName}-buildproject-frontend'
+          - Sid: iam
+            Effect: Allow
+            Action: iam:PassRole
+            Resource: !GetAtt CFDeployerRole.Arn
+  CodePipelineRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns: [
+        !Ref CodePipelinePolicy
+      ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - "codepipeline.amazonaws.com"
+      Path: /
+      RoleName: !Sub ${ProjectName}_CodePipeline_Role
+  CodeBuildPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub ${ProjectName}-CodeBuildAccess_Buckets
+      Path: "/"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: S3
+            Effect: Allow
+            Action:
+              - s3:PutObject
+              - s3:DeleteObject
+              - s3:GetBucketPolicy
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:PutObjectAcl
+            Resource:
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-artifacts-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-artifacts-${AWS::AccountId}'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-source-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-pipeline-source-${AWS::AccountId}'
+              - !Sub 'arn:aws:s3:::${ProjectName}-webpages-bucket-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-webpages-bucket-${AWS::AccountId}'
+              - !Sub 'arn:aws:s3:::${ProjectName}-cloudeecms-editor-${AWS::AccountId}/*'
+              - !Sub 'arn:aws:s3:::${ProjectName}-cloudeecms-editor-${AWS::AccountId}'
+          - Sid: cloudwatch
+            Effect: Allow
+            Action: [
+              "logs:CreateLogStream",
+              "logs:PutLogEvents",
+              "logs:CreateLogGroup"
+            ]
+            Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}-*'
+          - Sid: cloudformation
+            Effect: Allow
+            Action: [
+              "cloudformation:DescribeStacks"
+            ]
+            Resource: !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}-Backend*'
+          - Sid: dynamodb
+            Effect: Allow
+            Action: [
+              "dynamodb:GetItem",
+              "dynamodb:PutItem",
+              "dynamodb:DeleteItem",
+              "dynamodb:UpdateItem"
+            ]
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ProjectName}-CMS'
+  CodeBuildRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      ManagedPolicyArns: [
+        !Ref CodeBuildPolicy
+      ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - "codebuild.amazonaws.com"
+      Path: /
+      RoleName: !Sub ${ProjectName}_CodeBuild_Role
+  CodeBuildProjectBackend:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec_1_backend.yml
+      ServiceRole: !Ref CodeBuildRole
+      Name: !Sub ${ProjectName}-buildproject-backend
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        EnvironmentVariables:
+          - Name: PIPELINE_BUCKET
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-pipeline-artifacts-${AWS::AccountId}
+      TimeoutInMinutes: 10
+  CodeBuildProjectFrontend:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec_2_frontend.yml
+      ServiceRole: !Ref CodeBuildRole
+      Name: !Sub ${ProjectName}-buildproject-frontend
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        EnvironmentVariables:
+          - Name: S3_BUCKET
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-pipeline-artifacts-${AWS::AccountId}
+          - Name: S3BUCKET_CDN
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-cloudeecms-cdn-${AWS::AccountId}
+          - Name: S3BUCKET_TEST
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-cloudeecms-test-${AWS::AccountId}
+          - Name: S3BUCKET_PROD
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-cloudeecms-prod-${AWS::AccountId}
+          - Name: S3BUCKET_PROD_URL
+            Type: PLAINTEXT
+            Value: !GetAtt ProdBucket.WebsiteURL
+          - Name: S3BUCKET_TEST_URL
+            Type: PLAINTEXT
+            Value: !GetAtt TestBucket.WebsiteURL
+          - Name: CFDIST_CDN_ID
+            Type: PLAINTEXT
+            Value: !Sub ${BYOCloudfrontDistCDNID}
+          - Name: CFDIST_PROD_ID
+            Type: PLAINTEXT
+            Value: !Sub ${BYOCloudfrontDistProdID}
+          - Name: CFDIST_CDN_URL
+            Type: PLAINTEXT
+            Value: !Sub ${CdnURL}
+          - Name: CFDIST_PROD_URL
+            Type: PLAINTEXT
+            Value: !Sub ${ProdURL}
+          - Name: DYNAMO_TABLE_NAME
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-CMS
+          - Name: STACKNAME
+            Type: PLAINTEXT
+            Value: !Sub ${AWS::StackName}-Backend
+          - Name: S3BUCKET_ADMIN
+            Type: PLAINTEXT
+            Value: !Sub ${ProjectName}-cloudeecms-editor-${AWS::AccountId}
+          - Name: ADMINBUCKETURL
+            Type: PLAINTEXT
+            Value: !GetAtt AdminBucket.RegionalDomainName
+          - Name: EnableOAUTH
+            Type: PLAINTEXT
+            Value: !Sub ${EnableOAUTH}
+          - Name: OAUTHDOMAIN
+            Type: PLAINTEXT
+            Value: !Sub ${OAUTHDOMAIN}
+          - Name: OAUTHLoginLabel
+            Type: PLAINTEXT
+            Value: !Sub ${OAUTHLoginLabel}
+          - Name: REGION
+            Type: PLAINTEXT
+            Value: !Sub ${AWS::Region}
+          - Name: ONLINEUPDATE
+            Type: PLAINTEXT
+            Value: "true"
+      TimeoutInMinutes: 15
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    DependsOn: CodePipelineSourceBucket
+    Properties:
+      Tags: 
+        - 
+          Key: "InitialVersion"
+          Value: !GetAtt StartFirstRunLambda.version
+        -
+          Key: "SourceLoaded"
+          Value: !GetAtt StartFirstRunLambda.status
+      
+      RoleArn: !GetAtt  CodePipelineRole.Arn
+      Name: !Sub ${ProjectName}-pipeline
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceS3ZIP
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: S3
+              Configuration:
+                S3Bucket: !Ref CodePipelineSourceBucket
+                S3ObjectKey: "codepipeline/cloudeecms/deploy.zip"
+                PollForSourceChanges: 'false'
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProjectBackend
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+        - Name: Deploy-Backend
+          Actions:
+            - Name: Deploy-Backend-Functions
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: !Sub ${ProjectName}-Backend-ChangeSet
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: !Sub ${AWS::StackName}-Backend
+                Capabilities: CAPABILITY_NAMED_IAM
+                ParameterOverrides: !If [CognitoCondition, !Sub '{"CognitoUserPoolID": "${UserPool}", "CognitoUserPoolARN": "${UserPool.Arn}", "CognitoClientID": "${UserPoolClient}", "DBTableName": "${ProjectName}-CMS", "AdminBucket": "${AdminBucket}", "TestBucket": "${TestBucket}", "ProdBucket": "${ProdBucket}", "CDNBucket": "${CDNBucket}", "PipelineName": "${ProjectName}-pipeline", "PipelineBucket": "${CodePipelineSourceBucket}", "CloudFrontProdDistId": "${BYOCloudfrontDistProdID}", "CloudFrontCDNDistId": "${BYOCloudfrontDistCDNID}"}', !Sub '{"CognitoUserPoolID": "${BYOCognitoPoolID}", "CognitoUserPoolARN": "${BYOCognitoPoolARN}", "CognitoClientID": "${BYOCognitoClientID}", "DBTableName": "${ProjectName}-CMS", "AdminBucket": "${AdminBucket}", "TestBucket": "${TestBucket}", "ProdBucket": "${ProdBucket}", "CDNBucket": "${CDNBucket}", "PipelineName": "${ProjectName}-pipeline", "PipelineBucket": "${CodePipelineSourceBucket}", "CloudFrontProdDistId": "${BYOCloudfrontDistProdID}", "CloudFrontCDNDistId": "${BYOCloudfrontDistCDNID}"}']
+                TemplatePath: BuildArtifact::outputSAMTemplate_backend.yaml
+                RoleArn: !GetAtt  CFDeployerRole.Arn
+              InputArtifacts:
+                - Name: BuildArtifact
+              OutputArtifacts:
+                - Name: ChangeSetArtifact
+              RunOrder: 1
+            - Name: ExecuteChangeSet-Backend
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: !Sub ${ProjectName}-Backend-ChangeSet
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: !Sub ${AWS::StackName}-Backend
+                RoleArn: !GetAtt  CFDeployerRole.Arn
+              InputArtifacts:
+                - Name: ChangeSetArtifact
+              OutputArtifacts:
+                - Name: ExecArtifact
+              RunOrder: 2
+        - Name: Compile-Frontend
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref CodeBuildProjectFrontend
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: FrontendArtifact
+              RunOrder: 1
+      ArtifactStore:
+        Location: !Sub ${ProjectName}-pipeline-artifacts-${AWS::AccountId}
+        Type: "S3"
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: "HASH"
+      TableName: !Sub ${ProjectName}-CMS
+  UserPool:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${ProjectName}-UserPool
+      AutoVerifiedAttributes:
+        - email
+      AliasAttributes:
+        - 'email'
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+  UserPoolDomain:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub ${ProjectName}-${AWS::AccountId}
+      UserPoolId: !Ref UserPool
+  UserPoolIdentityProvider:
+    Condition: CognitoIdPCondition
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      ProviderName: IdP
+      ProviderType: "SAML"
+      ProviderDetails: {"MetadataURL": !Ref SAMLMetadataURL}
+      AttributeMapping: {"email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", "family_name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname", "given_name": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"}
+      UserPoolId: !Ref UserPool
+  UserPoolClient:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: !Sub scms-${ProjectName}
+      GenerateSecret: false
+      RefreshTokenValidity: 30
+      SupportedIdentityProviders:
+        - !If [CognitoIdPCondition, 'IdP', !Ref 'AWS::NoValue']
+      CallbackURLs:
+        - "http://localhost:4200/login-redirect"
+        - !Sub https://${AdminBucket.RegionalDomainName}/scms/index.html
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - openid
+        - email
+        - aws.cognito.signin.user.admin
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      ReadAttributes:
+        - address
+        - birthdate
+        - email
+        - email_verified
+        - family_name
+        - gender
+        - given_name
+        - locale
+        - middle_name
+        - name
+        - nickname
+        - phone_number
+        - phone_number_verified
+        - picture
+        - preferred_username
+        - profile
+        - zoneinfo
+        - updated_at
+        - website
+      WriteAttributes:
+        - address
+        - birthdate
+        - email
+        - family_name
+        - gender
+        - given_name
+        - locale
+        - middle_name
+        - name
+        - nickname
+        - phone_number
+        - picture
+        - preferred_username
+        - profile
+        - zoneinfo
+        - updated_at
+        - website
+  CognitoGroupAdmins:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: CloudeeCMS Full Admins (full access to all functions)
+      GroupName: CloudeeCMS-Admin
+      UserPoolId: !Ref UserPool
+  CognitoGroupLayoutEditors:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: CloudeeCMS Layout Editors (can edit layouts, layout blocks, micro templates)
+      GroupName: CloudeeCMS-LayoutEditor
+      UserPoolId: !Ref UserPool
+  CognitoGroupUserAdmins:
+    Condition: CognitoCondition
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      Description: CloudeeCMS User Admins (can view and edit cognito users)
+      GroupName: CloudeeCMS-UserAdmin
+      UserPoolId: !Ref UserPool
+  CognitoAdminUser:
+    Condition: CognitoCondition
+    DependsOn: UserPool
+    Type: AWS::Cognito::UserPoolUser
+    Properties: 
+      DesiredDeliveryMediums: 
+        - 'EMAIL'
+      Username: "cloudeecmsadmin"
+      UserPoolId: !Ref UserPool
+      UserAttributes:
+        - Name: email
+          Value: !Sub ${CognitoUserEmail}
+  CognitoAdminGroupMembership1:
+    Condition: CognitoCondition
+    DependsOn: CognitoAdminUser
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: CloudeeCMS-Admin
+      Username: cloudeecmsadmin
+      UserPoolId: !Ref UserPool
+  CognitoAdminGroupMembership2:
+    Condition: CognitoCondition
+    DependsOn: CognitoAdminUser
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: CloudeeCMS-UserAdmin
+      Username: cloudeecmsadmin
+      UserPoolId: !Ref UserPool
+  StartFirstRunLambda:
+    Type: Custom::StartFirstRunLambda
+    Properties:
+      ServiceToken: !GetAtt CloudeeFirstRunLambda.Arn
+      Region: !Ref "AWS::Region"
+  CloudeeFirstRunLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Run this once to finalize setup of CloudeeCMS
+      Runtime: nodejs12.x
+      Role: !GetAtt CFDeployerRole.Arn
+      Handler: index.handler
+      Timeout: 40
+      Environment:
+        Variables:
+          PIPELINE_NAME: !Sub ${ProjectName}-pipeline
+          PIPELINE_BUCKET: !Sub ${CodePipelineSourceBucket}
+          WEBAPP_BUCKET: !Sub ${AdminBucket.RegionalDomainName}
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const s3 = new AWS.S3();
+          const fs = require('fs');
+          const http = require('https');
+          const response = require('cfn-response');
+          const updURL = 'https://notifications.cloudee-cms.com/api/notifications';
+          exports.handler = async function(event, context) {
+            try {
+              console.log( "*** URL of CloudeeCMS Editor will be: https://"+process.env.WEBAPP_BUCKET+'/scms/index.html');
+              const pipelineBucket = process.env.PIPELINE_BUCKET;
+              const pipelineName = process.env.PIPELINE_NAME;
+              const updateSourceFilename = '/tmp/deploy.zip';
+              let updateSrc = await httpGET(updURL+'?action=getlatestversion');
+              console.log(`Downloading ${updateSrc.data.availableVersion} from ${updateSrc.data.updateURL}`);
+              await httpDownload(updateSrc.data.updateURL, updateSourceFilename).then(
+                  () => { console.log("File downloaded")},
+                  async (err) => {
+                    console.log(err);
+                  }
+              );
+              if (!fs.existsSync(updateSourceFilename)) {
+                  console.warn( 'Failed to download update' );
+                  return response.send(event, context, response.FAILED, { status: "Download FAILED", version: updateSrc.data.availableVersion });
+              }
+              console.log(updateSourceFilename, fs.statSync(updateSourceFilename));
+              console.log('Uploading to S3', pipelineBucket);
+              let fbuf = fs.readFileSync(updateSourceFilename);
+
+              await s3.putObject({
+                  Bucket: pipelineBucket, Key: 'codepipeline/cloudeecms/deploy.zip', Body: fbuf, ContentType: 'application/zip'
+              }).promise().then(
+                  (data) => { },
+                  (err) => {
+                      console.warn( 'Failed to upload to s3', err);
+                      return response.send(event, context, response.SUCCESS, { status: "S3 Upload FAILED", version: updateSrc.data.availableVersion });
+                  }
+              );
+              return response.send(event, context, response.SUCCESS, { status: "OK", version: updateSrc.data.availableVersion });
+            } catch (e) {
+              return response.send(event, context, response.SUCCESS, { status: "Script Error", version: "unknown" });
+            }
+          };
+          const httpDownload = (url, dest) => {
+              return new Promise((resolve, reject) => {
+                    http.get(url, res => {
+                          let bytes = 0;
+                          let bodyChunks = [];
+                          res.on('data', chunk => {
+                                bodyChunks.push(chunk);
+                                bytes += chunk.length;
+                          });
+                          res.on('end', () => {
+                                var buf = new Buffer.alloc(bytes);
+                                var c = 0;
+                                for (var i = 0; i < bodyChunks.length; i++) {
+                                      bodyChunks[i].copy(buf, c, 0);
+                                      c += bodyChunks[i].length;
+                                }
+                                fs.writeFileSync(dest, buf, { flags: 'w', encoding: null, mode: 0o666 });
+                                resolve();
+                          });
+                    }).on('error', reject);
+              });
+          };
+          function httpGET(url) {
+              return new Promise((resolve, reject) => {
+                  const req = http.request(url, (res) => {
+                      if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error('statusCode=' + res.statusCode));
+                      var body = [];
+                      res.on('data', function (chunk) { body.push(chunk); });
+                      res.on('end', function () {
+                          try {
+                              resolve(JSON.parse(Buffer.concat(body).toString()));
+                          } catch (e) {
+                              reject(e);
+                          }
+                      });
+                  });
+                  req.on('error', (e) => { reject(e.message); });
+                  req.end();
+              });
+          }
+Outputs:
+  AdminBucket:
+    Value: !Sub 'https://${AdminBucket.RegionalDomainName}/scms/index.html'
+    Export:
+      Name: WebsiteURL

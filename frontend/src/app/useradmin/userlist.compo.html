@@ -1,0 +1,39 @@
+<div class="container">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/cognitouserreg" target="_blank" title="Help">
+            <mat-icon>help_outline</mat-icon>
+        </a>
+        <button mat-stroked-button (click)="btnNewUser()">
+            <mat-icon matListIcon>person_add</mat-icon> New User
+        </button>
+    </div>
+    <h3>User Profiles</h3>
+    <div class="clrhdr"></div>
+    <table class="viewTable clickableRows">
+        <thead>
+            <tr>
+                <th style="width: 1%">
+                    <button mat-icon-button (click)="loadView(true)" title="Click to refresh"> 
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </th>
+                <th style="width: 20%">Username</th>
+                <th style="width: 20%">Lastname</th>
+                <th style="width: 20%">Firstname</th>
+                <th style="width: 30%">E-Mail</th>
+                <th style="width: 9%">Status</th>
+            </tr>
+        </thead>
+        <tbody *ngIf="!loading">
+            <tr *ngFor="let usr of viewList" (click)="btnEditUser(usr.Username)">
+                <td><mat-icon matListIcon>person</mat-icon></td>
+                <td>{{usr.Username}}</td>
+                <td>{{usr.attribs.family_name}}</td>
+                <td>{{usr.attribs.given_name}}</td>
+                <td>{{usr.attribs.email}}</td>
+                <td>{{usr.Enabled?usr.UserStatus:'Disabled'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,50 @@
+<div class="container">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/fileeditor" target="_blank"
+            title="Help">
+            <mat-icon>help_outline</mat-icon>
+        </a>
+        <button mat-stroked-button (click)="saveFile()">Save</button>
+    </div>
+    <h3>Edit File</h3>
+    <div class="clrhdr"></div>
+    <div class="row">
+        <div class="col-md-3">
+            <mat-form-field class="full-width">
+                <input matInput readonly placeholder="Bucket" type="text" [(ngModel)]="bucketName">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="full-width">
+                <input matInput readonly placeholder="File path" type="text" [(ngModel)]="filePath">
+            </mat-form-field>
+        </div>
+        <div class="col-md-3">
+            <mat-form-field class="full-width">
+                <input matInput readonly placeholder="Content-Type" type="text" [(ngModel)]="contentType">
+            </mat-form-field>
+
+           <!-- reserved for edit mode:
+            <mat-form-field>
+                <mat-select placeholder="Content-Type" [(ngModel)]="contentType">
+                    <mat-option *ngFor="let ct of availableTypes" value="{{ct.ctype}}"> {{ct.label}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            -->
+        </div>
+    </div>
+    
+    <div class="row" *ngIf="fileLoaded">
+        <div class="col-md-12">
+            <mat-card>
+                <mat-form-field class="full-width codeField">
+                    <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
+                    <textarea matInput style="min-height: 460px; font-size: 13px !important;" placeholder="File content" type="text"
+                        [(ngModel)]="fileBody"></textarea>
+                </mat-form-field>
+            </mat-card>
+        </div>
+    </div>
+    <br />
+</div>

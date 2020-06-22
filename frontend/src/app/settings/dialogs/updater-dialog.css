@@ -1,0 +1,28 @@
+.borderbox {
+    font-size: 14px;
+    border-radius: 3px;
+    border: 1px solid lightgrey;
+    padding: 6px;
+    margin-bottom: 8px;
+}
+
+.warn {
+    background-color: #fde852;
+    border-radius: 3px;
+    padding: 6px;
+    margin-top: 14px;
+    font-size: 12px;
+}
+
+.logo {
+    width: 145px;
+    float: right;
+}
+.mat-dialog-content { font-size: 14px; }
+ul.updStatus { list-style: none; margin: 0; padding: 0; }
+ul.updStatus li { padding: 6px; margin-bottom: 2px; background-color: #f3f3f3; border-radius: 3px;}
+ul.updStatus li.InProgress { background-color: #c5ff9f; }
+ul.updStatus li.Failed { background-color: #ff9f9f; }
+ul.updStatus li.Abandoned { background-color: #ffe59f; }
+ul.updStatus li mat-icon { vertical-align: middle; margin-right: 6px; }
+ul.updStatus li mat-spinner { display: inline-block; vertical-align: middle; margin-right: 10px;}

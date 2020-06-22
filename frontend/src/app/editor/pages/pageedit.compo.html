@@ -1,0 +1,273 @@
+<div class="container inputform" *ngIf="page">
+    <div class="loaderOverlay" *ngIf="loading"></div>
+    <div class="actionbar">
+        <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/pageeditor-overview" target="_blank"
+            title="Help">
+            <mat-icon>help_outline</mat-icon>
+        </a>
+        <mat-menu #miscMenu="matMenu">
+            <button mat-button class="mat-menu-item" *ngIf="page.id" (click)="btnDuplicate()">Duplicate Page</button>
+            <button mat-button class="mat-menu-item" *ngIf="page.id" (click)="btnDelete()">Delete</button>
+        </mat-menu>
+
+        <button *ngIf="page.id" mat-stroked-button [matMenuTriggerFor]="miscMenu" title="More actions..">
+            <mat-icon>more_horiz</mat-icon>
+        </button>
+
+        <mat-menu #appMenu="matMenu">
+            <div *ngIf="config && config.buckets">
+                <div *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}">
+                    <a *ngIf="!bucket.noPublish" href="{{bucket.webURL}}{{page.opath}}" target="_blank"
+                        class="mat-button mat-menu-item">
+                        {{bucket.label}}
+                    </a>
+                </div>
+            </div>
+        </mat-menu>
+
+        <button mat-stroked-button (click)="btnDlgPublish()" [disabled]="!canPublish()">Publish..</button>
+        <button *ngIf="config && page.opath" mat-stroked-button [matMenuTriggerFor]="appMenu">
+            View Page
+        </button>
+        <button mat-stroked-button (click)="savePage()">Save</button>
+
+    </div>
+    <h3>Edit Page {{page.id?'(ID:'+page.id+')':''}}</h3>
+    <div class="clrhdr"></div>
+    <div class="row" *ngIf="errorMessage">
+        <div class="col-md-12 isErrorBox">
+            <b>Error</b><br />
+            {{errorMessage}}
+        </div>
+        <br>
+    </div>
+
+    <mat-tab-group>
+        <mat-tab label="Page Options">
+
+            <mat-card>
+                <div class="row">
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="Page title" type="text" [(ngModel)]="page.title" required>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <mat-select placeholder="Layout" [(ngModel)]="page.layout"
+                                (selectionChange)="onLayoutChange()" required>
+                                <mat-option *ngFor="let itm of layouts" [value]="itm.id">
+                                    {{ itm.title }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="Path" type="text" [matAutocomplete]="pathlist"
+                                [(ngModel)]="page.opath" (ngModelChange)="checkPath()" required
+                                title="URL of this page. Use forward slash for subfolders.">
+                            <mat-hint *ngIf="pathHint">{{pathHint}}</mat-hint>
+                            <mat-autocomplete #pathlist="matAutocomplete">
+                                <mat-option *ngFor="let option of pathlistFilter" [value]="option">
+                                    {{option}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-2">
+                        <mat-form-field class="full-width">
+                            <input matInput [matDatepicker]="dp" placeholder="Entry Date" [(ngModel)]="page.dt">
+                            <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
+                            <mat-datepicker #dp></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="full-width">
+                            <input matInput placeholder="Cover image" title="Optional cover image used in search results or lists" type="text" [(ngModel)]="page.img">
+                            <mat-icon matSuffix (click)="btnDlgSelectCoverImage()" title="Select image" style="cursor: pointer;">photo_library</mat-icon>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <textarea matInput placeholder="Description" type="text" [(ngModel)]="page.descr"
+                                title="Description used in meta tags and search result"></textarea>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <textarea matInput placeholder="Keywords" type="text" [(ngModel)]="page.keywords"
+                                title="Keywords used in meta tags"></textarea>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <mat-checkbox [(ngModel)]="page.queue" title="Show entry in bulk publication list"> List in
+                            publication
+                            queue</mat-checkbox><br />
+                        <mat-checkbox [(ngModel)]="page.sitemap"
+                            title="Attention: This setting is effective immediately!"> List
+                            in sitemap.xml</mat-checkbox><br />
+                        <mat-checkbox [(ngModel)]="page.listnav" title="Show page in navigation tree"> Show page in
+                            navigation
+                            tree
+                        </mat-checkbox><br />
+                        <mat-checkbox [(ngModel)]="page.ftindex" title="Add page to search index."> Add to search index
+                        </mat-checkbox>
+                    </div>
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width" *ngIf="config && config.categories">
+                            <mat-select multiple="true" placeholder="Categories" [(ngModel)]="page.categories">
+                                <mat-option *ngFor="let cat of config.categories" [value]="cat">
+                                    {{ cat }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div class="row" *ngIf="page.listnav">
+                            <mat-form-field class="full-width col-md-9">
+                                <input matInput placeholder="Navigation label" type="text" [(ngModel)]="page.navlabel"
+                                    required title="Label for link entry in navigation">
+                            </mat-form-field>
+                            <mat-form-field class="full-width col-md-3">
+                                <input matInput placeholder="Order" type="number" [(ngModel)]="page.navsort"
+                                    required title="Sort order in navigation tree">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+            </mat-card>
+
+        </mat-tab>
+        <mat-tab label="Content">
+
+            <div *ngIf="!page.layout || page.layout ===''">
+                <br>
+                <mat-form-field class="full-width">
+                    <mat-select placeholder="Layout" [(ngModel)]="page.layout"
+                        (selectionChange)="onLayoutChange()" required>
+                        <mat-option *ngFor="let itm of layouts" [value]="itm.id">
+                            {{ itm.title }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <!-- Add custom input fields from page layout -->
+            <mat-card *ngFor="let fld of custFields">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div *ngIf="fld.fldType==='richtext'">
+                            {{fld.fldTitle}} (doc.{{fld.fldName}})
+                            <ngx-trumbowyg-editor name="{{page.doc[fld.fldName]}}" [(ngModel)]="page.doc[fld.fldName]"
+                                [options]="trumbooptions"></ngx-trumbowyg-editor>
+                        </div>
+
+                        <mat-form-field class="full-width" *ngIf="fld.fldType==='text'">
+                            <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
+                                [(ngModel)]="page.doc[fld.fldName]">
+                        </mat-form-field>
+
+                        <mat-form-field class="full-width" *ngIf="fld.fldType==='number'">
+                            <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="number"
+                                [(ngModel)]="page.doc[fld.fldName]">
+                        </mat-form-field>
+
+                        <div class="row" *ngIf="fld.fldType==='image'">
+                            <div class="col-md-12">
+                                <mat-form-field class="full-width" *ngIf="fld.fldType==='image'">
+                                    <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
+                                        [(ngModel)]="page.doc[fld.fldName]">
+                                        <mat-icon matSuffix (click)="btnDlgSelectImage(fld.fldName)" title="Select image" style="cursor: pointer;">photo_library</mat-icon>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <mat-form-field class="full-width" *ngIf="fld.fldType==='textarea'">
+                            <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
+                            <textarea matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
+                                [(ngModel)]="page.doc[fld.fldName]"></textarea>
+                        </mat-form-field>
+
+                        <mat-form-field class="full-width" *ngIf="fld.fldType==='dropdown'">
+                            <mat-select [multiple]="fld.multiple" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})"
+                                [(ngModel)]="page.doc[fld.fldName]">
+                                <mat-option *ngFor="let sv of fld.selValues" value="{{sv.val}}"> {{sv.label}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-checkbox *ngIf="fld.fldType==='checkbox'" [(ngModel)]="page.doc[fld.fldName]">
+                            {{fld.fldTitle}} (doc.{{fld.fldName}})
+                        </mat-checkbox>
+
+                        <div *ngIf="fld.fldType==='container'" class="objContainer">
+
+                            <table class="fieldsTable" *ngIf="!page.lstMTObj[fld.fldName]">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">
+                                            <b>{{fld.fldTitle}} - (doc.{{fld.fldName}})</b>
+                                        </td>
+                                        <td class="permaActions" style="text-align: right;">
+                                            <mat-icon title="Add new field" (click)="btnAddNewObj(fld)">add</mat-icon>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table class="fieldsTable sortable clickableRow" *ngIf="page.lstMTObj[fld.fldName]">
+                                <thead>
+                                    <tr>
+                                        <td style="width: 20px;"></td>
+                                        <td colspan="2">
+                                            <b>{{fld.fldTitle}} - (doc.{{fld.fldName}})</b>
+                                        </td>
+                                        <td class="permaActions" style="text-align: right;">
+                                            <mat-icon title="Add new field" (click)="btnAddNewObj(fld)">add</mat-icon>
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody cdkDropList
+                                    (cdkDropListDropped)="dropSortObj(page.lstMTObj[fld.fldName].lstObj, $event)">
+
+                                    <tr *ngFor="let fldMT of page.lstMTObj[fld.fldName].lstObj; let i=index" cdkDrag
+                                        title="Drag to change sort order">
+                                        <td class="drag-handle">
+                                            <mat-icon>drag_indicator</mat-icon>
+                                        </td>
+                                        <td>{{fldMT.title}}</td>
+                                        <td colspan="2">
+                                            <div class="hoverActions" style="text-align: right; float: right;">
+                                                <mat-icon title="Edit field" (click)="btnEditObj(fldMT)">edit</mat-icon>
+                                                <mat-icon title="Delete"
+                                                    (click)="btnDeleteObj(page.lstMTObj[fld.fldName].lstObj, fldMT, i)">
+                                                    delete
+                                                </mat-icon>
+                                            </div>
+                                            {{fldMT.shortdesc}}
+                                            <div style="clear: both; margin-bottom: 10px"></div>
+                                            <div *ngFor="let fd of fldMT.custFields">
+                                                <app-mttable-component *ngIf="fd.fldType==='container'" [parentField]="fd"></app-mttable-component>
+                                            </div>
+                                        
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </mat-card>
+
+        </mat-tab>
+    </mat-tab-group>
+</div>
