@@ -82,8 +82,8 @@ exports.handler = async (event) => {
 async function notifyBySNS(userform, formdoc) {
     try {
         var params = {
-            Message: formdoc.mailBodySNS,
-            Subject: formdoc.mailSubjectSNS,
+            Message: formdoc.mailBodySNS || 'no message',
+            Subject: formdoc.mailSubjectSNS || 'CloudeeCMS form notification',
             TopicArn: formdoc.snsTopicARN
         };
         console.log("sending SNS message", params);
