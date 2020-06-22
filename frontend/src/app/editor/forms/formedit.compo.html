@@ -54,9 +54,53 @@
     <mat-card>
         <div class="row">
             <div class="col-md-12">
+                <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/forms-notifications-sns"
+                    target="_blank" title="Help" style="float: right;">
+                    <mat-icon>help_outline</mat-icon>
+                </a>
+                <h4 style="margin: 0;">
+                    <mat-checkbox [(ngModel)]="frm.notifySNS"></mat-checkbox>
+                    Notification (SNS)
+                </h4>
+                <div class="clrhdr"></div>
+            </div>
+        </div>
+        <mat-card *ngIf="frm.notifySNS">
+            <div class="row">
+                <div class="col-md-12">
+                    <mat-form-field class="full-width">
+                        <input matInput placeholder="SNS Topic ARN" type="text" [(ngModel)]="frm.snsTopicARN">
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <mat-form-field class="full-width">
+                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubjectSNS">
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <mat-form-field class="full-width">
+                        <textarea matInput style="font-size: 13px !important;" placeholder="SNS Message body"
+                            type="text" [(ngModel)]="mailBodySNS"></textarea>
+                    </mat-form-field>
+                </div>
+            </div>
+        </mat-card>
+    </mat-card>
+
+    <mat-card>
+        <div class="row">
+            <div class="col-md-12">
+                <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/forms-notifications"
+                    target="_blank" title="Help" style="float: right;">
+                    <mat-icon>help_outline</mat-icon>
+                </a>
                 <h4 style="margin: 0;">
                     <mat-checkbox [(ngModel)]="frm.notify"></mat-checkbox>
-                    E-Mail Notification
+                    E-Mail Notification (SQS)
                 </h4>
                 <div class="clrhdr"></div>
             </div>
@@ -88,9 +132,6 @@
         <mat-card *ngIf="frm.notify">
             <div class="row">
                 <div class="col-md-12">
-                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/forms-notifications" target="_blank" title="Help" style="float: right;">
-                        <mat-icon>help_outline</mat-icon>
-                    </a>
                     <b>E-Mail template</b>
                 </div>
             </div>

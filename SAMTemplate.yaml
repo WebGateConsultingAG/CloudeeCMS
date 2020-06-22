@@ -110,6 +110,12 @@ Resources:
               "sqs:*"
             ]
             Resource: !Sub '*'
+          - Sid: sns
+            Effect: Allow
+            Action: [
+              "sns:*"
+            ]
+            Resource: !Sub '*'
           - Sid: dynamo
             Effect: Allow
             Action: [

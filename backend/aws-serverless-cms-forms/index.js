@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-19 1220 - RSC
+ * File Version: 2020-06-22 1612 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -22,6 +22,8 @@ const querystring = require('querystring');
 const tableName = process.env.DB_TABLE || '';
 const AWSSQS = require('aws-sdk/clients/sqs');
 const sqs = new AWSSQS();
+const AWSSNS = require('aws-sdk/clients/sns');
+const sns = new AWSSNS();
 
 exports.handler = async (event) => {
     let redirectToFail = event.headers.referer || '/';
@@ -69,6 +71,7 @@ exports.handler = async (event) => {
 
         // notifiy someone (SQS queue for separate lambda mailer)
         if (formdoc.notify) { await notifyByEmail(userform, formdoc); }
+        if (formdoc.notifySNS) { await notifyBySNS(userform, formdoc); }
 
         return getResponse(redirectToSuccess);
     } catch (e) {
@@ -76,6 +79,19 @@ exports.handler = async (event) => {
         return getResponse(redirectToFail);
     }
 };
+async function notifyBySNS(userform, formdoc) {
+    try {
+        var params = {
+            Message: formdoc.mailBodySNS,
+            Subject: formdoc.mailSubjectSNS,
+            TopicArn: formdoc.snsTopicARN
+        };
+        console.log("sending SNS message", params);
+        await sns.publish(params).promise();
+    } catch (e) {
+        console.error(e);
+    }
+}
 async function notifyByEmail(userform, formdoc) {
     try {
         let msg = {
