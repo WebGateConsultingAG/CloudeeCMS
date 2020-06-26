@@ -60,7 +60,7 @@
                     <span *ngIf="item.otype==='File'">{{toKB(item.Size)}} KB</span>
                 </td>
                 <td style="text-align: right">
-                    <span *ngIf="item.otype==='File'">{{item.LastModified | date: 'dd.MM.yyyy hh:mm'}}</span>
+                    <span *ngIf="item.otype==='File'">{{item.LastModified | date: 'dd.MM.yyyy HH:mm'}}</span>
                 </td>
                 <td class="hoverActions" style="text-align: right;">
                     <mat-icon *ngIf="item.editable" title="Edit {{item.otype}}" (click)="editItem(item)">edit</mat-icon>

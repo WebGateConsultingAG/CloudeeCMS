@@ -36,7 +36,6 @@ export class SubmittedFormComponent implements OnInit {
     loading = true;
     frm: any;
     readonly = true;
-    parsedform = '';
 
     ngOnInit() {
         this.loadByID(this.docid);
@@ -49,7 +48,6 @@ export class SubmittedFormComponent implements OnInit {
                 if (data.item) {
                     that.frm = data.item;
                     that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled Form');
-                    that.parsedform = JSON.stringify(that.frm.frm);
                 }
                 that.setLoading(false);
             },
@@ -84,5 +82,8 @@ export class SubmittedFormComponent implements OnInit {
     setLoading(on: boolean) {
         this.loading = on;
         this.tabsSVC.setLoading(on);
+    }
+    sortFormFields(a: any, b: any) {
+        return a.key > b.key ? 1 : -1;
     }
 }

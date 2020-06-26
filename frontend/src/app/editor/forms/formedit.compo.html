@@ -170,8 +170,27 @@
     <mat-card>
         <div class="row">
             <div class="col-md-12">
-                <h4>Form HTML Code</h4>
-                <pre>
+
+                <mat-tab-group mat-align-tabs="start">
+                    <mat-tab label="Pug Form Code">
+                        <pre>
+form(method="POST" action="{{formAPIURL}}")
+    input(type="hidden" name="formid" value="{{frm.id}}")
+    input(type="text" name="name" placeholder="Name" value="")
+    input(type="email" name="email" placeholder="E-Mail address" value="")
+    textarea(rows="6" name="message" placeholder="Your message")
+              
+    input(type="text" class="hidden" id="result" name="result" value="")
+    p(class="cslider-warn") Prove that you're not a robot by sliding the button to the right.
+    div(class="cslider" title="Swipe to the right" unlockelem="sBtn" unlockv="{{frm.staticcaptcha}}" unlockf="result")
+        div(class="cHandle draggable" id="cHandle")
+            i(class="far fa-caret-square-right")
+    input(type="submit" style="display: none;" id="sBtn" value="Submit" disabled="")
+
+                        </pre>
+                    </mat-tab>
+                    <mat-tab label="HTML Form Code">
+                        <pre>
 &lt;form method="POST" action="{{formAPIURL}}"&gt;
 
     &lt;input type="hidden" name="formid" value="{{frm.id}}"&gt;
@@ -190,7 +209,10 @@
     &lt;input type="submit" style="display: none;" id="sBtn" value="Submit" disabled=""&gt;
 
 &lt;/form&gt;
-                </pre>
+                        </pre>
+                    </mat-tab>
+                </mat-tab-group>
+
             </div>
         </div>
     </mat-card>
