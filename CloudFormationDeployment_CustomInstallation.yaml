@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment Custom Installation (Online Update) 2020-06-06 08:00
+Description: CloudeeCMS Auto Deployment Custom Installation (Online Update) 2020-06-29 06:00
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -946,4 +946,4 @@ Outputs:
   AdminBucket:
     Value: !Sub 'https://${AdminBucket.RegionalDomainName}/scms/index.html'
     Export:
-      Name: WebsiteURL
+      Name: !Sub "${AWS::StackName}-WebsiteURL"
