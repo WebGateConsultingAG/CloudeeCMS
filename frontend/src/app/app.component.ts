@@ -84,7 +84,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.backendSVC.getConfig(false).then(
       (rc: any) => {
         that.config = rc.cfg;
-        if (that.config.apptitle && that.config.apptitle !== '') { that.apptitle = that.config.apptitle; }
+        if (that.config.apptitle && that.config.apptitle !== '') {
+          that.apptitle = that.config.apptitle;
+          window.document.title = 'CloudeeCMS | ' + that.apptitle;
+        }
         that.configLoaded = true;
         that.tabsSVC.setLoading(false);
         that.loadNotifications();

@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-05 0638 - RSC
+ * File Version: 2020-07-02 1415 - RSC
  */
 
 const storage = require('./functions/storage-service').storage;
@@ -72,6 +72,8 @@ exports.handler = function(event, context, callback) {
             return cognitoService.getCognitoUser(payload.id, done);
         } else if (action === 'deleteitembyid') {
             return storage.deleteItemByID(payload.id, done);
+        } else if (action === 'bulkdeleteitem') {
+            return storage.batchDelete(payload.lstIDs, done);
         }
         // Restricted to layouteditor
         if (isLayoutEditor || isAdmin) {

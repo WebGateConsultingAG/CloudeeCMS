@@ -28,7 +28,8 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core'; // for view fil
       return items.filter( (item) => {
           for (const fld of fields) {
             if (typeof item[fld] !== 'undefined') {
-              if (item[fld].toLowerCase().indexOf(LCvalue) !== -1) { return true; }
+              const thisFld = item[fld] || '';
+              if (thisFld.toLowerCase().indexOf(LCvalue) !== -1) { return true; }
             }
           }
           return false;

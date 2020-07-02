@@ -34,6 +34,7 @@ export class PugBlocksComponent implements OnInit {
   viewList: any = [];
   loading: boolean;
   tabID = 'tab-compos';
+  selectAll: boolean;
 
   ngOnInit() {
     const that = this;
@@ -50,6 +51,8 @@ export class PugBlocksComponent implements OnInit {
       (data: any) => {
         that.viewList = data;
         that.setLoading(false);
+        that.selectAll = false;
+        that.setSelectAll();
         that.tabsSVC.setTabDataExpired(that.tabID, false); // mark data of tab as up to date
       },
       (err) => {
@@ -66,5 +69,35 @@ export class PugBlocksComponent implements OnInit {
   setLoading(on: boolean) {
     this.loading = on;
     this.tabsSVC.setLoading(on);
+  }
+  setSelectAll() {
+    const that = this;
+    if (!this.viewList || this.viewList.length < 1) { return; }
+    this.viewList.forEach(pg => {
+      pg.sel = that.selectAll;
+    });
+  }
+  btnDelete() {
+    const lstItems = [];
+    this.viewList.forEach(pg => {
+      if (pg.sel) { lstItems.push(pg.id); }
+    });
+    if (lstItems.length < 1) { return; }
+    // tslint:disable-next-line: max-line-length
+    if (!confirm('Some pages will not render correctly if you delete Layout-Blocks that are still in use!\nAre you sure you want to delete all selected entries?')) { return; }
+    const that = this;
+    if (lstItems.length > 25 ) {
+      that.tabsSVC.printNotification('Note: You can delete only 25 items at once');
+    }
+    this.backendSVC.bulkDeleteByID(lstItems).then(
+      (data: any) => {
+        that.loadView(true);
+      },
+      (err) => {
+        that.tabsSVC.printNotification('Error while deleting');
+        console.log(err);
+        that.setLoading(false);
+      }
+    );
   }
 }

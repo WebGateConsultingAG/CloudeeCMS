@@ -4,6 +4,14 @@
         <button mat-stroked-button (click)="btnNavigateTo('editor/layouts/edit/NEW')">
             <mat-icon matListIcon>table_chart</mat-icon> New Layout
         </button>
+
+        <mat-menu #miscMenu="matMenu">
+            <button mat-button class="mat-menu-item" (click)="btnDelete()">Delete all selected</button>
+        </mat-menu>
+
+        <button mat-stroked-button [matMenuTriggerFor]="miscMenu" title="More actions..">
+            <mat-icon>more_horiz</mat-icon>
+        </button>
     </div>
     <h3>Layouts</h3>
     <div class="clrhdr"></div>
@@ -16,14 +24,22 @@
                     </button>
                 </th>
                 <th style="width: 15%">Key</th>
-                <th style="width: 85%">Title</th>
+                <th style="width: 84%">Title</th>
+                <th style="width: 1%">
+                    <mat-checkbox [(ngModel)]="selectAll" (change)="setSelectAll()"
+                        title="{{selectAll?'Deselect':'Select'}} all">
+                    </mat-checkbox>
+                </th>
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let item of viewList | orderBy: {property: 'okey', direction: 1}" (click)="btnNavigateTo('editor/layouts/edit/'+item.id)">
+            <tr *ngFor="let item of viewList | orderBy: {property: 'okey', direction: 1}">
                 <td><mat-icon matListIcon>table_chart</mat-icon></td>
-                <td>{{item.okey}}</td>
-                <td class="clickable">{{item.title}}</td>
+                <td (click)="btnNavigateTo('editor/layouts/edit/'+item.id)">{{item.okey}}</td>
+                <td class="clickable" (click)="btnNavigateTo('editor/layouts/edit/'+item.id)">{{item.title}}</td>
+                <td>
+                    <mat-checkbox [(ngModel)]="item.sel"></mat-checkbox>
+                </td>
             </tr>
         </tbody>
     </table>

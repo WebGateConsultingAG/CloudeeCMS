@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-04-15 0607 - RSC
+ * File Version: 2020-07-02 1415 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -33,6 +33,19 @@ storage.deleteItemByID = async function(id, done) {
           TableName: tableName,
           Key: { id:  id  }
         }).promise();
+    done.done({ success: true});
+};
+storage.batchDelete = async function(lstID, done) {
+    // max. 25 items per batchWrite request!
+    const arrItems = [];
+    let imax = lstID.length;
+    if (imax > 25) imax = 25;
+    for (var i=0; i<imax; i++) {
+        arrItems.push({ DeleteRequest : { Key : { 'id' : lstID[i] }}});
+    }
+    const params = { RequestItems : {} };
+    params.RequestItems[tableName] = arrItems;
+    await documentClient.batchWrite(params).promise();
     done.done({ success: true});
 };
 storage.getConfig = async function(userGroups, done) {

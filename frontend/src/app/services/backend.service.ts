@@ -60,6 +60,13 @@ export class BackendService {
                 return result.data || null;
             });
     }
+    public bulkDeleteByID(lstIDs: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            // tslint:disable-next-line: max-line-length object-literal-shorthand
+            { action: 'bulkdeleteitem', lstIDs: lstIDs }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
+    }
     public duplicatePage(theID: string) {
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
             { action: 'duplicatepage', id: theID }).toPromise().then((result: any) => {
