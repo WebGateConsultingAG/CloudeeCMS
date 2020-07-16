@@ -69,6 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
   waitForLogin(that) {
     if (!that.configLoaded && that.cognitoSVC.signedIn) {
       that.loadConfig();
+      window.g_warnOnUnload = true;
     } else {
       setTimeout(() => { that.waitForLogin(that); }, 600);
     }
@@ -119,6 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: {} });
   }
   btnLogout() {
+    window.g_warnOnUnload = false;
     this.cognitoSVC.logout();
   }
 
