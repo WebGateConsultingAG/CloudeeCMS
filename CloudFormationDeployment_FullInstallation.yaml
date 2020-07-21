@@ -24,7 +24,6 @@ Metadata:
       - Label:
           default: Optional Settings - External IdP - only required if (A) = true
         Parameters:
-          - OAUTHDOMAIN
           - OAUTHLoginLabel
           - SAMLMetadataURL
     ParameterLabels:
@@ -42,8 +41,6 @@ Metadata:
         default: Login Label for IdP
       SAMLMetadataURL:
         default: URL of the SAML Metadata File
-      OAUTHDOMAIN:
-        default: Cognito UserPool Domain Name
       AcmCertificateCDN:
         default: SSL Certificate for Content Delivery Network
       AcmCertificatePROD:
@@ -68,10 +65,6 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-  OAUTHDOMAIN:
-    Type: String
-    Description: IdP domain used for oAuth login
-    Default: "YOURENDPOINT.auth.YOURREGION.amazoncognito.com"
   OAUTHLoginLabel:
     Type: String
     Description: Label on login form for sign-in when using IdP.
@@ -540,7 +533,7 @@ Resources:
             Value: !Sub ${EnableOAUTH}
           - Name: OAUTHDOMAIN
             Type: PLAINTEXT
-            Value: !Sub ${OAUTHDOMAIN}
+            Value: !Sub '${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com'
           - Name: OAUTHLoginLabel
             Type: PLAINTEXT
             Value: !Sub ${OAUTHLoginLabel}
@@ -787,6 +780,7 @@ Resources:
         - openid
         - email
         - aws.cognito.signin.user.admin
+        - profile
       ExplicitAuthFlows:
         - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_USER_SRP_AUTH
