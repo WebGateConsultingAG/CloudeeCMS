@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-02 1415 - RSC
+ * File Version: 2020-07-16 1445 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -295,12 +295,13 @@ var flxTree = {
     makeTree: function(lstFlat) {
         let tree = {};
         lstFlat.forEach(pgEntry => {
-            let arrCats = pgEntry.opath.split('/');
+            let thisPath = pgEntry.opath || 'UNTITLED';
+            let arrCats = thisPath.split('/');
             let thisBranch;
             for (var c=0;c<arrCats.length;c++) {
                 thisBranch = this.getTreeBranch(tree, thisBranch, arrCats[c]);
                 if (c==arrCats.length-1) thisBranch.id = pgEntry.id; // page!
-            }        
+            }
         });
 
         // convert format

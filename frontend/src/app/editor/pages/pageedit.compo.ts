@@ -216,6 +216,14 @@ export class PageEditComponent implements OnInit {
       alert(`Please correct the path field:\n${this.pathHint}`);
       return;
     }
+    if (!this.page.title || this.page.title === '') {
+      alert('You must specify a title for this page');
+      return;
+    }
+    if (!this.page.opath || this.page.opath === '') {
+      alert('You must specify a path for this page');
+      return;
+    }
     this.setLoading(true);
     this.errorMessage = '';
     this.backendSVC.savePage(this.page).then(
@@ -223,7 +231,7 @@ export class PageEditComponent implements OnInit {
         that.page.id = data.id;
         that.setLoading(false);
         if (data.success) { that.tabsSVC.printNotification('Document saved'); }
-        that.tabsSVC.setTabTitle(that.tabid, that.page.title);
+        that.tabsSVC.setTabTitle(that.tabid, that.page.title || 'untitled');
         that.tabsSVC.setTabDataExpired('tab-pages', true);
       },
       (err) => {
