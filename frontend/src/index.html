@@ -28,26 +28,24 @@
   <meta charset="utf-8">
   <title>CloudeeCMS</title>
   <base href="/">
-
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link href="assets/img/favicon.png" rel="icon" type="image/png" />
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="assets/bootstrap-grid.min.css" rel="stylesheet">
 </head>
 
 <body class="wgc fixedAppHeader">
   <app-root></app-root>
   <script>
+    window.g_warnOnUnload = false;
     window.addEventListener('resize', adjustTabBody );
     function adjustTabBody() {
       var tb = document.getElementsByClassName('flxtabs');
       if (tb && tb[0]) tb[0].style.height=(window.innerHeight-65)+'px';
     }
     window.addEventListener('beforeunload', (event) => {
-      event.returnValue = `Do you really want to close CloudeeCMS?`;
+      if (g_warnOnUnload) event.returnValue = `Do you really want to close CloudeeCMS?`;
     });
     setTimeout(adjustTabBody, 3000);
   </script>
