@@ -13,11 +13,11 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-25 0709 - RSC
+ * File Version: 2020-07-23 0714 - RSC
  */
 
 
-//  sitemap.xml generator. Add this as cron job via CloudWatch to run once a day. (05 0 * * ? *)
+//  sitemap.xml generator. Add this as cron job via CloudWatch to run once or twice a day. (05 0 * * ? *)
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
@@ -28,8 +28,8 @@ const { SitemapStream, streamToPromise } = require('sitemap');
 const tableName = process.env.DB_TABLE || '';       // Name of your CloudeeCMS table
 const s3BucketName = process.env.S3_BUCKET || '';   // Production S3 bucket, target for sitemap.xml
 const sitename = process.env.SITE_NAME || '';       // https://yourdomain.com
-
-process.env.TZ = 'Europe/Zurich';
+const cacheMaxAge = 43200;                          // Cache max age in seconds
+// process.env.TZ = 'Europe/Zurich';
 
 exports.handler = async function (event, context, callback) { 
     try {
@@ -66,7 +66,8 @@ async function s3upload(s3BucketName, opath, content, contentType) {
         Key: opath,
         Body: content,
         ACL:'public-read', 
-        ContentType: contentType
+        ContentType: contentType,
+        CacheControl: 'max-age=' + cacheMaxAge
     }).promise();
 }
 async function DDBScan(params) {

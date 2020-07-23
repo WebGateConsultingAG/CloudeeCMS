@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-16 0740 - RSC
+ * File Version: 2020-07-23 0714 - RSC
  */
 
 //  RSS feed generator. Add this as cron job via CloudWatch to run once a day. (05 0 * * ? *)
@@ -33,6 +33,7 @@ const tableName = process.env.DB_TABLE || '';       // Name of your CloudeeCMS t
 const s3BucketName = process.env.S3_BUCKET || '';   // Production S3 bucket, target for sitemap.xml
 const sitename = process.env.SITE_URL || '';        // URL of your site, e.g. https://example.com
 const feedCategory = 'RSS-Feed';                    // Category to list in feed
+const cacheMaxAge = 3600;                           // Cache max age in seconds
 // process.env.TZ = 'Europe/Zurich';
 
 exports.handler = async function (event, context, callback) {
@@ -101,7 +102,8 @@ async function s3upload(s3BucketName, opath, content, contentType) {
         Key: opath,
         Body: content,
         ACL: 'public-read',
-        ContentType: contentType
+        ContentType: contentType,
+        CacheControl: 'max-age=' + cacheMaxAge
     }).promise();
 }
 async function DDBScan(params) {
