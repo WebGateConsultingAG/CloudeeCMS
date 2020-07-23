@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-27 16:55 - RSC
+ * File Version: 2020-07-23 07:53 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -55,7 +55,8 @@ s3service.saveFile = function(bucketName, fileInfo, fileBody, done) {
     Key: fileInfo.key, 
     Body: fileBody, 
     ContentType: fileInfo.contentType,
-    ACL: 'public-read'
+    ACL: 'public-read',
+    CacheControl: 'max-age=172800'
   };
   s3.putObject(params, function(err, data) {
       if (err) {
@@ -128,6 +129,7 @@ s3service.getSignedUploadPolicy = function(bucketname, keyPrefix, acl, done) {
         Conditions: [ 
           ['starts-with', '$key', keyPrefix],
           ['starts-with', '$Content-Type', ''],
+          ['starts-with', '$Cache-Control', ''], // Allow cache control options
           { 'acl': 'public-read' }  // Allow ACL field in HTTP POST request, must appear before the file field!
         ],
         Expires: 3600,

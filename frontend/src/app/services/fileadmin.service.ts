@@ -86,7 +86,7 @@ export class FileAdminService {
             // tslint:disable-next-line: forin
             for (const f in s3policy.fields) { formData.append(f, s3policy.fields[f]); } // inherit all fields from policy
             formData.append('ACL', 'public-read'); // must appear before file contents!
-
+            formData.append('Cache-Control', 'max-age=172800');
             const targetFilename = s3uploadPath + file.name;
             console.log('upload', targetFilename);
             formData.append('key', targetFilename);

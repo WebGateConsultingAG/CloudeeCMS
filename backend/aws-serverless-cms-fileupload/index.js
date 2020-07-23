@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-04-22 1801 - RSC
+ * File Version: 2020-07-23 0730 - RSC
  */
 
 // trumbowyg pasted images uploader - courtesy of flexion 2019
@@ -37,8 +37,6 @@ exports.handler = async (event, context, callback) => {
         body: err ? err.message : JSON.stringify(res),
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
-    
-    console.log("event.isBase64Encoded", event.isBase64Encoded);
     
     var filesObj = multipart.parse(event, false);
     var imgFile = filesObj.fileToUpload;
@@ -67,9 +65,10 @@ async function s3upload(s3BucketName, dstKey, file) {
     await s3.putObject({
         Bucket: s3BucketName,
         Key: dstKey,
-        Body: file.content, //new Buffer(file.content, 'base64'),
+        Body: file.content,
         ACL:'public-read',
-        ContentType: file.contentType
+        ContentType: file.contentType,
+        CacheControl: 'max-age=172800'
     }).promise();
 }
 
