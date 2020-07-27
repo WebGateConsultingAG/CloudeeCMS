@@ -56,7 +56,7 @@ s3service.saveFile = function(bucketName, fileInfo, fileBody, done) {
     Body: fileBody, 
     ContentType: fileInfo.contentType,
     ACL: 'public-read',
-    CacheControl: 'max-age=172800'
+    CacheControl: 'max-age=259200'
   };
   s3.putObject(params, function(err, data) {
       if (err) {

@@ -68,7 +68,7 @@ async function s3upload(s3BucketName, dstKey, file) {
         Body: file.content,
         ACL:'public-read',
         ContentType: file.contentType,
-        CacheControl: 'max-age=172800'
+        CacheControl: 'max-age=259200'
     }).promise();
 }
 
