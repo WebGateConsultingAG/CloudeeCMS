@@ -307,8 +307,8 @@
                             <td>{{bucket.bucketname}}</td>
                             <td>{{bucket.ftindex}}</td>
                             <td>
-                                <mat-icon *ngIf="!bucket.noPublish" matListIcon>visibility</mat-icon>
-                                <mat-icon *ngIf="bucket.noPublish" matListIcon>visibility_off</mat-icon>
+                                <mat-icon *ngIf="!bucket.noPublish" matListIcon title="Visible in publish dialog">visibility</mat-icon>
+                                <mat-icon *ngIf="bucket.noPublish" matListIcon title="Not visible in publish dialog">visibility_off</mat-icon>
                             </td>
                             <td style="text-align: right;" class="hoverActions">
                                 <mat-icon *ngIf="!bucket.preventDelete" title="Delete" (click)="btnDeleteBucket(bucket)">delete
