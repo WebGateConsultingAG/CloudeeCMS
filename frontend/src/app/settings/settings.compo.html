@@ -359,5 +359,43 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <mat-card>
+                <mat-icon title="Add image profile" (click)="btnEditImageProfile(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-imageprofiles"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Image Upload and Resize Profiles
+                </h4>
+                <div class="clrhdr"></div>
+                <table class="viewTable clickableRows" *ngIf="imageprofiles">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Label</th>
+                            <th style="width: 50%">Description</th>
+                            <th style="width: 25%">Default CDN path</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let imgp of imageprofiles.lstProfiles | orderBy: {property: 'label', direction: 1}"
+                            (click)="btnEditImageProfile(imgp)">
+                            <td>{{imgp.label}}</td>
+                            <td>{{imgp.descr}}</td>
+                            <td>{{imgp.tpath}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteImageProfile(imgp.id)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+    </div>
+
     <br><br><br>
 </div>

@@ -29,11 +29,12 @@ import { environment } from 'src/environments/environment';
 import { VariableEditDialogComponent } from './dialogs/variableedit-dialog';
 import { PackageUploadDialogComponent } from './dialogs/pkgupload-dialog';
 import { GlobalFunctionEditDialogComponent } from './dialogs/fnedit-dialog';
+import { ImageProfileEditDialogComponent } from './dialogs/imgprofileedit-dialog';
 
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.compo.html',
-  styleUrls: [ './settings.compo.css' ]
+  styleUrls: ['./settings.compo.css']
 })
 
 export class SettingsComponent implements OnInit {
@@ -53,6 +54,7 @@ export class SettingsComponent implements OnInit {
   restartRequired = false;
   APP_VERSION = versioninfo.version;
   enableOnlineUpdates: boolean;
+  imageprofiles = null;
 
   ngOnInit() {
     this.loadConfig();
@@ -73,6 +75,16 @@ export class SettingsComponent implements OnInit {
         that.setLoading(false);
       }
     );
+    // Load image profiles
+    this.backendSVC.getImageProfiles(true).then(
+      (rc: any) => {
+        that.imageprofiles = rc.imgprofiles;
+      },
+      (err) => {
+        that.tabsSVC.printNotification('Error while loading imageprofiles');
+        console.error(err);
+      }
+    );
   }
 
   btnSave(): void {
@@ -90,8 +102,16 @@ export class SettingsComponent implements OnInit {
       },
       (err) => {
         console.error(err);
-        that.tabsSVC.printNotification('Error while loading');
+        that.tabsSVC.printNotification('Error while saving configuration');
         that.setLoading(false);
+      }
+    );
+    // Save image profiles
+    this.backendSVC.saveImageProfiles(this.imageprofiles).then(
+      (rc: any) => { },
+      (err) => {
+        console.error(err);
+        that.tabsSVC.printNotification('Error while saving image profiles');
       }
     );
   }
@@ -142,7 +162,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  btnDeleteBucket(bucket) {
+  btnDeleteBucket(bucket: any) {
     if (!confirm('Delete this entry?')) { return; }
     this.restartRequired = true;
     for (let i = 0; i < this.config.buckets.length; i++) {
@@ -152,7 +172,7 @@ export class SettingsComponent implements OnInit {
       }
     }
   }
-  btnDeleteCFDist(dist) {
+  btnDeleteCFDist(dist: any) {
     if (!confirm('Delete this entry?')) { return; }
     this.restartRequired = true;
     for (let i = 0; i < this.config.cfdists.length; i++) {
@@ -162,7 +182,7 @@ export class SettingsComponent implements OnInit {
       }
     }
   }
-  btnDeleteGlobalFunction(fn) {
+  btnDeleteGlobalFunction(fn: any) {
     if (!confirm('Delete this entry?')) { return; }
     for (let i = 0; i < this.config.pugGlobalScripts.length; i++) {
       if (this.config.pugGlobalScripts[i] === fn) {
@@ -171,7 +191,7 @@ export class SettingsComponent implements OnInit {
       }
     }
   }
-  btnDeleteBM(bm) {
+  btnDeleteBM(bm: any) {
     if (!confirm('Delete this entry?')) { return; }
     this.restartRequired = true;
     for (let i = 0; i < this.config.bookmarks.length; i++) {
@@ -197,7 +217,34 @@ export class SettingsComponent implements OnInit {
       }
     }
   }
-
+  btnDeleteImageProfile(delID: string) {
+    if (!confirm('Delete this entry?')) { return; }
+    for (let i = 0; i < this.imageprofiles.lstProfiles.length; i++) {
+      if (this.imageprofiles.lstProfiles[i].id === delID) {
+        this.imageprofiles.lstProfiles.splice(i, 1);
+        return;
+      }
+    }
+  }
+  btnEditImageProfile(imgp: any) {
+    const that = this;
+    // tslint:disable-next-line: max-line-length
+    const dialogRef = this.dialog.open(ImageProfileEditDialogComponent, { width: '800px', disableClose: false, data: { imageprofile: imgp } });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.action === 'add') {
+          if (!that.imageprofiles.lstProfiles) { that.imageprofiles.lstProfiles = []; }
+          that.imageprofiles.lstProfiles.push(result.imageprofile);
+        } else if (result.action === 'update') {
+          for (let i = 0; i < that.imageprofiles.lstProfiles.length; i++) {
+            if (that.imageprofiles.lstProfiles[i].id === result.imageprofile.id) {
+              that.imageprofiles.lstProfiles[i] = result.imageprofile;
+            }
+          }
+        }
+      }
+    });
+  }
   btnBackup() {
     if (!confirm('Create database backup?')) { return; }
     this.backupLog = [];
@@ -236,7 +283,7 @@ export class SettingsComponent implements OnInit {
     this.restartRequired = true;
   }
   btnShowUpdater(): void {
-    this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: { } });
+    this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: {} });
   }
 
   btnEditVariable(thisVar: any) {
@@ -249,7 +296,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  btnDeleteVariable(variable) {
+  btnDeleteVariable(variable: any) {
     if (!confirm('Delete this entry?')) { return; }
     for (let i = 0; i < this.config.buckets.length; i++) {
       if (this.config.variables[i] === variable) {

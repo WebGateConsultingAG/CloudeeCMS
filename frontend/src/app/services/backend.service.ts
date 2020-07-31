@@ -40,6 +40,7 @@ export class BackendService {
     lstSubmittedForms = null;
     lstForms = null;
     lstPages = null;
+    imageProfiles = null;
     userGroups = [];
 
     public configLoaded = false;
@@ -253,6 +254,25 @@ export class BackendService {
         this.configDoc = null; // invalidate cache
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
             { action: 'saveconfig', obj: conf }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
+    }
+    public getImageProfiles(forceUpdate: boolean) {
+        const that = this;
+        if (forceUpdate || !this.imageProfiles) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getimageprofiles' }).toPromise().then((result: any) => {
+                    that.imageProfiles = result.data || null;
+                    return that.imageProfiles;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(that.imageProfiles); });
+        }
+    }
+    public saveImageProfiles(imageProfiles: any) {
+        this.imageProfiles = null; // invalidate cache
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'saveimageprofiles', obj: imageProfiles }).toPromise().then((result: any) => {
                 return result.data || null;
             });
     }

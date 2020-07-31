@@ -21,6 +21,7 @@ import { FileUploadDialogComponent } from './fileuploader/FileUploadDialog';
 import { MatDialog } from '@angular/material/dialog';
 import { TabsNavService } from 'src/app/services/tabs.service';
 import { BackendService } from 'src/app/services/backend.service';
+import { ImgUploadDialogComponent } from './imageuploader/ImgUploadDialog';
 
 @Component({
   selector: 'app-listfiles',
@@ -161,7 +162,16 @@ export class ListFilesComponent implements OnInit {
       if (result && result.reload) { this.listFiles(this.currentKey); }
     });
   }
+  btnShowImageUploadDialog(uplPath: string) {
+    const dialogRef = this.dialog.open(ImgUploadDialogComponent, {
+      width: '500px',
+      data: { filelist: [], uplPath, targetEnv: this.selectedBucket, useDefaultUplPath: false }
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.reload) { this.listFiles(this.currentKey); }
+    });
+  }
   setLoading(on: boolean) {
     this.loading = on;
     this.tabsSVC.setLoading(on);

@@ -79,7 +79,7 @@ body.wgc { background-color: #f5f5f5; }
 .wgc .viewTable .hoverActions .mat-icon { visibility: hidden; margin-left: 6px; }
 .wgc .viewTable tr:hover .hoverActions .mat-icon, .wgc .viewTable .permaActions .mat-icon { visibility: visible; cursor: pointer; cursor: pointer; margin-left: 6px; border-radius: 3px; }
 .wgc .viewTable tr:hover .hoverActions .mat-icon:hover, .wgc .viewTable .permaActions .mat-icon:hover { background-color: #f5a30f;  }
-
+.wgc .noLastRowBorder tr:last-child td { border-bottom: 0; }
 .wgc .blockTabs .mat-tab-body-content { padding: 20px 12px 12px 12px; background-color: white; }
 .wgc .app-footer { background-color: #f1f1f1; color: white; }
 .wgc .app-footer-bar { background-color: #d8d8d8; clear: both; color: white; font-size: 13px; }

@@ -1,0 +1,57 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Image upload and resize</h1>
+        <div *ngIf="!hasError">
+            <p>Destination folder: /{{uplPath}}</p>
+
+            <mat-progress-bar *ngIf="loadingProfiles || resizing" mode="indeterminate"></mat-progress-bar>
+
+            <div *ngIf="showProfileSelection">
+                <mat-form-field class="full-width">
+                    <mat-select placeholder="Select image profile" [(ngModel)]="selectedProfile" (ngModelChange)="onProfileChange()">
+                        <mat-option *ngFor="let imgp of lstImgProfiles" [value]="imgp"> {{imgp.label}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <div *ngIf="selectedProfile">
+                    <div>{{selectedProfile.descr}} <br /><br /></div>
+                </div>
+            </div>
+
+            <!-- file uploader visible when a profile has been selected -->
+            <div *ngIf="selectedProfile">
+                <div *ngIf="showFileSelector">
+                    <input style="display:none;" id="input-file-upl" type="file" accept="{{accept}}" multiple
+                        (change)="startFileUpload($event.target.files)" />
+                    <label for="input-file-upl" class="mat-stroked-button mat-default" title="Upload files"
+                        *ngIf="!uploading">
+                        <mat-icon>add_box</mat-icon><span> &nbsp;Select files..</span>
+                    </label>
+                </div>
+                <div class="uplProgress" *ngIf="showUploader">
+                    <div class="uplFile" *ngFor="let file of files">
+                        {{file.name}}<br />
+                        <mat-progress-bar *ngIf="progress" [value]="progress[file.name].progress | async"
+                            mode="determinate" value=40 color="warn"></mat-progress-bar>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div *ngIf="hasError">
+            {{errormsg}}<br />
+            <div class="logdisplay" *ngIf="lstLog.length > 0">
+                <div *ngFor="let row of lstLog">{{row}}</div>
+            </div>
+        </div>
+
+        <br /><br />
+    </div>
+    <div class="warning" style="white-space: pre-line;" *ngIf="hasError" color="accent" selected="true">There was a
+        problem</div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDialogClose()">Close</button>
+    </div>
+</div>

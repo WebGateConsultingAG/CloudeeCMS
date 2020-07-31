@@ -12,6 +12,9 @@ phases:
         - cd ./backend/aws-serverless-cms-fileupload
         - npm install
         - cd ../..
+        - cd ./backend/aws-serverless-cms-img
+        - npm install
+        - cd ../..
         - cd ./backend/aws-serverless-cms-backup
         - npm install
         - cd ../..

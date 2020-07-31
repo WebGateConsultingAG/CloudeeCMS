@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-16 1445 - RSC
+ * File Version: 2020-07-30 0704 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -61,6 +61,25 @@ storage.getConfig = async function(userGroups, done) {
 storage.saveConfig = async function(obj, done) {
     try {
         obj.id = "config";
+        await documentClient.put({ TableName: tableName, Item: obj }).promise();
+        done.done({ success: true});
+    } catch (e) {
+        done.done({ success: false, error: e});
+    }
+};
+storage.getImageProfiles = async function(done) {
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: "imageprofiles" }}).promise();
+    if (doc && doc.Item) {
+        done.done( { imgprofiles: doc.Item });
+    } else { // Create initial profile
+        let profile = { "id": "imageprofiles", "lstProfiles": [] };
+        await documentClient.put({ TableName: tableName, Item: profile }).promise();
+        done.done( { imgprofiles: profile });
+    }
+};
+storage.saveImageProfiles = async function(obj, done) {
+    try {
+        obj.id = "imageprofiles";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
         done.done({ success: true});
     } catch (e) {

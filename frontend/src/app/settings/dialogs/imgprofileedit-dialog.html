@@ -1,0 +1,128 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} Image Profile</h1>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Label" type="text" [(ngModel)]="imgp.label" required>
+                </mat-form-field>
+                <mat-form-field class="full-width">
+                    <textarea matInput style="min-height: 40px; font-size: 13px !important;" placeholder="Description"
+                        type="text" [(ngModel)]="imgp.descr"></textarea>
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Default upload path in CDN" type="text" [(ngModel)]="imgp.tpath"
+                        (ngModelChange)="checkPath()" title="Images will be uploaded to this path in the CDN when no explicit path was selected.">
+                    <mat-hint *ngIf="pathHint">{{pathHint}}</mat-hint>
+                </mat-form-field>
+                <br />
+                <mat-checkbox [(ngModel)]="imgp.deleteOriginal"></mat-checkbox> Delete image after uploading
+
+            </div>
+            <div class="col-md-8">
+                <!-- List conversions -->
+                <div class="linebox" *ngIf="cmode===1">
+                    <table class="viewTable clickableRows noLastRowBorder">
+                        <thead>
+                            <tr>
+                                <th width="1%"></th>
+                                <th width="20%">Format</th>
+                                <th width="59%">Suffix</th>
+                                <th width="20%">Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let ic of imgp.conversions" (click)="btnEditImageConversion(ic)">
+                                <td >
+                                    <mat-icon>photo</mat-icon>
+                                </td>
+                                <td>{{ic.convertformat || '-'}}</td>
+                                <td>{{ic.suffix}}</td>
+                                <td>{{ic.convertwidth || 'auto'}} x {{ic.convertheight || 'auto'}}</td>
+                            </tr>
+                            <tr (click)="btnEditImageConversion(null)">
+                                <td>
+                                    <mat-icon>add_box</mat-icon>
+                                </td>
+                                <td colspan="3">
+                                    Add image conversion
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Edit conversion -->
+                <div class="linebox" *ngIf="cmode===2">
+                    <h4>Convert / resize image</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <mat-form-field class="full-width">
+                                <mat-select placeholder="Image format" [(ngModel)]="imgc.convertformat" required>
+                                    <mat-option *ngFor="let format of lstFormats" [value]="format.val">
+                                        {{ format.label }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6" *ngIf="imgc.convertformat!==''">
+                            <mat-form-field class="full-width" *ngIf="imgc.convertformat!=='png'">
+                                <input matInput placeholder="Image quality (1-100)" type="number" [(ngModel)]="imgc.quality"
+                                    min="1" max="100" [disabled]="imgc.convertformat===''" required>
+                            </mat-form-field>
+                            <mat-form-field class="full-width" *ngIf="imgc.convertformat==='png'">
+                                <input matInput placeholder="Compression level (1-9)" type="number" [(ngModel)]="imgc.compressionLevel"
+                                    min="1" max="9" [disabled]="imgc.convertformat===''" required>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <mat-form-field class="full-width">
+                                <input matInput placeholder="Resize width (pixels)" type="number" [(ngModel)]="imgc.convertwidth">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6">
+                            <mat-form-field class="full-width">
+                                <input matInput placeholder="Resize height (pixels)" type="number" [(ngModel)]="imgc.convertheight">
+                            </mat-form-field>        
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <mat-form-field class="full-width">
+                                <input matInput placeholder="File name suffix (e.g. _thumb128)" type="text" [(ngModel)]="imgc.suffix">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    
+                    <button mat-stroked-button (click)="btnSaveImageConversion()">
+                        <mat-icon>done</mat-icon> OK
+                    </button>
+                    &nbsp;
+                    <button mat-stroked-button (click)="btnDeleteImageConversion()" title="Remove this conversion">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDone()">
+            <mat-icon matListIcon>done</mat-icon>
+            Done
+        </button>
+        <button mat-button (click)="btnCancel()">Cancel</button>
+    </div>
+</div>
