@@ -104,6 +104,8 @@ import { FileEditorComponent } from './editor/fileexplorer/fileeditor/fileeditor
 import { PackageUploadDialogComponent } from './settings/dialogs/pkgupload-dialog';
 import { FileBrowserService } from './services/filebrowser.service';
 import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dialog';
+import { ImageProfileEditDialogComponent } from './settings/dialogs/imgprofileedit-dialog';
+import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/ImgUploadDialog';
 
 @NgModule({
   declarations: [
@@ -120,6 +122,7 @@ import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dia
     UserProfileDialogComponent,
     BulkPublishDialogComponent,
     PackageUploadDialogComponent,
+    ImageProfileEditDialogComponent,
     BookmarkEditDialogComponent,
     VariableEditDialogComponent,
     NewUserProfileDialogComponent,
@@ -147,6 +150,7 @@ import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dia
     MTContentDialogComponent,
     CFDistEditDialogComponent,
     FileUploadDialogComponent,
+    ImgUploadDialogComponent,
     LayoutFieldDialogComponent,
     PasswordChangeDialogComponent,
     GlobalFunctionEditDialogComponent,
@@ -201,6 +205,7 @@ import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dia
     BookmarkEditDialogComponent,
     VariableEditDialogComponent,
     PasswordChangeDialogComponent,
+    ImageProfileEditDialogComponent,
     ImportDialogComponent,
     MyProfileComponent,
     UserListComponent,
@@ -218,6 +223,7 @@ import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dia
     LayoutFieldDialogComponent,
     UpdaterDialogComponent,
     FileUploadDialogComponent,
+    ImgUploadDialogComponent,
     MTSelectDialogComponent,
     MTContentDialogComponent,
     GlobalFunctionEditDialogComponent,

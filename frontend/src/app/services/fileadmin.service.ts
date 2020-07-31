@@ -29,6 +29,7 @@ export class FileAdminService {
     ) { }
 
     FILE_RES = '/file-admin';
+    IMG_RES = '/img-resize';
 
     // Authentication token will be added by MyHttpInterceptor (see modules)
 
@@ -65,7 +66,7 @@ export class FileAdminService {
     // for file editor -> get contents from S3 (via lambda, to get Content-Type as well)
     public getFileByKey(bucketname: string, Key: string) {
         return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'getfile', bucketName: bucketname, key: Key}).toPromise().then((result: any) => {
+            { action: 'getfile', bucketName: bucketname, key: Key }).toPromise().then((result: any) => {
                 return result.data || null;
             });
     }
@@ -112,6 +113,14 @@ export class FileAdminService {
             };
         });
         return status;
+    }
+
+    // Image resizer
+    public resizeImages(thisBucketName: string, targetpath: string, lstFiles: any, imageprofile: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.IMG_RES,
+            { action: 'convertimages', bucketName: thisBucketName, targetpath, lstFiles, imageprofile }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
     }
 
     public getNewGUID() {

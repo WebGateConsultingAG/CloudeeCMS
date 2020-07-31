@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-02 1415 - RSC
+ * File Version: 2020-07-30 0703 - RSC
  */
 
 const storage = require('./functions/storage-service').storage;
@@ -66,6 +66,10 @@ exports.handler = function(event, context, callback) {
             return cfService.invalidateCF(payload.targetCF, payload.lstPaths, done);
         } else if (action === 'getconfig') {
             return storage.getConfig(userGroups, done);
+        } else if (action === 'getimageprofiles') {
+            return storage.getImageProfiles(done);
+        } else if (action === 'saveimageprofiles') {
+            return storage.saveImageProfiles(payload.obj , done);
         } else if (action === 'listusers') {
             return cognitoService.listUsers(payload.maxResults, payload.nextToken, done);
         } else if (action === 'getcognitouser') {

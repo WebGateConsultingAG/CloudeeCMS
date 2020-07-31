@@ -243,6 +243,27 @@ Resources:
             RestApiId:
               Ref: WebGateSCMSAPI
 
+  scmsimgapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: ./backend/aws-serverless-cms-img
+      Description: CloudeeCMS API for image resizing
+      MemorySize: 256
+      Timeout: 120
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /img-resize
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
   scmsfileuploadapi:
     Type: 'AWS::Serverless::Function'
     Properties:

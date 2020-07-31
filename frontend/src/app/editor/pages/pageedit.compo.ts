@@ -27,6 +27,7 @@ import { TabsNavService } from 'src/app/services/tabs.service';
 import { environment } from '../../../environments/environment';
 import { Auth } from '@aws-amplify/auth';
 import { FileSelectionDialogComponent } from './dialogs/FileSelectionDialog';
+import { ImgUploadDialogComponent } from '../fileexplorer/imageuploader/ImgUploadDialog';
 
 declare var window: any;
 
@@ -346,6 +347,12 @@ export class PageEditComponent implements OnInit {
     );
   }
 
+  btnShowImageUploadDialog() {
+    this.dialog.open(ImgUploadDialogComponent, {
+      width: '500px',
+      data: { filelist: [], uplPath: null, targetEnv: null, useDefaultUplPath: true }
+    });
+  }
   setLoading(on: boolean) {
     this.loading = on;
     this.tabsSVC.setLoading(on);

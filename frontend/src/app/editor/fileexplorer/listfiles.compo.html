@@ -17,11 +17,14 @@
     <div class="clrhdr"></div>
 
     <div class="folderActions" *ngIf="showListing">
-        <button mat-stroked-button (click)="btnCreateNewFolder()" title="New folder..">
+        <button mat-stroked-button (click)="btnCreateNewFolder()" title="Create new folder">
             <mat-icon>create_new_folder</mat-icon>
         </button>
-        <button mat-stroked-button (click)="btnShowFileUploadDialog(currentKey)" title="Upload files..">
+        <button mat-stroked-button (click)="btnShowFileUploadDialog(currentKey)" title="Upload files to current btnReloadDirectory">
             <mat-icon>cloud_upload</mat-icon>
+        </button>
+        <button mat-stroked-button (click)="btnShowImageUploadDialog(currentKey)" title="Upload and resize images to current directory">
+            <mat-icon>add_photo_alternate</mat-icon>
         </button>
         <button mat-stroked-button (click)="btnReloadDirectory()" title="Click to refresh directory listing">
             <mat-icon>refresh</mat-icon> Current location: /{{currentKey}}

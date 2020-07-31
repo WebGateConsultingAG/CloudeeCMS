@@ -1,0 +1,4 @@
+.uplProgress { border: 1px solid #d8d8d8; border-radius: 3px; padding: 2px; margin: 12px 0; }
+.uplProgress .uplFile { background-color: #f1f1f1; padding: 3px 6px; border-radius: 4px; margin-bottom: 4px; }
+label .mat-icon { vertical-align: middle; }
+.logdisplay { font-size: 11px; overflow: scroll; max-height: 400px; border: 1px solid lightgray; }
