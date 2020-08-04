@@ -5,5 +5,6 @@ export class ImageProfile {
     descr: string;
     tpath: string;
     deleteOriginal: boolean;
+    ccMaxAge: string;
     conversions: Array <ImageConversion> = [];
 }

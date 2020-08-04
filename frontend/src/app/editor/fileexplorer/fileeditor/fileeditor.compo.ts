@@ -48,6 +48,13 @@ export class FileEditorComponent implements OnInit {
     { label: 'Markdown .MD', ctype: 'text/markdown' },
     { label: 'Plain Text', ctype: 'text/plain' }
   ];
+  ccMaxAge = 'max-age=259200';
+  lstCCMaxAge = [
+    { label: '1 day', val: 'max-age=86400' },
+    { label: '3 days', val: 'max-age=259200' },
+    { label: '1 week', val: 'max-age=604800' },
+    { label: '1 month', val: 'max-age=2419200' }
+  ];
 
   ngOnInit() {
     const that = this;
@@ -73,6 +80,7 @@ export class FileEditorComponent implements OnInit {
             that.contentType = data.fileObj.ContentType;
             that.lastModified = data.fileObj.LastModified;
             that.fileBody = data.fileObj.Body.toString();
+            if (data.fileObj.CacheControl) { that.ccMaxAge = data.fileObj.CacheControl; }
             that.tabsSVC.setTabTitle(that.tabid, that.fileName || 'Untitled File');
             that.fileLoaded = true;
           } else {
@@ -98,7 +106,8 @@ export class FileEditorComponent implements OnInit {
 
     const fileInfo = {
       key: this.filePath,
-      contentType: this.contentType
+      contentType: this.contentType,
+      cacheControl: this.ccMaxAge
     };
 
     this.setLoading(true);

@@ -3,7 +3,6 @@
         <h1 mat-dialog-title>Image upload and resize</h1>
         <div *ngIf="!hasError">
             <p>Destination folder: /{{uplPath}}</p>
-
             <mat-progress-bar *ngIf="loadingProfiles || resizing" mode="indeterminate"></mat-progress-bar>
 
             <div *ngIf="showProfileSelection">
@@ -49,8 +48,7 @@
 
         <br /><br />
     </div>
-    <div class="warning" style="white-space: pre-line;" *ngIf="hasError" color="accent" selected="true">There was a
-        problem</div>
+
     <div mat-dialog-actions>
         <button mat-stroked-button (click)="btnDialogClose()">Close</button>
     </div>

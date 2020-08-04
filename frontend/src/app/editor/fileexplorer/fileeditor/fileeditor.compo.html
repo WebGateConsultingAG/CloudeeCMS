@@ -15,12 +15,21 @@
                 <input matInput readonly placeholder="Bucket" type="text" [(ngModel)]="bucketName">
             </mat-form-field>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <mat-form-field class="full-width">
                 <input matInput readonly placeholder="File path" type="text" [(ngModel)]="filePath">
             </mat-form-field>
         </div>
         <div class="col-md-3">
+            <mat-form-field class="full-width">
+                <mat-select placeholder="Cache-Control max. age" title="The maximum amount of time a resource is considered fresh by the browser cache." [(ngModel)]="ccMaxAge">
+                    <mat-option *ngFor="let itm of lstCCMaxAge" [value]="itm.val">
+                        {{ itm.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="col-md-2">
             <mat-form-field class="full-width">
                 <input matInput readonly placeholder="Content-Type" type="text" [(ngModel)]="contentType">
             </mat-form-field>

@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-23 07:53 - RSC
+ * File Version: 2020-08-04 09:20 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -50,13 +50,15 @@ s3service.createFolder = function(bucketname, key, done) {
 
 // For online file editor
 s3service.saveFile = function(bucketName, fileInfo, fileBody, done) {
+  var cc = fileInfo.cacheControl || 'max-age=172800';
+  if (cc === '') cc = 'max-age=172800';
   var params = { 
     Bucket: bucketName, 
     Key: fileInfo.key, 
     Body: fileBody, 
     ContentType: fileInfo.contentType,
-    ACL: 'public-read',
-    CacheControl: 'max-age=259200'
+    CacheControl: cc,
+    ACL: 'public-read'
   };
   s3.putObject(params, function(err, data) {
       if (err) {
@@ -79,6 +81,7 @@ s3service.getFile = function(bucketName, key, done) {
         done.done( { success: true, fileObj: { 
           ContentType: data.ContentType,
           LastModified: data.LastModified,
+          CacheControl: data.CacheControl,
           Body: Buffer.from(data.Body).toString()
         } } );
       }

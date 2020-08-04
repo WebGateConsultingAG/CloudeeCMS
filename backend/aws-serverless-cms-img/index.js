@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-31 07:21 - RSC
+ * File Version: 2020-08-04 09:54 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -40,7 +40,10 @@ exports.handler = async function (event, context, callback) {
 async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile, done) {
     let lstLog = [];
     try {
-
+        let ccMaxAge = '259200';
+        if (imageprofile.ccMaxAge && imageprofile.ccMaxAge !== '') {
+            ccMaxAge = imageprofile.ccMaxAge;
+        }
         lstFiles.forEach(async srcFile => {
             lstLog.push("Get " + srcFile + ' from ' + s3BucketName);
             const srcImg = await s3.getObject({ Bucket: s3BucketName, Key: srcFile }).promise();
@@ -53,12 +56,12 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                     console.log("resizeOpts", resizeOpts);
                     newFile = newFile.resize(resizeOpts);
                 }
-                
+
                 let newContentType = srcImg.ContentType;
                 let newFormat = imgc.convertformat || '';
                 if (newFormat === '-') newFormat = '';
                 if (newFormat !== '') {
-                    newContentType = 'image/'+newFormat;
+                    newContentType = 'image/' + newFormat;
                     if (newFormat === 'jpeg' || newFormat === 'webp') {
                         newFile.toFormat(newFormat, { quality: (imgc.quality || 85) });
                     } else if (newFormat === 'png') {
@@ -66,17 +69,17 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                     }
                 }
                 let targetPath = targetfolder + getNewFileName(srcFile, newFormat, imgc.suffix);
-                
+
                 lstLog.push("Upload to S3: " + targetPath);
-                await s3putFile(s3BucketName, targetPath, newContentType, await newFile.toBuffer() );
+                await s3putFile(s3BucketName, targetPath, newContentType, ccMaxAge, await newFile.toBuffer());
             });
-           if (imageprofile.deleteOriginal) s3remove(s3BucketName, srcFile); 
+            if (imageprofile.deleteOriginal) s3remove(s3BucketName, srcFile);
         });
-        
+
         done.done({ processed: true, log: lstLog });
     } catch (e) {
         console.log(e);
-        done.done({ processed: false, errorMessage: e.toString(), log: lstLog });        
+        done.done({ processed: false, errorMessage: e.toString(), log: lstLog });
     }
 }
 
@@ -86,17 +89,18 @@ function getNewFileName(srcFile, newFormat, suffix) {
     if (lpos > 0) newFile = srcFile.substr(lpos + 1, srcFile.length); // file without subdir
     let epos = newFile.lastIndexOf(".");
     let fileOnly = newFile.substr(0, epos);
-    let extOnly = newFile.substr(epos+1, newFile.length);
-    return fileOnly + suffix + "." + (newFormat!==''?newFormat:extOnly);
+    let extOnly = newFile.substr(epos + 1, newFile.length);
+    return fileOnly + suffix + "." + (newFormat !== '' ? newFormat : extOnly);
 }
 
-async function s3putFile(s3BucketName, key, contentType, fileBody) {
- await s3.putObject({
+async function s3putFile(s3BucketName, key, contentType, ccMaxAge, fileBody) {
+    await s3.putObject({
         Bucket: s3BucketName,
         Key: key,
         Body: fileBody,
-        ACL: 'public-read', 
-        ContentType: contentType
+        ACL: 'public-read',
+        ContentType: contentType,
+        CacheControl: 'max-age=' + ccMaxAge
     }).promise();
 }
 

@@ -53,6 +53,7 @@ export class ImgUploadDialogComponent implements OnInit {
     lstLog = [];
     showProfileSelection = false;
     config = null;
+    ccMaxAge = '259200';
 
     public files: Set<File> = new Set();
 
@@ -62,10 +63,9 @@ export class ImgUploadDialogComponent implements OnInit {
         this.uplPath = this.data.uplPath;
         this.targetEnv = this.data.targetEnv;
         this.useDefaultUplPath = this.data.useDefaultUplPath;
-console.log("uplPath", this.uplPath);
+
         if (!this.targetEnv) {
             // if not invoked from file explorer, get CDN bucket name
-            console.log('get CDN bucket name');
             this.loadConfig();
         }
 
@@ -107,6 +107,11 @@ console.log("uplPath", this.uplPath);
     }
     onProfileChange(): void {
         if (this.useDefaultUplPath) { this.uplPath = this.selectedProfile.tpath; }
+        if (this.selectedProfile.ccMaxAge && this.selectedProfile.ccMaxAge !== '') {
+            this.ccMaxAge = this.selectedProfile.ccMaxAge;
+        } else {
+            this.ccMaxAge = '259200';
+        }
     }
     btnDialogClose(): void {
         this.dialogRef.close(null);
@@ -136,7 +141,7 @@ console.log("uplPath", this.uplPath);
     private processUploads(s3policy: any): void {
         this.uploading = true;
         this.showFileSelector = false;
-        this.progress = this.fileSVC.upload(this.files, this.uplPath, s3policy);
+        this.progress = this.fileSVC.upload(this.files, this.uplPath, s3policy, this.ccMaxAge);
 
         const allProgressObservables = [];
         // tslint:disable-next-line: forin

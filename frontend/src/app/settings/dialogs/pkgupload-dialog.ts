@@ -82,7 +82,7 @@ export class PackageUploadDialogComponent implements OnInit {
     }
     private processUploads(s3policy: any) {
         this.uploading = true;
-        this.progress = this.fileSVC.upload(this.files, this.uplPath, s3policy);
+        this.progress = this.fileSVC.upload(this.files, this.uplPath, s3policy, null);
         const allProgressObservables = [];
         // tslint:disable-next-line: forin
         for (const key in this.progress) { allProgressObservables.push(this.progress[key].progress); }

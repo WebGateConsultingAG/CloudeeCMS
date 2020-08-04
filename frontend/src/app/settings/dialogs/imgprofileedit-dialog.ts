@@ -46,6 +46,13 @@ export class ImageProfileEditDialogComponent implements OnInit {
         { val: 'webp', label: 'WebP'},
         { val: 'png', label: 'PNG'}
     ];
+    lstCCMaxAge = [
+        { label: '1 day', val: '86400' },
+        { label: '3 days', val: '259200' },
+        { label: '1 week', val: '604800' },
+        { label: '1 month', val: '2419200' }
+    ];
+    
     ngOnInit(): void {
         if (!this.data.imageprofile) {
             this.isNew = true;

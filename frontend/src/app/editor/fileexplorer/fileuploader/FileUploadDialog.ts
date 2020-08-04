@@ -41,6 +41,13 @@ export class FileUploadDialogComponent implements OnInit {
     uplPath = '';
     targetEnv: string;
     showUploader = false;
+    ccMaxAge = '259200';
+    lstCCMaxAge = [
+        { label: '1 day', val: '86400' },
+        { label: '3 days', val: '259200' },
+        { label: '1 week', val: '604800' },
+        { label: '1 month', val: '2419200' }
+    ];
 
     public files: Set<File> = new Set();
 
@@ -75,8 +82,7 @@ export class FileUploadDialogComponent implements OnInit {
     }
     private processUploads(s3policy: any) {
         this.uploading = true;
-
-        this.progress = this.fileSVC.upload(this.files, this.uplPath, s3policy);
+        this.progress = this.fileSVC.upload(this.files, this.uplPath, s3policy, this.ccMaxAge);
 
         const allProgressObservables = [];
         // tslint:disable-next-line: forin

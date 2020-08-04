@@ -78,16 +78,17 @@ export class FileAdminService {
             });
     }
 
-    public upload(files: Set<File>, s3uploadPath: string, s3policy: any): { [key: string]: Observable<number> } {
+    public upload(files: Set<File>, s3uploadPath: string, s3policy: any, CCMaxAge: string): { [key: string]: Observable<number> } {
         const status = {}; // observables map
-
+        let maxAge = CCMaxAge;
+        if (!maxAge || maxAge === '') { maxAge = '259200'; }
         files.forEach(file => {
             const formData: FormData = new FormData();
             formData.append('Content-Type', file.type);
             // tslint:disable-next-line: forin
             for (const f in s3policy.fields) { formData.append(f, s3policy.fields[f]); } // inherit all fields from policy
             formData.append('ACL', 'public-read'); // must appear before file contents!
-            formData.append('Cache-Control', 'max-age=259200');
+            formData.append('Cache-Control', 'max-age=' + maxAge);
             const targetFilename = s3uploadPath + file.name;
             console.log('upload', targetFilename);
             formData.append('key', targetFilename);
