@@ -1,7 +1,4 @@
 .flx-tree { list-style: none; padding-left: 12px; font-size: 18px; }
 .flx-tree .mat-icon { vertical-align: bottom; border-radius: 3px; font-size: 23px; width: 24px; height: 24px; margin-right: 6px; margin-top: 2px; margin-bottom: 2px; border: 1px solid lightgray; background-color: white; }
-.flx-tree .mat-icon:hover { background-color: #5ad1ff; color: black; }
-.flx-tree .treeRow { background-color: transparent; transition: background-color 0.6s linear; border-radius: 3px; margin-bottom: 4px; padding: 2px 5px; }
-.flx-tree .treeRow:hover { background-color: #caeeff; transition: background-color 0.2s linear;  }
 .flx-tree .treeRow a { cursor: pointer; }
 .clickable { cursor: pointer; }

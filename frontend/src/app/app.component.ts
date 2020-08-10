@@ -27,6 +27,7 @@ import { UpdaterDialogComponent } from './settings/dialogs/updater-dialog';
 import { FileBrowserService } from './services/filebrowser.service';
 
 declare var window: any;
+declare var jQuery: any;
 
 @Component({
   selector: 'app-root',
@@ -53,9 +54,13 @@ export class AppComponent implements OnInit, OnDestroy {
   opened = false; // sidebar
   configLoaded = false;
   notifications = [];
+  darkMode = false;
 
   ngOnInit() {
     this.apptitle = environment.app_name;
+
+    const theme = localStorage.getItem('theme');
+    if (theme && theme === 'darkmode') { this.setDarkMode(true); }
 
     // Export functions for trumbowyg external plugins
     window.pubfn = window.pubfn || {};
@@ -128,6 +133,21 @@ export class AppComponent implements OnInit, OnDestroy {
   CDNListFiles(strPath: string, cb: any) {
     this.ngZone.run(() => this.fileBrowserSVC.listFilesOfBucket('CDN', strPath, ['jpg', 'jpeg', 'png', 'gif', 'svg'], cb));
   }
+
+  toggleDarkMode(): void {
+    this.setDarkMode(!this.darkMode);
+  }
+
+  setDarkMode(enabled: boolean) {
+    this.darkMode = enabled;
+    if (this.darkMode) {
+      jQuery('body').addClass('dm');
+    } else {
+      jQuery('body').removeClass('dm');
+    }
+    localStorage.setItem('theme', this.darkMode ? 'darkmode' : '');
+  }
+
   ngOnDestroy() {
     // Remove exported functions
     window.pubfn.CDNListFiles = null;

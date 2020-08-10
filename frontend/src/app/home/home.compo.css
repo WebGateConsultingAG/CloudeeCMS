@@ -1,12 +1,3 @@
-.buttonlist button { width: 90%; margin-bottom: 20px; text-align: left; padding: 12px; 
-
-/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ffffff+0,efefef+100 */
-background: #ffffff; /* Old browsers */
-background: -moz-linear-gradient(top,  #ffffff 0%, #efefef 100%); /* FF3.6-15 */
-background: -webkit-linear-gradient(top,  #ffffff 0%,#efefef 100%); /* Chrome10-25,Safari5.1-6 */
-background: linear-gradient(to bottom,  #ffffff 0%,#efefef 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#efefef',GradientType=0 ); /* IE6-9 */
-}
 .loaderMessage { text-align: center; }
 .loaderMessage .mat-spinner { width: 100px; height: 100px; margin-left: auto; margin-right: auto; margin-bottom: 20px; }
 .copy { font-size: 14px; }

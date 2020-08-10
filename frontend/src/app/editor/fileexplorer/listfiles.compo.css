@@ -1,5 +1,4 @@
 .fileExplorer .clickable { cursor: pointer; }
-.fileExplorer a { text-decoration: none; color: black; }
 .fileExplorer a:hover { text-decoration: underline; }
 .folderActions button { margin-right: 6px; }
 

@@ -124,6 +124,10 @@
               <button mat-button class="mat-menu-item" (click)="tabsSVC.navigateTo('useradmin')" *ngIf="backendSVC.isUserAdmin">
                 <mat-icon>supervisor_account</mat-icon> User Administration
               </button>
+              <button mat-button class="mat-menu-item" (click)="toggleDarkMode()"
+                title="Switch between bright and dark mode">
+                <mat-icon>{{darkMode?'toggle_on':'toggle_off'}}</mat-icon> Switch to {{darkMode?'bright mode':'dark mode'}}
+              </button>
               <button mat-button class="mat-menu-item" (click)="btnLogout()">
                 <mat-icon>exit_to_app</mat-icon> Logout
               </button>
