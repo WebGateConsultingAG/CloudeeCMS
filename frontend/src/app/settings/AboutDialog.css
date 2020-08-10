@@ -1,6 +1,6 @@
 .logo { width: 225px; }
 .logoWGC { height: 17px; vertical-align: middle; margin-left: 6px; }
-.copy { font-size: 14px; }
+.copy { font-size: 14px; padding-top: 4px; }
 a, a:visited { color: #3a77c0; text-decoration: none; }
 a:hover { color: #3a77c0; text-decoration: underline; }
 .btnClose { float: right; }

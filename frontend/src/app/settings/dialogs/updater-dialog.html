@@ -1,6 +1,6 @@
 <div>
     <div mat-dialog-content>
-        <img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" class="logo" />
+        <img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" class="logo dmLogo" />
         <h1 mat-dialog-title>Software Updater</h1>
         <div class="loader" *ngIf="loading">
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -15,7 +15,7 @@
         <div *ngIf="updaterstatus==1" class="borderbox">
             You are using version: {{APP_VERSION}}<br />
             A new version is available: {{updaterData.availableVersion}} ({{updaterData.repobranch}})<br /><br />
-            Please read the <a href="{{updaterData.releaseNotes}}" target="_blank">Release Notes</a> before upgrading!
+            Please read the <a href="{{updaterData.releaseNotes}}" target="_blank" class="dmLink">Release Notes</a> before upgrading!
             <div *ngIf="!isAdmin" class="warn">
                 You do not have admin rights to start this update!
             </div>
