@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-08 12:08 - RSC
+ * File Version: 2020-06-18 13:50 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -237,7 +237,7 @@ async function importPackage(s3BucketName, s3key, done) {
         lstLog.push('Importing Package: ' + pkg.title);
 
         // Upload resources to CDN bucket
-        if (pkg.resources.filesCDN) {
+        if (pkg.resources && pkg.resources.filesCDN) {
             const cdnBucket = getBucketByName('CDN', config.buckets);
             const s3BucketName = cdnBucket ? cdnBucket.bucketname : '';
             if (s3BucketName === '') {
@@ -265,7 +265,7 @@ async function importPackage(s3BucketName, s3key, done) {
         }
 
         // Add global variables to config document
-        if (pkg.resources.variables) {
+        if (pkg.resources && pkg.resources.variables) {
             lstLog.push("Importing global variables");
             if (!config.variables) config.variables = [];
             pkg.resources.variables.forEach(vEntry => {
@@ -312,6 +312,32 @@ async function importPackage(s3BucketName, s3key, done) {
             lstLog.push("Saving configuration");
             await documentClient.put({ TableName: tableName, Item: config }).promise();
         }
+
+        // Import image upload and resize profiles
+        if (pkg.resources && pkg.resources.imageprofiles) {
+            lstLog.push("Importing imageprofiles");
+            try {
+                // Get existing imageprofiles from database
+                const imgp = await getImageProfiles();
+                
+                pkg.resources.imageprofiles.forEach(vEntry => {
+                    console.log("Add profile", vEntry.label, vEntry.id);
+                    let added = false;
+                    for (let i=0; i < imgp.lstProfiles.length; i++) {
+                        if (imgp.lstProfiles[i].id === vEntry.id) {
+                            imgp.lstProfiles[i] = vEntry; // update existing
+                            added = true;
+                        }
+                    }
+                    if (!added) imgp.lstProfiles.push(vEntry); // add new
+                });
+                lstLog.push("Saving imageprofiles");
+                await documentClient.put({ TableName: tableName, Item: imgp }).promise();
+            } catch (e) {
+                lstLog.push("Error while importing imageprofiles!");
+            }
+        }
+
         done.done({ success: true, log: lstLog });
 
     } catch (e) {
@@ -433,11 +459,18 @@ function getBucketByName(nm, lstBuckets) {
 async function getConfig() {
     let doc = await documentClient.get({ TableName: tableName, Key: { id: "config" } }).promise();
     if (doc && doc.Item) {
-        console.log(tableName, doc);
         return doc.Item;
     } else {
         console.log(tableName, 'config not found');
         return null;
+    }
+}
+async function getImageProfiles() {
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: "imageprofiles" } }).promise();
+    if (doc && doc.Item) {
+        return doc.Item;
+    } else { // return a new empty profile
+        return { "id": "imageprofiles", "lstProfiles": [] };
     }
 }
 function getFileStructure(rootPath, thisPath, lst) {

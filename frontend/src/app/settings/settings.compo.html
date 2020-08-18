@@ -133,9 +133,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let bm of config.bookmarks | orderBy: {property: 'label', direction: 1}"
-                            (click)="btnEditBM(bm)">
-                            <td>{{bm.label}}</td>
+                        <tr *ngFor="let bm of config.bookmarks | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditBM(bm)">{{bm.label}}</td>
                             <td style="text-align: right;" class="hoverActions">
                                 <mat-icon title="Delete" (click)="btnDeleteBM(bm)">delete
                                 </mat-icon>
@@ -170,10 +169,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let variable of config.variables | orderBy: {property: 'label', direction: 1}"
-                            (click)="btnEditVariable(variable)">
-                            <td>env.{{variable.variablename}}</td>
-                            <td>{{variable.value}}</td>
+                        <tr *ngFor="let variable of config.variables | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditVariable(variable)">env.{{variable.variablename}}</td>
+                            <td (click)="btnEditVariable(variable)">{{variable.value}}</td>
                             <td style="text-align: right;" class="hoverActions">
                                 <mat-icon title="Delete" (click)="btnDeleteVariable(variable)">delete
                                 </mat-icon>
@@ -257,16 +255,13 @@
                 <table class="viewTable clickableRows" *ngIf="config.pugGlobalScripts">
                     <thead>
                         <tr>
-                            <th style="width: 20%">Name</th>
-                            <th style="width: 75%">Function code</th>
+                            <th style="width: 95%">Function Name</th>
                             <th style="width: 5%"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let fn of config.pugGlobalScripts"
-                            (click)="btnEditGlobalFunction(fn)">
-                            <td>{{fn.fName}}</td>
-                            <td>{{fn.body}}</td>
+                        <tr *ngFor="let fn of config.pugGlobalScripts">
+                            <td (click)="btnEditGlobalFunction(fn)">{{fn.fName}}</td>
                             <td style="text-align: right;" class="hoverActions">
                                 <mat-icon title="Delete" (click)="btnDeleteGlobalFunction(fn)">delete
                                 </mat-icon>
@@ -301,12 +296,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}"
-                            (click)="btnEditBucket(bucket)">
-                            <td>{{bucket.label}}</td>
-                            <td>{{bucket.bucketname}}</td>
-                            <td>{{bucket.ftindex}}</td>
-                            <td>
+                        <tr *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditBucket(bucket)">{{bucket.label}}</td>
+                            <td (click)="btnEditBucket(bucket)">{{bucket.bucketname}}</td>
+                            <td (click)="btnEditBucket(bucket)">{{bucket.ftindex}}</td>
+                            <td (click)="btnEditBucket(bucket)">
                                 <mat-icon *ngIf="!bucket.noPublish" matListIcon title="Visible in publish dialog">visibility</mat-icon>
                                 <mat-icon *ngIf="bucket.noPublish" matListIcon title="Not visible in publish dialog">visibility_off</mat-icon>
                             </td>
@@ -343,11 +337,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let dist of config.cfdists | orderBy: {property: 'label', direction: 1}"
-                            (click)="btnEditCFDist(dist)">
-                            <td>{{dist.label}}</td>
-                            <td>{{dist.cfid}}</td>
-                            <td>{{dist.webURL}}</td>
+                        <tr *ngFor="let dist of config.cfdists | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditCFDist(dist)">{{dist.label}}</td>
+                            <td (click)="btnEditCFDist(dist)">{{dist.cfid}}</td>
+                            <td (click)="btnEditCFDist(dist)">{{dist.webURL}}</td>
                             <td style="text-align: right;" class="hoverActions">
                                 <mat-icon *ngIf="!dist.preventDelete" title="Delete" (click)="btnDeleteCFDist(dist)">delete
                                 </mat-icon>
@@ -381,11 +374,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let imgp of imageprofiles.lstProfiles | orderBy: {property: 'label', direction: 1}"
-                            (click)="btnEditImageProfile(imgp)">
-                            <td>{{imgp.label}}</td>
-                            <td>{{imgp.descr}}</td>
-                            <td>{{imgp.tpath}}</td>
+                        <tr *ngFor="let imgp of imageprofiles.lstProfiles | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditImageProfile(imgp)">{{imgp.label}}</td>
+                            <td (click)="btnEditImageProfile(imgp)">{{imgp.descr}}</td>
+                            <td (click)="btnEditImageProfile(imgp)">{{imgp.tpath}}</td>
                             <td style="text-align: right;" class="hoverActions">
                                 <mat-icon title="Delete" (click)="btnDeleteImageProfile(imgp.id)">delete
                                 </mat-icon>
