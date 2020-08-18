@@ -298,7 +298,7 @@ export class SettingsComponent implements OnInit {
   }
   btnDeleteVariable(variable: any) {
     if (!confirm('Delete this entry?')) { return; }
-    for (let i = 0; i < this.config.buckets.length; i++) {
+    for (let i = 0; i < this.config.variables.length; i++) {
       if (this.config.variables[i] === variable) {
         this.config.variables.splice(i, 1);
         return;
