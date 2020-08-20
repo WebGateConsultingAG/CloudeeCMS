@@ -52,7 +52,7 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                 if (imgc.convertwidth || imgc.convertheight) {
                     let resizeOpts = {};
                     if (imgc.convertwidth) resizeOpts.width = imgc.convertwidth;
-                    if (imgc.convertheight) resizeOpts.width = imgc.convertheight;
+                    if (imgc.convertheight) resizeOpts.height = imgc.convertheight;
                     console.log("resizeOpts", resizeOpts);
                     newFile = newFile.resize(resizeOpts);
                 }
