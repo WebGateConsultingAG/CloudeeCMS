@@ -32,6 +32,7 @@ export class PugBlocksComponent implements OnInit {
   ) { }
 
   viewList: any = [];
+  viewFilter = '';
   loading: boolean;
   tabID = 'tab-compos';
   selectAll: boolean;

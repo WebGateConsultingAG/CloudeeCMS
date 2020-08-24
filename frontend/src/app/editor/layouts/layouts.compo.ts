@@ -32,6 +32,7 @@ export class LayoutsComponent implements OnInit {
   ) { }
 
   viewList: any = [];
+  viewFilter = '';
   loading: boolean;
   tabID = 'tab-layouts';
   selectAll: boolean;

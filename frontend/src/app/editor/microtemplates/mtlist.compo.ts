@@ -32,6 +32,7 @@ export class MTListComponent implements OnInit {
   ) { }
 
   viewList: any = [];
+  viewFilter = '';
   loading = true;
   tabID = 'tab-mtlist';
   selectAll: boolean;

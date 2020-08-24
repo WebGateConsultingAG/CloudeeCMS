@@ -1,9 +1,10 @@
 <div class="container">
     <div class="loaderOverlay" *ngIf="loading"></div>
     <div class="actionbar">
-        <button mat-stroked-button (click)="btnNavigateTo('editor/forms/edit/NEW')">
-            <mat-icon matListIcon>assignment</mat-icon> New Form
-        </button>
+        <mat-form-field>
+            <input matInput placeholder="Filter this view.." type="text" [(ngModel)]="viewFilter">
+            <mat-icon matSuffix *ngIf="viewFilter!=''" (click)="viewFilter=''" style="cursor: pointer;">highlight_off</mat-icon>
+        </mat-form-field>
 
         <mat-menu #miscMenu="matMenu">
             <button mat-button class="mat-menu-item" (click)="btnDelete()">Delete all selected</button>
@@ -11,6 +12,9 @@
 
         <button mat-stroked-button [matMenuTriggerFor]="miscMenu" title="More actions..">
             <mat-icon>more_horiz</mat-icon>
+        </button>
+        <button mat-stroked-button (click)="btnNavigateTo('editor/forms/edit/NEW')">
+            <mat-icon matListIcon>assignment</mat-icon> New Form
         </button>
     </div>
     <h3>Forms</h3>
@@ -33,7 +37,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let item of viewList | orderBy: {property: 'title', direction: 1}">
+            <tr *ngFor="let item of viewList | orderBy: {property: 'title', direction: 1} | searchfilter: ['title','id'] : viewFilter">
                 <td><mat-icon matListIcon>assignment</mat-icon></td>
                 <td (click)="btnNavigateTo('editor/forms/edit/'+item.id)">{{item.id}}</td>
                 <td class="clickable" (click)="btnNavigateTo('editor/forms/edit/'+item.id)">{{item.title}}</td>

@@ -32,6 +32,7 @@ export class FormsComponent implements OnInit {
   ) { }
 
   viewList: any = [];
+  viewFilter = '';
   loading: boolean;
   tabID = 'tab-forms';
   selectAll: boolean;
