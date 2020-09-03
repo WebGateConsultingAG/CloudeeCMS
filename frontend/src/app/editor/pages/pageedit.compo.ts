@@ -263,7 +263,7 @@ export class PageEditComponent implements OnInit {
     const that = this;
     const dialogRef = this.dialog.open(FileSelectionDialogComponent,
       { width: '650px', disableClose: false, data: {
-        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff']
+        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'webp']
         }}
     );
     dialogRef.afterClosed().subscribe(result => {
@@ -276,7 +276,7 @@ export class PageEditComponent implements OnInit {
     const that = this;
     const dialogRef = this.dialog.open(FileSelectionDialogComponent,
       { width: '650px', disableClose: false, data: {
-        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff']
+        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'webp']
         }}
     );
     dialogRef.afterClosed().subscribe(result => {

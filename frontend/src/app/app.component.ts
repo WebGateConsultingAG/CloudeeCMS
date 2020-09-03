@@ -131,7 +131,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Export functions outside angular for trumbowyg plugins
   CDNListFiles(strPath: string, cb: any) {
-    this.ngZone.run(() => this.fileBrowserSVC.listFilesOfBucket('CDN', strPath, ['jpg', 'jpeg', 'png', 'gif', 'svg'], cb));
+    this.ngZone.run(() => this.fileBrowserSVC.listFilesOfBucket('CDN', strPath, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'], cb));
   }
 
   toggleDarkMode(): void {

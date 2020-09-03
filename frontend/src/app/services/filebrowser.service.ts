@@ -32,7 +32,7 @@ export class FileBrowserService {
     fileFilter = [];
 
     public listFilesOfBucket(thisBucketLabel: string, strPath: string, fileFilter: any, cb: any) {
-        this.fileFilter = fileFilter || ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+        this.fileFilter = fileFilter || ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
         const that = this;
         this.backendSVC.getConfig(false).then(
             (rc: any) => {
