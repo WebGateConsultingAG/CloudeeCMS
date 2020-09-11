@@ -181,7 +181,7 @@ Resources:
       CodeUri: ./backend/aws-serverless-cms
       Description: CloudeeCMS API for content admin interface
       MemorySize: 128
-      Timeout: 3
+      Timeout: 15
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
         Variables:
@@ -342,7 +342,7 @@ Resources:
       CodeUri: ./backend/aws-serverless-cms-listcontent
       Description: CloudeeCMS API to get pages by category
       MemorySize: 128
-      Timeout: 4
+      Timeout: 5
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
         Variables:
