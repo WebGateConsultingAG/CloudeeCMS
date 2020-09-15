@@ -55,8 +55,10 @@ export class SettingsComponent implements OnInit {
   APP_VERSION = versioninfo.version;
   enableOnlineUpdates: boolean;
   imageprofiles = null;
+  APIGWURL = '';
 
   ngOnInit() {
+    this.APIGWURL = environment.API_Gateway_Endpoint;
     this.loadConfig();
   }
 

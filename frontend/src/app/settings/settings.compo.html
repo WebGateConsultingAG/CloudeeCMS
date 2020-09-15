@@ -19,6 +19,11 @@
                                 (ngModelChange)="setRestartRequired()">
                         </mat-form-field>
                     </div>
+                    <div class="col-md-6">
+                        <mat-form-field class="full-width">
+                            <input matInput readonly placeholder="API Gateway URL" type="text" [(ngModel)]="APIGWURL">
+                        </mat-form-field>
+                    </div>
                 </div>
             </mat-card>
         </div>
