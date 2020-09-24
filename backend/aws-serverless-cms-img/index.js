@@ -70,7 +70,7 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                 }
 
                 // Apply rotation info from metadata, if any (prevent rotated images taken using smartphones)
-                newFormat.rotate();
+                newFile.rotate();
 
                 let targetPath = targetfolder + getNewFileName(srcFile, newFormat, imgc.suffix);
 
