@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-09-21 07:02 - RSC
+ * File Version: 2020-10-06 17:04 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -49,6 +49,10 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
             const srcImg = await s3.getObject({ Bucket: s3BucketName, Key: srcFile }).promise();
             imageprofile.conversions.forEach(async imgc => {
                 let newFile = sharp(srcImg.Body);
+
+                // Apply rotation info from metadata, if any (prevent rotated images taken using smartphones)
+                newFile.rotate();
+
                 if (imgc.convertwidth || imgc.convertheight) {
                     let resizeOpts = {};
                     if (imgc.convertwidth) resizeOpts.width = imgc.convertwidth;
@@ -68,9 +72,6 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                         newFile.toFormat(newFormat, { compressionLevel: (imgc.compressionLevel || 9) });
                     }
                 }
-
-                // Apply rotation info from metadata, if any (prevent rotated images taken using smartphones)
-                newFile.rotate();
 
                 let targetPath = targetfolder + getNewFileName(srcFile, newFormat, imgc.suffix);
 
