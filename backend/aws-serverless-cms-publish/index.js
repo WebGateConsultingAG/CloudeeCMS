@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-08 09:10 - RSC
+ * File Version: 2020-10-09 06:26 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -195,6 +195,12 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
             }
         }
 
+        // Upload navtree as JSON to S3
+        if (cfg.enablenavtree === true) {
+            lstLog.push("Uploading navtree.json");
+            uploadNavTree(s3BucketName, page.env.navtree);
+        }
+
         done.done({ published: true, log: lstLog });
     } catch (e) {
         console.log(e);
@@ -315,6 +321,12 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
 
         });
 
+        // Upload navtree as JSON to S3
+        if (cfg.enablenavtree === true) {
+            lstLog.push("Uploading navtree.json");
+            uploadNavTree(s3BucketName, pageEnv.navtree);
+        }
+
         done.done({ published: true, log: lstLog });
     } catch (e) {
         console.log(e);
@@ -355,6 +367,11 @@ function getIndexerConfig(cfg, s3BucketName) {
     }
 }
 
+function uploadNavTree(s3BucketName, navtree) {
+    var treeData = { navTree: navtree };
+    s3upload(s3BucketName, "navtree.json", JSON.stringify(treeData), "application/json");
+}
+
 function getLayoutByID(lstLayouts, layoutID) {
     let theLayout = null;
     lstLayouts.forEach(layout => {
@@ -362,13 +379,13 @@ function getLayoutByID(lstLayouts, layoutID) {
     });
     return theLayout;
 }
-async function s3upload(s3BucketName, opath, html) {
+async function s3upload(s3BucketName, opath, html, contentType) {
     console.log("Upload to S3:", s3BucketName, opath);
     await s3.putObject({
         Bucket: s3BucketName,
         Key: opath,
         Body: html,
-        ACL: 'public-read', ContentType: "text/html"
+        ACL: 'public-read', ContentType: contentType || "text/html"
     }).promise();
 }
 async function s3remove(s3BucketName, opath) {

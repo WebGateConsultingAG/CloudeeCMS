@@ -71,6 +71,7 @@ export class PageEditComponent implements OnInit {
       ['formatting'],
       ['fontsize'],
       ['strong', 'em', 'del'],
+      ['table'],
       ['link'],
       ['insertImage'], ['cdnplugin'],
       ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'],
