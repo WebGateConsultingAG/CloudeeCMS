@@ -14,5 +14,6 @@ No matter if you are a publisher, agency or corporate, CloudeeCMS provides a mod
 
 ## Installation
 
-There is a CloudFormation template to configure and create a CloudeeCMS instance in your AWS account. Read the [Installation Guide](https://www.cloudee-cms.com/documentation#!/doc/installation) in the [documentation](https://www.cloudee-cms.com/documentation).
+You don't have to clone and download this repository!
+Simply use the provided CloudFormation Template to configure and create a CloudeeCMS instance in your AWS account. Read the [Installation Guide](https://www.cloudee-cms.com/documentation#!/doc/installation) in the [documentation](https://www.cloudee-cms.com/documentation).
 
