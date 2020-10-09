@@ -52,7 +52,7 @@ export class ImageProfileEditDialogComponent implements OnInit {
         { label: '1 week', val: '604800' },
         { label: '1 month', val: '2419200' }
     ];
-    
+
     ngOnInit(): void {
         if (!this.data.imageprofile) {
             this.isNew = true;

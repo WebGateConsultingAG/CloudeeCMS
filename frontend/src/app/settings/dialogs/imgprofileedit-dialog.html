@@ -103,7 +103,12 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <mat-form-field class="full-width" title="To store in subfolders, add forward slash to the prefix">
+                                <input matInput placeholder="File name prefix (e.g. sizes/)" type="text" [(ngModel)]="imgc.prefix">
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6">
                             <mat-form-field class="full-width">
                                 <input matInput placeholder="File name suffix (e.g. _thumb128)" type="text" [(ngModel)]="imgc.suffix">
                             </mat-form-field>

@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-06 17:04 - RSC
+ * File Version: 2020-10-09 09:25 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -57,7 +57,6 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                     let resizeOpts = {};
                     if (imgc.convertwidth) resizeOpts.width = imgc.convertwidth;
                     if (imgc.convertheight) resizeOpts.height = imgc.convertheight;
-                    console.log("resizeOpts", resizeOpts);
                     newFile = newFile.resize(resizeOpts);
                 }
 
@@ -73,7 +72,7 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                     }
                 }
 
-                let targetPath = targetfolder + getNewFileName(srcFile, newFormat, imgc.suffix);
+                let targetPath = targetfolder + getNewFileName(srcFile, newFormat, imgc.suffix, imgc.prefix);
 
                 lstLog.push("Upload to S3: " + targetPath);
                 await s3putFile(s3BucketName, targetPath, newContentType, ccMaxAge, await newFile.toBuffer());
@@ -88,14 +87,16 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
     }
 }
 
-function getNewFileName(srcFile, newFormat, suffix) {
+function getNewFileName(srcFile, newFormat, suffix, prefix) {
+    let sfx = suffix || '';
+    let pfx = prefix || '';
     let newFile = srcFile;
     let lpos = srcFile.lastIndexOf("/");
     if (lpos > 0) newFile = srcFile.substr(lpos + 1, srcFile.length); // file without subdir
     let epos = newFile.lastIndexOf(".");
     let fileOnly = newFile.substr(0, epos);
     let extOnly = newFile.substr(epos + 1, newFile.length);
-    return fileOnly + suffix + "." + (newFormat !== '' ? newFormat : extOnly);
+    return pfx + fileOnly + sfx + "." + (newFormat !== '' ? newFormat : extOnly);
 }
 
 async function s3putFile(s3BucketName, key, contentType, ccMaxAge, fileBody) {
