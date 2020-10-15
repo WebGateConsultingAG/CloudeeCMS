@@ -30,6 +30,7 @@ import { VariableEditDialogComponent } from './dialogs/variableedit-dialog';
 import { PackageUploadDialogComponent } from './dialogs/pkgupload-dialog';
 import { GlobalFunctionEditDialogComponent } from './dialogs/fnedit-dialog';
 import { ImageProfileEditDialogComponent } from './dialogs/imgprofileedit-dialog';
+import { FeedEditDialogComponent } from './dialogs/feededit-dialog';
 
 @Component({
   selector: 'app-settings',
@@ -164,6 +165,18 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
+  btnEditFeed(thisFD: any) {
+    const that = this;
+    const dialogRef = this.dialog.open(FeedEditDialogComponent, { width: '450px', disableClose: false, 
+    data: { feed: thisFD, lstCategories: this.config.categories }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'add') {
+        if (!that.config.feeds) { that.config.feeds = []; }
+        that.config.feeds.push(result.feed);
+      }
+    });
+  }
   btnDeleteBucket(bucket: any) {
     if (!confirm('Delete this entry?')) { return; }
     this.restartRequired = true;
@@ -199,6 +212,16 @@ export class SettingsComponent implements OnInit {
     for (let i = 0; i < this.config.bookmarks.length; i++) {
       if (this.config.bookmarks[i] === bm) {
         this.config.bookmarks.splice(i, 1);
+        return;
+      }
+    }
+  }
+  btnDeleteFeed(fd: any) {
+    if (!confirm('Delete this entry?')) { return; }
+    this.restartRequired = true;
+    for (let i = 0; i < this.config.feeds.length; i++) {
+      if (this.config.feeds[i] === fd) {
+        this.config.feeds.splice(i, 1);
         return;
       }
     }

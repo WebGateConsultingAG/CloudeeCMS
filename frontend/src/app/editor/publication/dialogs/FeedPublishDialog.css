@@ -1,0 +1,4 @@
+.isOKBox .mat-stroked-button { margin-left: 4px; float: right; }
+.radiogrp-targets { display: flex; flex-direction: column; } 
+.radiogrp-target { margin: 5px; }
+.logdisplay { font-size: 11px; overflow: scroll; max-height: 400px; border: 1px solid lightgray; }

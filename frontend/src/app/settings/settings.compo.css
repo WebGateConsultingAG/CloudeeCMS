@@ -1,5 +1,8 @@
 .multiTiles .mat-card { height: 100%; }
 .multiTiles { padding-bottom: 20px; }
-.addBtn { float: right; cursor: pointer; } h4 { margin-top: 0; } .icnRestartReq { color: #ff8300; }
+.addBtn { float: right; cursor: pointer; } 
+h4 { margin-top: 0; margin-bottom: 0; } .icnRestartReq { color: #ff8300; }
 .logdisplay { font-size: 11px; overflow: scroll; max-height: 400px; border: 1px solid lightgray; } 
 .inputform { font-size: 14px; }
+.sectionHint { margin-bottom: 10px; margin-top: 4px; }
+.clrhdr { height: 0; }

@@ -106,6 +106,8 @@ import { FileBrowserService } from './services/filebrowser.service';
 import { GlobalFunctionEditDialogComponent } from './settings/dialogs/fnedit-dialog';
 import { ImageProfileEditDialogComponent } from './settings/dialogs/imgprofileedit-dialog';
 import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/ImgUploadDialog';
+import { FeedEditDialogComponent } from './settings/dialogs/feededit-dialog';
+import { FeedPublishDialogComponent } from './editor/publication/dialogs/FeedPublishDialog';
 
 @NgModule({
   declarations: [
@@ -116,6 +118,7 @@ import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/Im
     SubmittedFormComponent,
     FormEditComponent,
     CFInvalidationDialogComponent,
+    FeedPublishDialogComponent,
     PubQueueComponent,
     SearchFilterPipe,
     GroupAddDialogComponent,
@@ -124,6 +127,7 @@ import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/Im
     PackageUploadDialogComponent,
     ImageProfileEditDialogComponent,
     BookmarkEditDialogComponent,
+    FeedEditDialogComponent,
     VariableEditDialogComponent,
     NewUserProfileDialogComponent,
     BucketEditDialogComponent,
@@ -199,10 +203,12 @@ import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/Im
     PackageUploadDialogComponent,
     BulkPublishDialogComponent,
     CFInvalidationDialogComponent,
+    FeedPublishDialogComponent,
     CFDistEditDialogComponent,
     BucketEditDialogComponent,
     PublishLogDialogComponent,
     BookmarkEditDialogComponent,
+    FeedEditDialogComponent,
     VariableEditDialogComponent,
     PasswordChangeDialogComponent,
     ImageProfileEditDialogComponent,

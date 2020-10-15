@@ -4,11 +4,10 @@
             title="Some of your changes will not be effective until you reload the webapplication">
             <mat-icon>sync_problem</mat-icon> Restart recommended
         </button>
-        <button mat-stroked-button (click)="btnSave()">Save</button>
+        <button mat-stroked-button (click)="btnSave()">Save Settings</button>
     </div>
     <h3>Settings</h3>
-    <div class="clrhdr"></div>
-
+    <div style="clear: both; height: 12px; "></div>
     <div class="row">
         <div class="col-md-12">
             <mat-card>
@@ -65,128 +64,6 @@
             </mat-card>
         </div>
 
-        <div class="col-md-6">
-            <mat-card>
-                <h4>
-                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/layouts-navtree"
-                        target="_blank" title="Help">
-                        <mat-icon>help_outline</mat-icon>
-                    </a>
-                    Navigation tree
-                </h4>
-                <div class="clrhdr"></div>
-                <div class="row" *ngIf="!bkupLoading">
-                    <div class="col-md-12">
-                        <mat-checkbox [(ngModel)]="config.enablenavtree"> Enable navigation tree renderer
-                        </mat-checkbox><br><br>
-                        When enabled, a navigation tree object will be available as 'env.navtree' in layouts to render
-                        navigation menus. <a href="https://www.cloudee-cms.com/documentation#!/doc/layouts-navtree"
-                            target="_blank" class="dmLink">Check the documentation</a> for examples.
-                    </div>
-                </div>
-            </mat-card>
-        </div>
-    </div>
-
-    <div class="row multiTiles">
-        <div class="col-md-6">
-            <mat-card>
-                <div class="actionbar">
-                    <mat-form-field>
-                        <input matInput placeholder="Add Page Category" type="text" [(ngModel)]="tmpAddCat">
-                    </mat-form-field>
-                    <button mat-stroked-button (click)="btnAddCategory()">Add</button>
-                </div>
-                <h4>
-                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-page-categories"
-                        target="_blank" title="Help">
-                        <mat-icon>help_outline</mat-icon>
-                    </a>
-                    Page Categories
-                </h4>
-                <div class="clrhdr"></div>
-                <table class="viewTable">
-                    <tbody>
-                        <tr *ngFor="let cat of config.categories">
-                            <td style="width: 95%;">{{cat}}</td>
-                            <td style="width: 5%; text-align: right;" class="hoverActions">
-                                <mat-icon title="Delete" (click)="btnRemoveCategory(cat)">delete
-                                </mat-icon>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </mat-card>
-        </div>
-
-        <div class="col-md-6">
-            <mat-card>
-                <mat-icon title="Add bookmark" (click)="btnEditBM(null)" class="addBtn">add_box</mat-icon>
-                <h4>
-                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-bookmarks"
-                        target="_blank" title="Help">
-                        <mat-icon>help_outline</mat-icon>
-                    </a>
-                    Bookmarks
-                </h4>
-                <div class="clrhdr"></div>
-                <table class="viewTable clickableRows" *ngIf="config.bookmarks">
-                    <thead>
-                        <tr>
-                            <th style="width: 30%">Label</th>
-                            <th style="width: 5%"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let bm of config.bookmarks | orderBy: {property: 'label', direction: 1}">
-                            <td (click)="btnEditBM(bm)">{{bm.label}}</td>
-                            <td style="text-align: right;" class="hoverActions">
-                                <mat-icon title="Delete" (click)="btnDeleteBM(bm)">delete
-                                </mat-icon>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </mat-card>
-        </div>
-    </div>
-
-    <div class="row multiTiles">
-
-        <div class="col-md-6">
-            <mat-card>
-                <mat-icon title="Add bucket" (click)="btnEditVariable(null)" class="addBtn">add_box</mat-icon>
-                <h4>
-                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-globalvariables"
-                        target="_blank" title="Help">
-                        <mat-icon>help_outline</mat-icon>
-                    </a>
-                    Global Variables
-                </h4>
-                <div class="clrhdr"></div>
-
-                <table class="viewTable clickableRows" *ngIf="config.variables">
-                    <thead>
-                        <tr>
-                            <th style="width: 45%">Variable Name</th>
-                            <th style="width: 50%">Value</th>
-                            <th style="width: 5%"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let variable of config.variables | orderBy: {property: 'label', direction: 1}">
-                            <td (click)="btnEditVariable(variable)">env.{{variable.variablename}}</td>
-                            <td (click)="btnEditVariable(variable)">{{variable.value}}</td>
-                            <td style="text-align: right;" class="hoverActions">
-                                <mat-icon title="Delete" (click)="btnDeleteVariable(variable)">delete
-                                </mat-icon>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </mat-card>
-        </div>
-
         <div class="col-md-6" *ngIf="config.buckets">
             <mat-card>
                 <h4>
@@ -219,16 +96,18 @@
                 <div class="row" *ngIf="!bkupLoading">
                     <div class="col-md-12">
                         <button mat-stroked-button [disabled]="loading || !selectedTargetEnv"
-                            (click)="btnBackup()">Create Backup Package</button> &nbsp;
+                            (click)="btnBackup()">Create
+                            Backup Package</button> &nbsp;
 
-                            <mat-menu #importMenu="matMenu">
-                                <button mat-menu-item (click)="btnImportDialog()" [disabled]="loading || !selectedTargetEnv">Import from selected bucket</button>
-                                <button mat-menu-item (click)="btnPkgUploadDialog()">Upload package</button>
-                              </mat-menu>
-                              
-                              <button mat-stroked-button [matMenuTriggerFor]="importMenu" [disabled]="loading">
-                                Import package <mat-icon>keyboard_arrow_down</mat-icon>
-                              </button>
+                        <mat-menu #importMenu="matMenu">
+                            <button mat-menu-item (click)="btnImportDialog()"
+                                [disabled]="loading || !selectedTargetEnv">Import from selected bucket</button>
+                            <button mat-menu-item (click)="btnPkgUploadDialog()">Upload package</button>
+                        </mat-menu>
+
+                        <button mat-stroked-button [matMenuTriggerFor]="importMenu" [disabled]="loading">
+                            Import package <mat-icon>keyboard_arrow_down</mat-icon>
+                        </button>
                     </div>
                 </div>
                 <div class="row" *ngIf="backupLog.length>0">
@@ -245,8 +124,170 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
+    <div class="row multiTiles"> 
+        <div class="col-md-6">
+            <mat-card>
+                <mat-icon title="Add bookmark" (click)="btnEditBM(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-bookmarks"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Bookmarks
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="sectionHint">Bookmarks are listed in a drop down menu in the upper right hand side of the header in the CloudeeCMS webinterface.</div>
+                <table class="viewTable clickableRows" *ngIf="config.bookmarks">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%">Label</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let bm of config.bookmarks | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditBM(bm)">{{bm.label}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteBM(bm)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+
+        <div class="col-md-6">
+            <mat-card>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/layouts-navtree"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Navigation tree
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="sectionHint">
+                    When enabled, a navigation tree object will be available as 'env.navtree' in layouts to render
+                    navigation menus and also as navtree.json in S3 for access using client side JavaScript. <a href="https://www.cloudee-cms.com/documentation#!/doc/layouts-navtree"
+                        target="_blank" class="dmLink">Check the documentation</a> for examples.
+                </div>
+                <br/>
+                <mat-checkbox [(ngModel)]="config.enablenavtree"> Enable navigation tree renderer
+                </mat-checkbox>
+            </mat-card>
+        </div>
+    </div>
+
+    <div class="row multiTiles">
+        <div class="col-md-6">
+            <mat-card>
+                <div class="actionbar">
+                    <mat-form-field>
+                        <input matInput placeholder="Add Page Category" type="text" [(ngModel)]="tmpAddCat">
+                    </mat-form-field>
+                    <button mat-stroked-button (click)="btnAddCategory()">Add</button>
+                </div>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-page-categories"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Page Categories
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="sectionHint">Categories can be used to group pages for Feeds or the /getnews API.</div>
+                <table class="viewTable">
+                    <tbody>
+                        <tr *ngFor="let cat of config.categories">
+                            <td style="width: 95%;">{{cat}}</td>
+                            <td style="width: 5%; text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnRemoveCategory(cat)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+
+        <div class="col-md-6">
+            <mat-card>
+                <mat-icon title="Add feed" (click)="btnEditFeed(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-feeds"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Feeds
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="sectionHint">
+                    Generate static cached files containing a collection of pages.
+                </div>
+                <table class="viewTable clickableRows" *ngIf="config.feeds">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%">Filename</th>
+                            <th style="width: 25%">Category</th>
+                            <th style="width: 20%">Type</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let fd of config.feeds | orderBy: {property: 'filename', direction: 1}">
+                            <td (click)="btnEditFeed(fd)">{{fd.filename}}</td>
+                            <td (click)="btnEditFeed(fd)">{{fd.category}}</td>
+                            <td (click)="btnEditFeed(fd)">{{fd.ftype}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteFeed(fd)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+
+    </div>
+
+    <div class="row multiTiles">
+
+        <div class="col-md-6">
+            <mat-card>
+                <mat-icon title="Add bucket" (click)="btnEditVariable(null)" class="addBtn">add_box</mat-icon>
+                <h4>
+                    <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-globalvariables"
+                        target="_blank" title="Help">
+                        <mat-icon>help_outline</mat-icon>
+                    </a>
+                    Global Variables
+                </h4>
+                <div class="clrhdr"></div>
+                <div class="sectionHint">Global variables are available as 'env.VARIABLENAME' in the PUG renderer of layouts, layout blocks and microtemplates.</div>
+                <table class="viewTable clickableRows" *ngIf="config.variables">
+                    <thead>
+                        <tr>
+                            <th style="width: 45%">Variable Name</th>
+                            <th style="width: 50%">Value</th>
+                            <th style="width: 5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let variable of config.variables | orderBy: {property: 'label', direction: 1}">
+                            <td (click)="btnEditVariable(variable)">env.{{variable.variablename}}</td>
+                            <td (click)="btnEditVariable(variable)">{{variable.value}}</td>
+                            <td style="text-align: right;" class="hoverActions">
+                                <mat-icon title="Delete" (click)="btnDeleteVariable(variable)">delete
+                                </mat-icon>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card>
+        </div>
+
+        <div class="col-md-6">
             <mat-card>
                 <mat-icon title="Add function" (click)="btnEditGlobalFunction(null)" class="addBtn">add_box</mat-icon>
                 <h4>
@@ -257,6 +298,7 @@
                     Global Pug Scripts
                 </h4>
                 <div class="clrhdr"></div>
+                <div class="sectionHint">Global scripts are available in the PUG renderer of layouts, layout blocks and microtemplates.</div>
                 <table class="viewTable clickableRows" *ngIf="config.pugGlobalScripts">
                     <thead>
                         <tr>
@@ -306,11 +348,16 @@
                             <td (click)="btnEditBucket(bucket)">{{bucket.bucketname}}</td>
                             <td (click)="btnEditBucket(bucket)">{{bucket.ftindex}}</td>
                             <td (click)="btnEditBucket(bucket)">
-                                <mat-icon *ngIf="!bucket.noPublish" matListIcon title="Visible in publish dialog">visibility</mat-icon>
-                                <mat-icon *ngIf="bucket.noPublish" matListIcon title="Not visible in publish dialog">visibility_off</mat-icon>
+                                <mat-icon *ngIf="!bucket.noPublish" matListIcon title="Visible in publish dialog">
+                                    visibility
+                                </mat-icon>
+                                <mat-icon *ngIf="bucket.noPublish" matListIcon title="Not visible in publish dialog">
+                                    visibility_off</mat-icon>
                             </td>
                             <td style="text-align: right;" class="hoverActions">
-                                <mat-icon *ngIf="!bucket.preventDelete" title="Delete" (click)="btnDeleteBucket(bucket)">delete
+                                <mat-icon *ngIf="!bucket.preventDelete" title="Delete"
+                                    (click)="btnDeleteBucket(bucket)">
+                                    delete
                                 </mat-icon>
                             </td>
                         </tr>
@@ -347,7 +394,8 @@
                             <td (click)="btnEditCFDist(dist)">{{dist.cfid}}</td>
                             <td (click)="btnEditCFDist(dist)">{{dist.webURL}}</td>
                             <td style="text-align: right;" class="hoverActions">
-                                <mat-icon *ngIf="!dist.preventDelete" title="Delete" (click)="btnDeleteCFDist(dist)">delete
+                                <mat-icon *ngIf="!dist.preventDelete" title="Delete" (click)="btnDeleteCFDist(dist)">
+                                    delete
                                 </mat-icon>
                             </td>
                         </tr>
@@ -360,7 +408,8 @@
     <div class="row">
         <div class="col-md-12">
             <mat-card>
-                <mat-icon title="Add image profile" (click)="btnEditImageProfile(null)" class="addBtn">add_box</mat-icon>
+                <mat-icon title="Add image profile" (click)="btnEditImageProfile(null)" class="addBtn">add_box
+                </mat-icon>
                 <h4>
                     <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-imageprofiles"
                         target="_blank" title="Help">
@@ -369,6 +418,7 @@
                     Image Upload and Resize Profiles
                 </h4>
                 <div class="clrhdr"></div>
+                <div class="sectionHint">Resize and convert uploaded images.</div>
                 <table class="viewTable clickableRows" *ngIf="imageprofiles">
                     <thead>
                         <tr>

@@ -1,0 +1,70 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Publish Feeds</h1>
+
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            <br/>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+            <div class="logdisplay" *ngIf="showLog">
+                <div *ngFor="let row of lstLog">{{row}}</div>
+            </div>
+        </div>
+
+        <div *ngIf="!loading">
+
+            <div *ngIf="step===1"> <!-- Publish -->
+                Publish to:<br><br>
+                <mat-radio-group [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
+                    <mat-radio-button class="radiogrp-target" *ngFor="let bucket of lstBuckets"
+                        value="{{bucket.bucketname}}">
+                        {{bucket.label}}
+                    </mat-radio-button>
+                </mat-radio-group>
+                <br />
+                <mat-form-field class="full-width">
+                    <mat-select multiple="true" placeholder="Feeds to publish" title="Select feeds to publish"
+                        [(ngModel)]="selectedFeeds" required>
+                        <mat-option *ngFor="let fd of lstFeeds" [value]="fd">
+                            {{ fd.filename }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <br/><br/>
+            </div>
+
+            <div *ngIf="step===2"> <!-- Invalidate Cache -->
+
+                <div class="isOKBox">
+                    <mat-icon matListIcon>cloud_done</mat-icon> Feeds published!
+                    <!-- <button mat-stroked-button (click)="btnViewLog()" *ngIf="lstLog">View Log</button> -->
+                    <div style="clear:both;"></div>
+                </div>
+                Submit a cache invalidation request, to make the updated feeds available immediately:
+                <br/><br/>
+                <mat-form-field class="full-width">
+                    <mat-select placeholder="CloudFront Distribution" [(ngModel)]="selectedTargetCF" required>
+                        <mat-option *ngFor="let dist of lstCFDists" value="{{dist.cfid}}"> {{dist.label}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+            </div>
+
+            <div *ngIf="step===3" class="isOKBox"> <!-- done -->
+                <mat-icon matListIcon>cloud_done</mat-icon> Invalidation request submitted!<br />
+                This will take some time to process.
+            </div>
+
+        </div>
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnSubmit()" *ngIf="step===1"
+            [disabled]="loading || !selectedTargetEnv || !selectedFeeds || selectedFeeds.length < 1">Publish</button>
+        <button mat-stroked-button (click)="btnSubmitCF()" *ngIf="step===2"
+            [disabled]="loading || !selectedTargetCF">Submit</button>
+        <button mat-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

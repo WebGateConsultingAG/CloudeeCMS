@@ -21,6 +21,7 @@ import { TabsNavService } from 'src/app/services/tabs.service';
 import { MatDialog } from '@angular/material';
 import { BulkPublishDialogComponent } from './dialogs/BulkPublishDialog';
 import { CFInvalidationDialogComponent } from './dialogs/CFInvalidationDialog';
+import { FeedPublishDialogComponent } from './dialogs/FeedPublishDialog';
 
 @Component({
   selector: 'app-pubqueue',
@@ -164,5 +165,22 @@ export class PubQueueComponent implements OnInit {
       return;
     }
     this.dialog.open(CFInvalidationDialogComponent, { width: '450px', disableClose: false, data: { cfdists: this.config.cfdists } });
+  }
+  btnFeedDialog() {
+    if (!this.config.feeds || this.config.feeds.length < 1) {
+      alert('No feeds configured in settings page.');
+      return;
+    }
+    if (!this.config.cfdists || this.config.cfdists.length < 1) {
+      alert('No CloudFront Distributions configured in settings page.');
+      return;
+    }
+    if (!this.config.buckets || this.config.buckets.length < 1) {
+      alert('No S3 Buckets configured in settings page.');
+      return;
+    }
+    this.dialog.open(FeedPublishDialogComponent,
+      { width: '450px', disableClose: false, data: { config: this.config }
+    });
   }
 }

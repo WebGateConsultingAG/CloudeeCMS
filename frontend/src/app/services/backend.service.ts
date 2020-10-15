@@ -218,6 +218,12 @@ export class BackendService {
                 return result.data || null;
             });
     }
+    public publishFeeds(targetEnv: string, lstFeeds: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
+            { action: 'publishfeeds', lstFeeds, targetenv: targetEnv }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
+    }
     public createDBBackup(targetEnv: string) {
         return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES,
             { action: 'createBackup', targetenv: targetEnv }).toPromise().then((result: any) => {

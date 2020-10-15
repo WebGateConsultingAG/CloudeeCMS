@@ -1,3 +1,3 @@
 export const versioninfo = {
-    version: '2020-10-09-0930'
+    version: '2020-10-15-0950'
 };

@@ -1,0 +1,110 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} Feed</h1>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+        <mat-form-field class="full-width">
+            <mat-select placeholder="Feed type" title="Feed type" [(ngModel)]="feed.ftype" (selectionChange)="onFeedTypeChange()" required>
+                <mat-option *ngFor="let itm of lstFTypes" [value]="itm.val">
+                    {{ itm.label }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <br /><br />
+
+        <div *ngIf="feed.ftype">
+
+            <!-- JSON Feed -->
+
+            <div *ngIf="feed.ftype === 'JSON'">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Enter output filename for this feed" title="Filename" type="text"
+                        [(ngModel)]="feed.filename">
+                    <mat-hint align="start">E.g. news.json</mat-hint>
+                </mat-form-field>
+                <br /><br />
+                <mat-form-field class="full-width" *ngIf="lstCategories">
+                    <mat-select multiple="false" placeholder="Category" title="Category" [(ngModel)]="feed.category">
+                        <mat-option *ngFor="let cat of lstCategories" [value]="cat">
+                            {{ cat }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">Pages assigned to this category will be included in the feed</mat-hint>
+                </mat-form-field>
+                <br />
+            </div>
+
+            <!-- sitemap.xml Feed -->
+
+            <div *ngIf="feed.ftype === 'Sitemap'">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Enter output filename for this feed" title="Filename" type="text"
+                        [(ngModel)]="feed.filename">
+                    <mat-hint align="start">Search engines expect: sitemap.xml</mat-hint>
+                </mat-form-field>
+                <br /><br />
+                <mat-form-field class="full-width" *ngIf="lstCategories">
+                    <mat-select multiple="false" placeholder="Category" title="Category" [(ngModel)]="feed.category">
+                        <mat-option *ngFor="let cat of lstCategories" [value]="cat">
+                            {{ cat }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">Pages assigned to this category will be included in the feed</mat-hint>
+                </mat-form-field>
+                <br />
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Site URL" type="text" [(ngModel)]="feed.sitename" required>
+                    <mat-hint align="start">E.g. https://mysite.com</mat-hint>
+                </mat-form-field>
+            </div>
+
+            <!-- Atom Feed -->
+
+            <div *ngIf="feed.ftype === 'Atom'">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Enter output filename for this feed" title="Filename" type="text"
+                        [(ngModel)]="feed.filename">
+                    <mat-hint align="start">E.g. newsfeed.xml</mat-hint>
+                </mat-form-field>
+                <br /><br />
+                <mat-form-field class="full-width" *ngIf="lstCategories">
+                    <mat-select multiple="false" placeholder="Category" title="Category" [(ngModel)]="feed.category">
+                        <mat-option *ngFor="let cat of lstCategories" [value]="cat">
+                            {{ cat }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-hint align="start">Pages assigned to this category will be included in the feed</mat-hint>
+                </mat-form-field>
+                <br />
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Site URL" type="text" [(ngModel)]="feed.sitename" required>
+                    <mat-hint align="start">E.g. https://mysite.com</mat-hint>
+                </mat-form-field>
+                <br />
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Feed title" type="text" [(ngModel)]="feed.title" required>
+                    <mat-hint align="start">Title displayed in the xml feed</mat-hint>
+                </mat-form-field>
+                <br/>
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Feed description" type="text" [(ngModel)]="feed.description">
+                    <mat-hint align="start">Description displayed in the xml feed</mat-hint>
+                </mat-form-field>
+            </div>
+
+        </div>
+
+        <br />
+        <br />
+
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button (click)="btnDone()"
+            [disabled]="!feed.category || !feed.ftype || !feed.filename || feed.filename === ''">
+            <mat-icon matListIcon>done</mat-icon>
+            Done
+        </button>
+        <button mat-button *ngIf="isNew" (click)="btnCancel()">Cancel</button>
+    </div>
+</div>

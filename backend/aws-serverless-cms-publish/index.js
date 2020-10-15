@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-09 06:26 - RSC
+ * File Version: 2020-10-15 07:16 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -23,6 +23,8 @@ const pug = require('pug');
 const fs = require('fs');
 const AWSSQS = require('aws-sdk/clients/sqs');
 const sqs = new AWSSQS();
+const { SitemapStream, streamToPromise } = require('sitemap');
+const Feed = require('feed').Feed;
 
 const tableName = process.env.DB_TABLE;
 
@@ -51,6 +53,8 @@ exports.handler = async function (event, context, callback) {
             return bulkPublishPage(payload.targetenv, payload.lstPageIDs, payload.pubtype, payload.removeFromQueue, cfg, done);
         } else if (action === 'unpublishpage') {
             return unpublishPage(payload.targetenv, payload.id, payload.opath, cfg, done);
+        } else if (action === 'publishfeeds') {
+            return publishFeeds(payload.targetenv, payload.lstFeeds, cfg, done);
         }
 
         done.error(new Error("No Handle for action: " + action));
@@ -63,7 +67,7 @@ async function getConfigVariables(cfg) {
     // Returns variables to append to renderer object
     const vars = {};
     vars.navtree = [];
-    
+
     if (cfg.cfdists) {
         cfg.cfdists.forEach(cfdist => {
             if (cfdist.webURLVAR && cfdist.webURLVAR !== '') {
@@ -79,8 +83,8 @@ async function getConfigVariables(cfg) {
     if (cfg.enablenavtree === true) {
         let params = {
             TableName: tableName,
-            FilterExpression : 'otype = :fld AND listnav = :lnav',
-            ExpressionAttributeValues : {':fld' : 'Page', ':lnav': true},
+            FilterExpression: 'otype = :fld AND listnav = :lnav',
+            ExpressionAttributeValues: { ':fld': 'Page', ':lnav': true },
             ProjectionExpression: 'id, opath, title, navlabel, navsort, dt, descr'
         };
 
@@ -210,7 +214,7 @@ async function publishPage(s3BucketName, id, page, cfg, done) {
 function convertJSONFields(page, thisLayout) {
     try {
         if (thisLayout && thisLayout.custFields) {
-            thisLayout.custFields.forEach( fld => {
+            thisLayout.custFields.forEach(fld => {
                 if (fld.fldValueType === 'JSON') {
                     let docfld = page.doc[fld.fldName];
                     try {
@@ -333,11 +337,133 @@ async function bulkPublishPage(s3BucketName, lstPageIDs, pubtype, removeFromQueu
         done.done({ published: false, errorMessage: e.toString(), log: lstLog });
     }
 }
+
+async function publishFeeds(s3BucketName, lstFeeds, cfg, done) {
+    let lstLog = [];
+    try {
+        if (s3BucketName === '') return done.done({ published: false, errorMessage: "S3 Bucket name not supplied ", log: lstLog });
+        let isOK = true;
+        for (let i=0; i<lstFeeds.length; i++) {
+            let feed = lstFeeds[i];
+            lstLog.push("Processing feed: " + feed.filename + ' (' + feed.ftype + ')');
+            let feedData = await getFeedContents(feed, cfg);
+            if (feedData.hasError) {
+                lstLog.push("Error in feed '" + feed.filename + "': " + feedData.errormsg);
+                isOK = false;
+            } else {
+                lstLog.push("Uploading feed: " + feed.filename);
+                s3upload(s3BucketName, feed.filename, feedData.body, feedData.contentType);
+            }
+        }
+        
+        lstLog.push("Uploading feeds completed");
+        done.done({ published: isOK, log: lstLog });
+    } catch (e) {
+        console.log(e);
+        done.done({ published: false, errorMessage: e.toString(), log: lstLog });
+    }
+}
+async function getFeedContents(feed, cfg) {
+    let rc = { body: '{}', contentType: 'application/json', hasError: false, errormsg: '' };
+    try {
+        const sitename = feed.sitename || 'https://mydomain';
+
+        if (feed.ftype === 'Atom') {
+            rc.contentType = 'application/atom+xml';
+
+            // Get CDN link for page cover images
+            const cdnBucket = getBucketByName('CDN', cfg.buckets);
+            const cdnWebURL = cdnBucket?(cdnBucket.cdnURL || ''):'';
+
+            const atomfeed = new Feed({
+                title: feed.title,
+                description: feed.description,
+                id: sitename,
+                link: sitename,
+                image: feed.image,
+                favicon: feed.favicon || '',
+                copyright: feed.copyright || '',
+                generator: "CloudeeCMS",
+                feedLinks: {
+                    atom: sitename + '/' + feed.filename
+                }
+            });
+
+            let params = {
+                TableName: tableName,
+                FilterExpression: "otype = :ot AND contains(#fldC, :v1)",
+                ExpressionAttributeNames: { "#fldC": "categories" },
+                ExpressionAttributeValues: { ":v1": feed.category, ":ot": "Page" },
+                ProjectionExpression: 'categories, opath, title, descr, dt, img'
+            };
+
+            let lstPages = await DDBScan(params);
+            lstPages.sort(function (a, b) {
+                return new Date(b.dt) - new Date(a.dt);
+            });
+            lstPages.forEach(pg => {
+                let imgURL = null;
+                if (pg.img && pg.img !== '') { imgURL = cdnWebURL + pg.img; } // Add CDN link for cover image
+                atomfeed.addItem({
+                    title: pg.title,
+                    id: sitename + "/" + pg.opath,
+                    link: sitename + "/" + pg.opath,
+                    description: pg.descr || '',
+                    date: new Date(pg.dt),
+                    image: imgURL
+                });
+            });
+            rc.body = atomfeed.rss2();
+
+        } else if (feed.ftype === 'Sitemap') {
+            rc.contentType = 'text/xml';
+
+            const sitemap = new SitemapStream({ hostname: sitename || '' });
+            let params = {
+                TableName: tableName,
+                FilterExpression: 'otype = :fld AND sitemap = :fsm',
+                ExpressionAttributeValues: { ':fld': 'Page', ':fsm': true },
+                ProjectionExpression: 'opath, pubdate'
+            };
+
+            let lstPages = await DDBScan(params);
+            lstPages.forEach(pg => {
+                if (pg.opath !== "index.html") sitemap.write({ url: '/' + pg.opath, changefreq: 'weekly' });
+            });
+            sitemap.end();
+            let sm = await streamToPromise(sitemap);
+            rc.body = sm.toString();
+
+        } else { // JSON
+            let params = {
+                TableName: tableName,
+                FilterExpression: "otype = :ot AND contains(#fldC, :v1)",
+                ExpressionAttributeNames: { "#fldC": "categories" },
+                ExpressionAttributeValues: { ":v1": feed.category, ":ot": "Page" },
+                ProjectionExpression: 'categories, opath, title, descr, dt, pubdate, img'
+            };
+            let lstPages = await DDBScan(params);
+            lstPages.sort(function (a, b) {
+                return new Date(b.dt || b.pubdate) - new Date(a.dt || a.pubdate);
+            });
+            rc.body = JSON.stringify({ categories: feed.category, ftype: feed.ftype, lst: lstPages });
+        }
+        
+        return rc;
+
+    } catch (e) {
+        console.log(e);
+        rc.hasError = true;
+        rc.errormsg = e.toString();
+        return rc;
+    }
+}
+
 function getGlobalScripts(cfg) {
     try {
         var rc = '';
         if (!cfg.pugGlobalScripts) return rc;
-            cfg.pugGlobalScripts.forEach(fn => {
+        cfg.pugGlobalScripts.forEach(fn => {
             rc += fn.body + '\n';
         });
         return rc;
@@ -365,6 +491,14 @@ function getIndexerConfig(cfg, s3BucketName) {
         console.log(e);
         return null;
     }
+}
+
+function getBucketByName(nm, lstBuckets) {
+    if (!lstBuckets) return null;
+    for (let i = 0; i < lstBuckets.length; i++) {
+        if (lstBuckets[i].label === nm) return lstBuckets[i];
+    }
+    return null;
 }
 
 function uploadNavTree(s3BucketName, navtree) {
@@ -536,7 +670,7 @@ function renderNestedMicroTemplates(page, fld, g_env) {
         return rHTML;
     } catch (e) {
         console.log(e);
-        return '<div>Error in nested Micro Template: '+e.toString()+'</div>';
+        return '<div>Error in nested Micro Template: ' + e.toString() + '</div>';
     }
 }
 function renderMTHTML(template, opts) {
@@ -544,7 +678,7 @@ function renderMTHTML(template, opts) {
         return pug.render(template, opts);
     } catch (e) {
         console.log(e);
-        return '<div>Error in Micro Template: '+e.toString()+'</div>';
+        return '<div>Error in Micro Template: ' + e.toString() + '</div>';
     }
 }
 
@@ -591,63 +725,63 @@ function addBranding(html) {
         let hPos = html.indexOf('<head>');
         if (hPos < 0) hPos = html.indexOf('<HEAD>');
         if (hPos < 0) return html;
-        return html.substring(0, hPos+6)+'\n<!-- \n\nPage rendered by CloudeeCMS - Serverless CMS for AWS - www.cloudee-cms.com\n\n -->\n'+html.substring(hPos+6, html.length);
+        return html.substring(0, hPos + 6) + '\n<!-- \n\nPage rendered by CloudeeCMS - Serverless CMS for AWS - www.cloudee-cms.com\n\n -->\n' + html.substring(hPos + 6, html.length);
     } catch (e) {
         return html;
     }
 }
 
-const flxTree = { 
-    makeTree: function(lstFlat) {
+const flxTree = {
+    makeTree: function (lstFlat) {
         let tree = {};
         lstFlat.forEach(pgEntry => {
             let arrCats = pgEntry.opath.split('/');
             let thisBranch;
-            for (var c=0;c<arrCats.length;c++) {
+            for (var c = 0; c < arrCats.length; c++) {
                 thisBranch = this.getTreeBranch(tree, thisBranch, arrCats[c]);
-                if (c==arrCats.length-1) { // Page!
-                    thisBranch.id = pgEntry.id; 
+                if (c == arrCats.length - 1) { // Page!
+                    thisBranch.id = pgEntry.id;
                     thisBranch.link = pgEntry.opath;
                     thisBranch.navlabel = pgEntry.navlabel;
                     thisBranch.navsort = pgEntry.navsort;
                     thisBranch.dt = pgEntry.dt;
                     thisBranch.descr = pgEntry.descr;
                 }
-            }        
+            }
         });
         // Convert format
         let newtree = this.recursiveAdd(tree);
         return newtree;
     },
-    recursiveAdd: function(branch) {
+    recursiveAdd: function (branch) {
         let rc = [];
         for (let row in branch) {
             let thisRow = branch[row];
             // IMPORTANT: Properties to ignore!!
-            if (row!=="id" && row!=="link" && row!=="navlabel" && row!=="navsort" && row!=="dt" && row!=="descr") {
+            if (row !== "id" && row !== "link" && row !== "navlabel" && row !== "navsort" && row !== "dt" && row !== "descr") {
                 let addElem = { "label": row };
                 if (thisRow.id) {
-                    addElem.etype="Page";
+                    addElem.etype = "Page";
                     addElem.id = thisRow.id;
-                    addElem.link = '/'+thisRow.link;
+                    addElem.link = '/' + thisRow.link;
                     addElem.label = thisRow.navlabel;
                     addElem.navsort = thisRow.navsort;
                     addElem.dt = thisRow.dt;
                     addElem.descr = thisRow.descr;
                 } else {
-                    addElem.etype="Folder";
+                    addElem.etype = "Folder";
                 }
                 var subs = this.recursiveAdd(thisRow);
-                if (subs.length>0) addElem.childs = subs;
+                if (subs.length > 0) addElem.childs = subs;
                 rc.push(addElem);
             }
         }
         rc.sort((a, b) => parseFloat(a.navsort) - parseFloat(b.navsort));
         return rc;
     },
-    getTreeBranch: function(treeObj, parentBranch, thisCat) {
+    getTreeBranch: function (treeObj, parentBranch, thisCat) {
         let theTree = parentBranch || treeObj;
-        if (typeof theTree[thisCat] =="undefined") theTree[thisCat] = {};
+        if (typeof theTree[thisCat] == "undefined") theTree[thisCat] = {};
         return theTree[thisCat];
     }
 };
