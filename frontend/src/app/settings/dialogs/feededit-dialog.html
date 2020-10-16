@@ -1,18 +1,17 @@
 <div>
     <div mat-dialog-content>
-        <h1 mat-dialog-title>{{isNew?'Add':'Edit'}} Feed</h1>
+        <h1 mat-dialog-title>{{feed.ftype?feed.ftype:'Add'}} Feed</h1>
         <div class="isErrorBox" *ngIf="errorMessage">
             {{errorMessage}}
         </div>
-        <mat-form-field class="full-width">
+        <mat-form-field class="full-width" *ngIf="!feed.ftype">
             <mat-select placeholder="Feed type" title="Feed type" [(ngModel)]="feed.ftype" (selectionChange)="onFeedTypeChange()" required>
                 <mat-option *ngFor="let itm of lstFTypes" [value]="itm.val">
                     {{ itm.label }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
-        <br /><br />
-
+        
         <div *ngIf="feed.ftype">
 
             <!-- JSON Feed -->

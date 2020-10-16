@@ -1,10 +1,16 @@
 <div>
     <div mat-dialog-content>
-        <h1 mat-dialog-title>Publish Feeds</h1>
+        <h1 mat-dialog-title>
+            <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/settings-feeds" target="_blank"
+                title="Help">
+                <mat-icon>help_outline</mat-icon>
+            </a>
+            Publish Feeds
+        </h1>
 
         <div class="loader" *ngIf="loading">
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            <br/>
+            <br />
         </div>
         <div class="isErrorBox" *ngIf="errorMessage">
             {{errorMessage}}
@@ -15,7 +21,8 @@
 
         <div *ngIf="!loading">
 
-            <div *ngIf="step===1"> <!-- Publish -->
+            <div *ngIf="step===1">
+                <!-- Publish -->
                 Publish to:<br><br>
                 <mat-radio-group [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
                     <mat-radio-button class="radiogrp-target" *ngFor="let bucket of lstBuckets"
@@ -32,10 +39,11 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <br/><br/>
+                <br /><br />
             </div>
 
-            <div *ngIf="step===2"> <!-- Invalidate Cache -->
+            <div *ngIf="step===2">
+                <!-- Invalidate Cache -->
 
                 <div class="isOKBox">
                     <mat-icon matListIcon>cloud_done</mat-icon> Feeds published!
@@ -43,7 +51,7 @@
                     <div style="clear:both;"></div>
                 </div>
                 Submit a cache invalidation request, to make the updated feeds available immediately:
-                <br/><br/>
+                <br /><br />
                 <mat-form-field class="full-width">
                     <mat-select placeholder="CloudFront Distribution" [(ngModel)]="selectedTargetCF" required>
                         <mat-option *ngFor="let dist of lstCFDists" value="{{dist.cfid}}"> {{dist.label}}</mat-option>
@@ -52,7 +60,8 @@
 
             </div>
 
-            <div *ngIf="step===3" class="isOKBox"> <!-- done -->
+            <div *ngIf="step===3" class="isOKBox">
+                <!-- done -->
                 <mat-icon matListIcon>cloud_done</mat-icon> Invalidation request submitted!<br />
                 This will take some time to process.
             </div>
