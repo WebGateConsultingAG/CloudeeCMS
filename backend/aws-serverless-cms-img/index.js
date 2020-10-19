@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-09 09:25 - RSC
+ * File Version: 2020-10-09 10:42 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -57,6 +57,15 @@ async function convertImages(s3BucketName, targetfolder, lstFiles, imageprofile,
                     let resizeOpts = {};
                     if (imgc.convertwidth) resizeOpts.width = imgc.convertwidth;
                     if (imgc.convertheight) resizeOpts.height = imgc.convertheight;
+
+                    // Prevent enlarge
+                    if (imgc.withoutEnlargement) resizeOpts.withoutEnlargement = true;
+
+                    // Set resize mode
+                    const resizeMode = imgc.resizeMode || '';
+                    if (resizeMode !== '') {
+                        resizeOpts[resizeMode] = true;
+                    }
                     newFile = newFile.resize(resizeOpts);
                 }
 

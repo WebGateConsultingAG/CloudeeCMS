@@ -6,4 +6,6 @@ export class ImageConversion {
     quality: number;
     compressionLevel: number;
     suffix: string;
+    withoutEnlargement: boolean;
+    resizeMode: string;
 }
