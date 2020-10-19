@@ -24,7 +24,8 @@ import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-formedit',
-    templateUrl: './formedit.compo.html'
+    templateUrl: './formedit.compo.html',
+    styles: ['.hint { font-size: 75%; color: rgba(0, 0, 0, 0.6); }']
 })
 
 export class FormEditComponent implements OnInit {

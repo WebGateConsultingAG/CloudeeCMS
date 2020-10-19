@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-22 1612 - RSC
+ * File Version: 2020-10-19 0754 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -24,6 +24,7 @@ const AWSSQS = require('aws-sdk/clients/sqs');
 const sqs = new AWSSQS();
 const AWSSNS = require('aws-sdk/clients/sns');
 const sns = new AWSSNS();
+const ejs = require('ejs');
 
 exports.handler = async (event) => {
     let redirectToFail = event.headers.referer || '/';
@@ -70,8 +71,8 @@ exports.handler = async (event) => {
         if (formdoc.redirectSuccess) redirectToSuccess = formdoc.redirectSuccess;
 
         // notifiy someone (SQS queue for separate lambda mailer)
-        if (formdoc.notify) { await notifyByEmail(userform, formdoc); }
-        if (formdoc.notifySNS) { await notifyBySNS(userform, formdoc); }
+        if (formdoc.notify) { await notifyByEmail(userform, formdoc, params); }
+        if (formdoc.notifySNS) { await notifyBySNS(userform, formdoc, params); }
 
         return getResponse(redirectToSuccess);
     } catch (e) {
@@ -79,10 +80,11 @@ exports.handler = async (event) => {
         return getResponse(redirectToFail);
     }
 };
-async function notifyBySNS(userform, formdoc) {
+async function notifyBySNS(userform, formdoc, fldList) {
     try {
-        var params = {
-            Message: formdoc.mailBodySNS || 'no message',
+        const mailBody = getFormattedBody(formdoc.mailBodySNS, fldList);
+        const params = {
+            Message: mailBody || 'no message',
             Subject: formdoc.mailSubjectSNS || 'CloudeeCMS form notification',
             TopicArn: formdoc.snsTopicARN
         };
@@ -92,14 +94,15 @@ async function notifyBySNS(userform, formdoc) {
         console.error(e);
     }
 }
-async function notifyByEmail(userform, formdoc) {
+async function notifyByEmail(userform, formdoc, fldList) {
     try {
-        let msg = {
+        const mailBody = getFormattedBody(formdoc.mailBody, fldList);
+        const msg = {
             "from": formdoc.mailFrom,
             "sendto": formdoc.lstEmail,
             "copyto": [],
             "subject": formdoc.mailSubject,
-            "mailbody": formdoc.mailBody
+            "mailbody": mailBody || ''
         };
 
         console.log("sending message", msg);
@@ -109,7 +112,28 @@ async function notifyByEmail(userform, formdoc) {
         console.error(e);
     }
 }
-
+function getFormattedBody(bodyTemplate, fldList) {
+    try {
+        const ejsVars = getEJSData(fldList);
+        return ejs.render(bodyTemplate || '', ejsVars, { openDelimiter: '[', closeDelimiter: ']', delimiter: '%'} );
+    } catch (e) {
+        return bodyTemplate + "\n\n---TEMPLATE ERROR---\n\n"+e.toString();
+    }
+}
+function getEJSData(fldList) {
+    try {
+        let ejsVars = JSON.parse(JSON.stringify(fldList));
+        let allFields = '';
+        for (let fld in fldList) { // Also add all fields combined as string in ALLFIELDS variable
+            allFields += fld + ": " + fldList[fld] + "\n\n";
+        }
+        ejsVars.FIELDLIST = allFields;
+        return ejsVars;
+    } catch (e) {
+        console.log(e);
+        return fldList || {};
+    }
+}
 function getResponse(redirectTo) {
     return {
         statusCode: 302,
