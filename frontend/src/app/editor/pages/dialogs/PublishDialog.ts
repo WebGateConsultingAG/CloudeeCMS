@@ -110,4 +110,7 @@ export class PublishDialogComponent implements OnInit {
     }
     return '';
   }
+  btnCFDialog() {
+    this.dialogRef.close( { action: 'openInvalidationDialog', opaths: ['/' + this.page.opath] });
+  }
 }

@@ -28,6 +28,7 @@ import { environment } from '../../../environments/environment';
 import { Auth } from '@aws-amplify/auth';
 import { FileSelectionDialogComponent } from './dialogs/FileSelectionDialog';
 import { ImgUploadDialogComponent } from '../fileexplorer/imageuploader/ImgUploadDialog';
+import { CFInvalidationDialogComponent } from '../publication/dialogs/CFInvalidationDialog';
 
 declare var window: any;
 
@@ -246,6 +247,7 @@ export class PageEditComponent implements OnInit {
   }
 
   btnDlgPublish(): void {
+    const that = this;
     if (!this.page.opath || this.page.opath === '') {
       this.errorMessage = 'Path must be supplied!';
       return;
@@ -258,14 +260,34 @@ export class PageEditComponent implements OnInit {
       this.errorMessage = 'Path can not end with a slash';
       return;
     }
-    this.dialog.open(PublishDialogComponent, { width: '650px', disableClose: false, data: { page: this.page, config: this.config } });
+    const dialogRef = this.dialog.open(PublishDialogComponent,
+      {
+        width: '650px', disableClose: false, data: { page: this.page, config: this.config }
+      });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'openInvalidationDialog') {
+        that.btnOpenCFDialog(result.opaths);
+      }
+    });
+  }
+  btnOpenCFDialog(opaths: string[]) {
+    if (!this.config.cfdists || this.config.cfdists.length < 1) {
+      alert('No CloudFront Distributions configured in settings page.');
+      return;
+    }
+    this.dialog.open(CFInvalidationDialogComponent, {
+      width: '450px', disableClose: false,
+      data: { cfdists: this.config.cfdists, opaths }
+    });
   }
   btnDlgSelectImage(fldName: string): void {
     const that = this;
     const dialogRef = this.dialog.open(FileSelectionDialogComponent,
-      { width: '650px', disableClose: false, data: {
-        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'webp']
-        }}
+      {
+        width: '650px', disableClose: false, data: {
+          selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'webp']
+        }
+      }
     );
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
@@ -276,9 +298,11 @@ export class PageEditComponent implements OnInit {
   btnDlgSelectCoverImage(): void {
     const that = this;
     const dialogRef = this.dialog.open(FileSelectionDialogComponent,
-      { width: '650px', disableClose: false, data: {
-        selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'webp']
-        }}
+      {
+        width: '650px', disableClose: false, data: {
+          selectedBucket: 'CDN', dlgTitle: 'Select image', fileFilter: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'bmp', 'tif', 'tiff', 'webp']
+        }
+      }
     );
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {

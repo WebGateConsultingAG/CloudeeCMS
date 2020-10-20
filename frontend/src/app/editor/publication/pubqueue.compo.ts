@@ -159,12 +159,14 @@ export class PubQueueComponent implements OnInit {
     this.tabsSVC.setLoading(on);
   }
 
-  btnCFDialog() {
+  btnCFDialog(opaths: string[]) {
     if (!this.config.cfdists || this.config.cfdists.length < 1) {
       alert('No CloudFront Distributions configured in settings page.');
       return;
     }
-    this.dialog.open(CFInvalidationDialogComponent, { width: '450px', disableClose: false, data: { cfdists: this.config.cfdists } });
+    this.dialog.open(CFInvalidationDialogComponent, 
+      { width: '450px', disableClose: false, data: { cfdists: this.config.cfdists, opaths }
+    });
   }
   btnFeedDialog() {
     if (!this.config.feeds || this.config.feeds.length < 1) {

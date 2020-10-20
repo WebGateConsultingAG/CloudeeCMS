@@ -15,16 +15,14 @@
         <div *ngIf="published" class="isOKBox">
             <mat-icon matListIcon>cloud_done</mat-icon> Published!
             <a href="{{publishedPageURL}}" target="_blank" class="mat-stroked-button">View page</a>
-            <button mat-stroked-button (click)="btnViewLog()" *ngIf="lstLog">View Log</button>
             <div style="clear:both;"></div>
         </div>
         <div *ngIf="unpublished" class="isOKBox">
-            <mat-icon matListIcon>cloud_off</mat-icon> Removed!
-            <button mat-button (click)="btnViewLog()" *ngIf="lstLog" style="float: right;">View Log</button>
+            <mat-icon matListIcon>cloud_off</mat-icon> Page removed!
         </div>
-        <div *ngIf="!loading">
+        <div *ngIf="!loading && !published && !unpublished">
             Publish to:<br><br>
-            <mat-radio-group  [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
+            <mat-radio-group [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
                 <mat-radio-button class="radiogrp-target" *ngFor="let bucket of buckets" value="{{bucket.bucketname}}">
                     {{bucket.label}}
                 </mat-radio-button>
@@ -33,14 +31,22 @@
         <br />
     </div>
     <div mat-dialog-actions>
-        <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnPublish()">
-            <mat-icon matListIcon>cloud_upload</mat-icon>
-            Publish
-        </button>
-        <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnUnPublish()">
-            <mat-icon matListIcon>cloud_off</mat-icon>
-            Remove
-        </button>
-        <button mat-stroked-button (click)="btnCancel()">Close</button>
+        <div *ngIf="!published">
+            <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnPublish()">
+                <mat-icon matListIcon>cloud_upload</mat-icon>
+                Publish
+            </button>
+            <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnUnPublish()">
+                <mat-icon matListIcon>cloud_off</mat-icon>
+                Remove
+            </button>
+            <button mat-button (click)="btnCancel()">Close</button>
+        </div>
+        <div *ngIf="published || unpublished">
+            <button mat-stroked-button (click)="btnCFDialog()">
+                <mat-icon matListIcon>cloud_off</mat-icon> Create Cache Invalidation</button>
+            <button mat-stroked-button (click)="btnViewLog()">View Log</button>
+            <button mat-stroked-button (click)="btnCancel()">Close</button>
+        </div>
     </div>
 </div>

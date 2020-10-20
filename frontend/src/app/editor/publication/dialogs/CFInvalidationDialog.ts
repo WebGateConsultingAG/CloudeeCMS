@@ -38,7 +38,11 @@ export class CFInvalidationDialogComponent implements OnInit {
     cfdists: any = [];
 
     ngOnInit(): void {
-        this.paths = '/*';
+        if (this.data.opaths && this.data.opaths.length > 0) {
+            this.paths = this.data.opaths.join('\n');
+        } else {
+            this.paths = '/*';
+        }
         this.cfdists = this.data.cfdists;
     }
 
