@@ -39,6 +39,8 @@ export class ListFilesComponent implements OnInit {
   config: any;
   configLoaded: boolean;
   cdnURL: string;
+  selectAll: boolean;
+
   constructor(
     private tabsSVC: TabsNavService,
     private fileSVC: FileAdminService,
@@ -67,6 +69,8 @@ export class ListFilesComponent implements OnInit {
         that.viewList = data.lstFiles;
         that.currentKey = strPath;
         that.showListing = true;
+        that.selectAll = false;
+        that.setSelectAll();
         that.setLoading(false);
       },
       (err) => {
@@ -118,6 +122,33 @@ export class ListFilesComponent implements OnInit {
         that.setLoading(false);
       }
     );
+  }
+  btnBatchDeleteFiles(): void {
+    const that = this;
+    const lstKeys = [];
+    this.viewList.forEach( f => {
+      if (f.otype === 'File' && f.sel) { lstKeys.push(f.Key); }
+    });
+    if (lstKeys.length < 1) { return; }
+    if (!confirm('Do you really want to delete all selected files?')) { return; }
+    this.setLoading(true);
+    this.fileSVC.batchDeleteFile(this.selectedBucket, lstKeys).then(
+      (data: any) => {
+        that.listFiles(that.currentKey);
+      },
+      (err) => {
+        that.tabsSVC.printNotification('Error while deleting file');
+        console.error(err);
+        that.setLoading(false);
+      }
+    );
+  }
+  setSelectAll() {
+    const that = this;
+    if (!this.viewList || this.viewList.length < 1) { return; }
+    this.viewList.forEach( pg => {
+      if (pg.otype === 'File') { pg.sel = that.selectAll; }
+    });
   }
   toKB(v: any) {
     return Math.round((v / 1024));

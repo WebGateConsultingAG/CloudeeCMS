@@ -1,7 +1,7 @@
 .fileExplorer .clickable { cursor: pointer; }
 .fileExplorer a:hover { text-decoration: underline; }
 .folderActions button { margin-right: 6px; }
-
+.folderActions { margin-bottom: 20px; }
 .fileExplorer TR:hover .hoverActions .mat-icon { visibility: visible; cursor: pointer; cursor: pointer; margin-left: 6px; border-radius: 3px; }
 .fileExplorer TR:hover .hoverActions .mat-icon:hover { background-color: #f5a30f;  }
 .fileExplorer .oneUp { font-weight: bold; font-size: 22px; }

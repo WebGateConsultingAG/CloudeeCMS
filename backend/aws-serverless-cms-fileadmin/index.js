@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-05-27 1556 - RSC
+ * File Version: 2020-10-21 14:52 - RSC
  */
 
 const s3service = require('./functions/s3-service').s3service;
@@ -35,6 +35,8 @@ exports.handler = function(event, context, callback) {
             return s3service.listFiles(bucketName, bucketURL, payload.path, done);
         } else if (action === 'deletefile') {
             return s3service.deleteFile(bucketName, payload.key, done);
+        } else if (action === 'batchdeletefile') {
+            return s3service.batchDelete(bucketName, payload.lstKeys, done);
         } else if (action === 'getsigneduploadpolicy') {
             return s3service.getSignedUploadPolicy(bucketName, payload.keyPrefix, 'public-read', done);
         } else if (action === 'createfolder') {

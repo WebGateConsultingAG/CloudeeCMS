@@ -73,7 +73,7 @@ export class FormsInboxComponent implements OnInit {
   setSelectAll() {
     const that = this;
     if (!this.viewList || this.viewList.length < 1) { return; }
-    this.viewList.forEach(pg => {
+    this.viewList.forEach( pg => {
       pg.sel = that.selectAll;
     });
   }

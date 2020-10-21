@@ -48,6 +48,12 @@ export class FileAdminService {
                 return result.data || null;
             });
     }
+    public batchDeleteFile(thisBucketName: string, lstKeys: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
+            { action: 'batchdeletefile', bucketName: thisBucketName, lstKeys }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
+    }
     public createFolder(thisBucketName: string, thisKey: string) {
         return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
             { action: 'createfolder', bucketName: thisBucketName, key: thisKey }).toPromise().then((result: any) => {
