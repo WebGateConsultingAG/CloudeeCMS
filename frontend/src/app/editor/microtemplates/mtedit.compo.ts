@@ -42,6 +42,8 @@ export class MTEditComponent implements OnInit {
   mt: MicroTemplate;
   lstAcceptFieldTypes: any = ['text', 'textarea', 'checkbox', 'dropdown', 'number', 'container', 'richtext', 'image'];
   showPugHelp = false;
+  showUsageBox = false;
+  lstPagesInUse = [];
 
   ngOnInit() {
     const that = this;
@@ -142,5 +144,25 @@ export class MTEditComponent implements OnInit {
   setLoading(on: boolean) {
     this.loading = on;
     this.tabsSVC.setLoading(on);
+  }
+  btnCheckUsage(): void {
+    const that = this;
+    this.lstPagesInUse = [];
+    this.showUsageBox = true;
+    this.setLoading(true);
+    // Get a list of pages that use this microtemplate
+    this.backendSVC.getAllPagesByMT(this.mt.id).then(
+      (data: any) => {
+        that.setLoading(false);
+        if (data.lstPages) {
+          that.lstPagesInUse = data.lstPages;
+        }
+      },
+      (err) => {
+        that.tabsSVC.printNotification('Error while retrieving list of MicroTemplates in use.');
+        console.log(err);
+        that.setLoading(false);
+      }
+    );
   }
 }

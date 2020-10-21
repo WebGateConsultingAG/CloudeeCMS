@@ -377,4 +377,16 @@ export class BackendService {
                 return result.data || null;
             });
     }
+    public getAllMTIDsInUse() {
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'getallmtidsinuse' }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
+    }
+    public getAllPagesByMT(mtid: string) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'getallpagesbymt', mtid }).toPromise().then((result: any) => {
+                return result.data || null;
+            });
+    }
 }

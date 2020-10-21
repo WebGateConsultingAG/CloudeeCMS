@@ -78,6 +78,10 @@ exports.handler = function(event, context, callback) {
             return storage.deleteItemByID(payload.id, done);
         } else if (action === 'bulkdeleteitem') {
             return storage.batchDelete(payload.lstIDs, done);
+        } else if (action === 'getallmtidsinuse') {
+            return storage.getAllMTIDsInUse(done);
+        } else if (action === 'getallpagesbymt') {
+            return storage.getAllPagesByMT(payload.mtid, done);
         }
         // Restricted to layouteditor
         if (isLayoutEditor || isAdmin) {

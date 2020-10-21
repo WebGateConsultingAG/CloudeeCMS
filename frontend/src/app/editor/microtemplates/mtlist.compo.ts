@@ -36,6 +36,7 @@ export class MTListComponent implements OnInit {
   loading = true;
   tabID = 'tab-mtlist';
   selectAll: boolean;
+  showInUse = false;
 
   ngOnInit() {
     const that = this;
@@ -96,6 +97,28 @@ export class MTListComponent implements OnInit {
       },
       (err) => {
         that.tabsSVC.printNotification('Error while deleting');
+        console.log(err);
+        that.setLoading(false);
+      }
+    );
+  }
+  btnCheckUsage(): void {
+    if (this.viewList.length < 1) { return; }
+    const that = this;
+    this.setLoading(true);
+    // Get a list with IDs of all MTs used in pages
+    this.backendSVC.getAllMTIDsInUse().then(
+      (data: any) => {
+        that.setLoading(false);
+        if (data.lstMTIDs) {
+          that.viewList.forEach(viewRow => {
+            viewRow.inUse = (data.lstMTIDs.indexOf(viewRow.id) >= 0);
+          });
+          that.showInUse = true;
+        }
+      },
+      (err) => {
+        that.tabsSVC.printNotification('Error while retrieving list of MicroTemplates in use.');
         console.log(err);
         that.setLoading(false);
       }

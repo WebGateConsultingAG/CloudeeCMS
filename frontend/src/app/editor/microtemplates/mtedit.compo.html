@@ -4,11 +4,54 @@
         <a mat-icon-button href="https://www.cloudee-cms.com/documentation#!/doc/microtemplates" target="_blank" title="Help">
             <mat-icon>help_outline</mat-icon>
         </a>
-        <button mat-button *ngIf="mt.id" (click)="btnDelete()">Delete</button>
+
+        <mat-menu #miscMenu="matMenu">
+            <button mat-button class="mat-menu-item" *ngIf="mt.id" (click)="btnDelete()">Delete</button>
+            <button mat-button class="mat-menu-item" (click)="btnCheckUsage()">Check usage</button>
+        </mat-menu>
+
+        <button mat-stroked-button [matMenuTriggerFor]="miscMenu" title="More actions..">
+            <mat-icon>more_horiz</mat-icon>
+        </button>
         <button mat-stroked-button (click)="saveDocument()">Save</button>
     </div>
     <h3>Edit Micro Template {{mt.id?'(ID:'+mt.id+')':''}}</h3>
     <div class="clrhdr"></div>
+
+    <mat-card *ngIf="showUsageBox">
+        <div class="row">
+            <div class="col-md-12" *ngIf="loading">
+                <div class="loader" >
+                    Checking where this MicroTemplate is used..
+                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+            </div>
+            <div class="col-md-12" *ngIf="!loading">
+                <h3>This MicroTemplates is used in the following pages:</h3>
+                <table class="viewTable clickableRows">
+                    <thead>
+                        <tr>
+                            <th style="width: 1%"></th>
+                            <th style="width: 40%">Path</th>
+                            <th style="width: 59%">Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of lstPagesInUse | orderBy: {property: 'opath', direction: 1}">
+                            <td>
+                                <mat-icon matListIcon>description</mat-icon>
+                            </td>
+                            <td class="clickable" (click)="btnNavigateTo('editor/pages/edit/'+item.id)">{{item.opath}}</td>
+                            <td class="clickable" (click)="btnNavigateTo('editor/pages/edit/'+item.id)">{{item.title}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <button mat-stroked-button (click)="showUsageBox=false">Dismiss</button>
+            </div>
+        </div>
+    </mat-card>
+
     <mat-card>
         <div class="row">
             <div class="col-md-6">

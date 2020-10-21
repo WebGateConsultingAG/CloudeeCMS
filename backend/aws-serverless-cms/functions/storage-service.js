@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-30 0704 - RSC
+ * File Version: 2020-10-21 1120 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -278,7 +278,63 @@ storage.addAllToPublicationQueue = async function(done) {
     done.done( { lstPages: lst } );
 };
 
+storage.getAllMTIDsInUse = async function(done) {
+    let params = {
+        TableName: tableName,
+        FilterExpression : 'otype = :fld',
+        ExpressionAttributeValues : {':fld' : 'Page'},
+        ProjectionExpression: 'id, lstMTObj'
+    };
+    let lstPages = await DDBScan(params);
+
+    let lstMTIDs = [];
+    for (var i=0; i<lstPages.length;i++) {
+        for (var f in lstPages[i].lstMTObj) {
+            if (lstPages[i].lstMTObj[f].lstObj) collectNestedMTIDs(lstPages[i].lstMTObj[f].lstObj, lstMTIDs);
+        }
+     }
+     done.done( { lstMTIDs: lstMTIDs } );
+};
+
+storage.getAllPagesByMT = async function(mtid, done) {
+    let params = {
+        TableName: tableName,
+        FilterExpression : 'otype = :fld',
+        ExpressionAttributeValues : {':fld' : 'Page'},
+        ProjectionExpression: 'id, title, opath, lstMTObj'
+    };
+    let lstPages = await DDBScan(params);
+    let lstPagesInUse = [];
+
+    // Search through all pages if MTID exists
+    lstPages.forEach(function(pg) {
+        var lstMTIDs = [];
+        for (var f in pg.lstMTObj) {
+            if (pg.lstMTObj[f].lstObj) collectNestedMTIDs(pg.lstMTObj[f].lstObj, lstMTIDs);
+        }
+        if (lstMTIDs.indexOf(mtid)>=0) lstPagesInUse.push(pg);
+    });
+    
+    done.done( { lstPages: lstPagesInUse } );
+};
+
 // --- internals ---
+
+function collectNestedMTIDs(lstObj, lstMTIDs) {
+    for (var n = 0; n < lstObj.length; n++) {
+        if (lstObj[n].id) {
+            if (lstMTIDs.indexOf(lstObj[n].id) < 0) lstMTIDs.push(lstObj[n].id);
+        }
+        if (lstObj[n].custFields) {
+            var lstCF = lstObj[n].custFields;
+            for (var i = 0; i < lstCF.length; i++) {
+                if (lstCF[i].fldType === 'container') {
+                    collectNestedMTIDs(lstCF[i].lstObj, lstMTIDs);
+                }
+            }
+        }
+    }
+}
 
 async function addPageToQueue(id) {
     var params = {
