@@ -1,7 +1,7 @@
 <div class="container">
     <div class="loaderOverlay" *ngIf="loading"></div>
     <div class="actionbar">
-        <button mat-stroked-button (click)="btnCFDialog()">
+        <button mat-stroked-button (click)="btnCFDialog(null)">
             <mat-icon>cloud_off</mat-icon> CloudFront invalidation..
         </button>
         <button mat-stroked-button (click)="btnFeedDialog()">

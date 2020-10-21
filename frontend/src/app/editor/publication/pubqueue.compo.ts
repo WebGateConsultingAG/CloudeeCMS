@@ -164,7 +164,7 @@ export class PubQueueComponent implements OnInit {
       alert('No CloudFront Distributions configured in settings page.');
       return;
     }
-    this.dialog.open(CFInvalidationDialogComponent, 
+    this.dialog.open(CFInvalidationDialogComponent,
       { width: '450px', disableClose: false, data: { cfdists: this.config.cfdists, opaths }
     });
   }

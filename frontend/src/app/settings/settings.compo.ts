@@ -167,7 +167,7 @@ export class SettingsComponent implements OnInit {
   }
   btnEditFeed(thisFD: any) {
     const that = this;
-    const dialogRef = this.dialog.open(FeedEditDialogComponent, { width: '450px', disableClose: false, 
+    const dialogRef = this.dialog.open(FeedEditDialogComponent, { width: '450px', disableClose: false,
     data: { feed: thisFD, lstCategories: this.config.categories }
     });
     dialogRef.afterClosed().subscribe(result => {
