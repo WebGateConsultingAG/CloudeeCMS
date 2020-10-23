@@ -13,7 +13,7 @@
             This will take some time to process.
         </div>
 
-        <div *ngIf="!loading">
+        <div *ngIf="!loading && !success">
             <mat-form-field class="full-width">
                 <mat-select placeholder="CloudFront Distribution" [(ngModel)]="selectedTargetCF" required>
                     <mat-option *ngFor="let dist of cfdists" value="{{dist.cfid}}"> {{dist.label}}</mat-option>
@@ -21,14 +21,15 @@
             </mat-form-field>
 
             <mat-form-field class="full-width">
-                <textarea cdkTextareaAutosize matInput placeholder="Paths to invalidate (separate by new line)" type="text"
+                <textarea style="min-height: 40px;" cdkTextareaAutosize matInput placeholder="Paths to invalidate (separate by new line)" type="text"
                     [(ngModel)]="paths"></textarea>
             </mat-form-field>
         </div>
 
     </div>
     <div mat-dialog-actions>
-        <button mat-stroked-button (click)="btnSubmit()" [disabled]="loading">Submit</button>
-        <button mat-button (click)="btnCancel()">Close</button>
+        <button mat-stroked-button (click)="btnSubmit()" [disabled]="loading || !selectedTargetCF || paths===''" *ngIf="!success">Submit</button>
+        <button mat-button (click)="btnCancel()" *ngIf="!success">Close</button>
+        <button mat-stroked-button (click)="btnCancel()" *ngIf="success">Close</button>
     </div>
 </div>

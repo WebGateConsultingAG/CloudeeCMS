@@ -9,13 +9,12 @@
             <button mat-button class="mat-menu-item" *ngIf="page.id" (click)="btnDuplicate()">Duplicate Page</button>
             <button mat-button class="mat-menu-item" *ngIf="page.id" (click)="btnDelete()">Delete</button>
         </mat-menu>
-        <button mat-stroked-button (click)="btnShowImageUploadDialog()" title="Upload images">
-            <mat-icon>add_photo_alternate</mat-icon>
-        </button>
         <button *ngIf="page.id" mat-stroked-button [matMenuTriggerFor]="miscMenu" title="More actions..">
             <mat-icon>more_horiz</mat-icon>
         </button>
-
+        <button mat-stroked-button (click)="btnShowImageUploadDialog()" title="Upload images">
+            <mat-icon>add_photo_alternate</mat-icon>
+        </button>
         <mat-menu #appMenu="matMenu">
             <div *ngIf="config && config.buckets">
                 <div *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}">

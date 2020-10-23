@@ -151,7 +151,7 @@ body.wgc { background-color: #f5f5f5; }
 
 .wgc table .inUseCol .inUse { color: rgb(142, 231, 8); }
 .wgc table .inUseCol .notInUse { color: rgb(231, 8, 8); }
-.wgc table TR:hover .inUseCol { color: #8a8a8a; }
+.wgc table TR:hover .inUseCol .inUse { color: #8a8a8a; }
 
 .wgc .loaderOverlay {
     background-color: white;

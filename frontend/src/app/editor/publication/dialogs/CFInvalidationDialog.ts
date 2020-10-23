@@ -51,6 +51,7 @@ export class CFInvalidationDialogComponent implements OnInit {
         const that = this;
         this.errorMessage = '';
         this.success = false;
+        this.loading = true;
         const lst = this.paths.split('\n');
         this.backendSVC.invalidateCF(this.selectedTargetCF, lst).then(
             (data: any) => {

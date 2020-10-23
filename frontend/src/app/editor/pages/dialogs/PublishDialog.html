@@ -31,7 +31,7 @@
         <br />
     </div>
     <div mat-dialog-actions>
-        <div *ngIf="!published">
+        <div *ngIf="!published && !unpublished">
             <button mat-stroked-button [disabled]="!selectedTargetEnv || loading" (click)="btnPublish()">
                 <mat-icon matListIcon>cloud_upload</mat-icon>
                 Publish

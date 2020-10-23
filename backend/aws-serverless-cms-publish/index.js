@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-15 07:16 - RSC
+ * File Version: 2020-10-22 14:20 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -670,7 +670,7 @@ function renderNestedMicroTemplates(page, fld, g_env) {
         return rHTML;
     } catch (e) {
         console.log(e);
-        return '<div>Error in nested Micro Template: ' + e.toString() + '</div>';
+        return '<pre>Error in nested Micro Template: ' + e.toString() + '</pre>';
     }
 }
 function renderMTHTML(template, opts) {
@@ -678,7 +678,7 @@ function renderMTHTML(template, opts) {
         return pug.render(template, opts);
     } catch (e) {
         console.log(e);
-        return '<div>Error in Micro Template: ' + e.toString() + '</div>';
+        return '<pre>Error in Micro Template: ' + e.toString() + '</pre>';
     }
 }
 
