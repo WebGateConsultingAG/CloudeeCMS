@@ -45,6 +45,7 @@ export class FeedEditDialogComponent implements OnInit {
         this.feed = this.data.feed || {};
         if (!this.data.feed) {
             this.isNew = true;
+            this.feed.id = this.getGUID();
         }
         this.lstCategories = this.data.lstCategories || [];
     }
@@ -67,6 +68,14 @@ export class FeedEditDialogComponent implements OnInit {
         // } else if (this.feed.ftype === 'JSON') {
         }
         return rc;
+    }
+    getGUID() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4();
     }
     btnCancel(): void {
         this.dialogRef.close(null);

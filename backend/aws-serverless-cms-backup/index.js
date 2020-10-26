@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-06-18 13:50 - RSC
+ * File Version: 2020-10-26 06:39 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -276,13 +276,13 @@ async function importPackage(s3BucketName, s3key, done) {
         }
 
         // Import global Pug script functions
-        if (pkg.resources && pkg.resources.globalfunctions && pkg.resources.globalfunctions !=='') {
+        if (pkg.resources && pkg.resources.globalfunctions && pkg.resources.globalfunctions !== '') {
             lstLog.push("Importing global functions");
             if (!config.pugGlobalScripts) config.pugGlobalScripts = [];
             try {
                 var lstFn = JSON.parse(fs.readFileSync(xDir + pkg.resources.globalfunctions));
                 lstFn.forEach(fn => {
-                    lstLog.push("Function: "+fn.fName);
+                    lstLog.push("Function: " + fn.fName);
                     setGlobalFunction(config.pugGlobalScripts, fn, false);
                 });
             } catch (e) {
@@ -308,6 +308,54 @@ async function importPackage(s3BucketName, s3key, done) {
                 });
             lstLog.push("Imported " + pc + " entries to database table " + tableName);
         }
+
+        // Import feeds
+        if (pkg.resources && pkg.resources.feeds && pkg.resources.feeds.length > 0) {
+            lstLog.push("Importing feeds");
+            if (!config.feeds) config.feeds = [];
+            try {
+                pkg.resources.feeds.forEach(fd => {
+                    var fExists = false;
+                    for (var i = 0; i < config.feeds.length; i++) {
+                        if (config.feeds[i].id && config.feeds[i].id === fd.id) { fExists = true; }
+                    }
+                    if (fExists === false) {
+                        lstLog.push("Feed: " + fd.title);
+                        config.feeds.push(fd);
+                        saveConfig = true;
+                    }
+                });
+            } catch (e) {
+                lstLog.push("Error while importing feeds!");
+            }
+        }
+
+        // Import page categories
+        if (pkg.resources && pkg.resources.pagecategories && pkg.resources.pagecategories.length > 0) {
+            lstLog.push("Importing page categories");
+            if (!config.categories) config.categories = [];
+            try {
+                pkg.resources.pagecategories.forEach(category => {
+                    if (config.categories.indexOf(category) < 0) {
+                        lstLog.push("Add page category: " + category);
+                        config.categories.push(category);
+                        saveConfig = true;
+                    }
+                });
+            } catch (e) {
+                lstLog.push("Error while importing page categories!");
+            }
+            saveConfig = true;
+        }
+
+        // Check if force enablenavtree is set
+        if (pkg.resources && pkg.resources.enablenavtree === true) {
+            lstLog.push("Enable navtree rendering");
+            config.enablenavtree = true;
+            saveConfig = true;
+        }
+
+        // Save configuration document when done
         if (saveConfig === true) {
             lstLog.push("Saving configuration");
             await documentClient.put({ TableName: tableName, Item: config }).promise();
@@ -319,11 +367,11 @@ async function importPackage(s3BucketName, s3key, done) {
             try {
                 // Get existing imageprofiles from database
                 const imgp = await getImageProfiles();
-                
+
                 pkg.resources.imageprofiles.forEach(vEntry => {
                     console.log("Add profile", vEntry.label, vEntry.id);
                     let added = false;
-                    for (let i=0; i < imgp.lstProfiles.length; i++) {
+                    for (let i = 0; i < imgp.lstProfiles.length; i++) {
                         if (imgp.lstProfiles[i].id === vEntry.id) {
                             imgp.lstProfiles[i] = vEntry; // update existing
                             added = true;
@@ -387,13 +435,13 @@ async function createBackup(s3BucketName, done) {
             lstLog.push("Exporting global variables");
             pkgInfo.resources.variables = config.variables;
         }
-        
+
         // Export global variables
         if (config.pugGlobalScripts && config.pugGlobalScripts.length > 0) {
             lstLog.push("Exporting global functions");
             try {
                 pkgInfo.resources.globalfunctions = "globalFunctions.json";
-                fs.writeFileSync(sDir + '/'+pkgInfo.resources.globalfunctions, JSON.stringify(config.pugGlobalScripts));
+                fs.writeFileSync(sDir + '/' + pkgInfo.resources.globalfunctions, JSON.stringify(config.pugGlobalScripts));
             } catch (e) {
                 lstLog.push("Error while exporting global functions!");
             }

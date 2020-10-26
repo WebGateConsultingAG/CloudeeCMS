@@ -48,6 +48,7 @@ export class MTListComponent implements OnInit {
 
   loadView(forceUpdate: boolean) {
     const that = this;
+    that.showInUse = false;
     if (forceUpdate) { that.setLoading(true); }
     this.backendSVC.getAllMicroTemplates(forceUpdate).then(
       (data: any) => {
