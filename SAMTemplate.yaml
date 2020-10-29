@@ -180,7 +180,7 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms
       Description: CloudeeCMS API for content admin interface
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 30
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
@@ -205,7 +205,7 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms-publish
       Description: CloudeeCMS API for content publishing
-      MemorySize: 128
+      MemorySize: 512
       Timeout: 300
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
@@ -229,7 +229,7 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms-fileadmin
       Description: CloudeeCMS API for file explorer
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 15
       Role: !GetAtt SCMSLambdaRole.Arn
       Events:
@@ -250,8 +250,8 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms-img
       Description: CloudeeCMS API for image resizing
-      MemorySize: 256
-      Timeout: 120
+      MemorySize: 512
+      Timeout: 300
       Role: !GetAtt SCMSLambdaRole.Arn
       Events:
         Api1GET:
@@ -271,8 +271,8 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms-fileupload
       Description: CloudeeCMS Upload images pasted in trumbowyg editor
-      MemorySize: 128
-      Timeout: 10
+      MemorySize: 256
+      Timeout: 120
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
         Variables:
@@ -295,7 +295,7 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms-backup
       Description: CloudeeCMS API for backup and restore
-      MemorySize: 128
+      MemorySize: 512
       Timeout: 120
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
@@ -320,8 +320,8 @@ Resources:
       Runtime: nodejs12.x
       CodeUri: ./backend/aws-serverless-cms-forms
       Description: CloudeeCMS API for user submitted forms
-      MemorySize: 128
-      Timeout: 5
+      MemorySize: 256
+      Timeout: 30
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
         Variables:

@@ -10,7 +10,7 @@
                 <b>Note:</b> In most cases, this is only required after a layout change affecting every page in your
                 project.
             </p>
-            <p *ngIf="pubtype==='selected'">You are about to publish selected {{lstPageIDs.length}} pages!</p>
+            <p *ngIf="pubtype==='selected'">You are about to publish selected <b>{{lstPageIDs.length}}</b> pages!</p>
         
             Publish to:<br><br>
             <mat-radio-group [(ngModel)]="selectedTargetEnv" aria-label="Select target" class="radiogrp-targets">
