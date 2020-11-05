@@ -22,7 +22,7 @@
         </div>
         <div class="col-md-3">
             <mat-form-field class="full-width">
-                <mat-select placeholder="Cache-Control max. age" title="The maximum amount of time a resource is considered fresh by the browser cache." [(ngModel)]="ccMaxAge">
+                <mat-select placeholder="Cache-Control max. age" (selectionChange)="setHasChanges(true)" title="The maximum amount of time a resource is considered fresh by the browser cache." [(ngModel)]="ccMaxAge">
                     <mat-option *ngFor="let itm of lstCCMaxAge" [value]="itm.val">
                         {{ itm.label }}
                     </mat-option>
@@ -50,7 +50,7 @@
                 <mat-form-field class="full-width codeField">
                     <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
                     <textarea matInput style="min-height: 460px; font-size: 13px !important;" placeholder="File content" type="text"
-                        [(ngModel)]="fileBody"></textarea>
+                        [(ngModel)]="fileBody" (change)="setHasChanges(true)"></textarea>
                 </mat-form-field>
             </mat-card>
         </div>

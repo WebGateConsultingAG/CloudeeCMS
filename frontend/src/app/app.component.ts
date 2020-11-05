@@ -75,6 +75,9 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!that.configLoaded && that.cognitoSVC.signedIn) {
       that.loadConfig();
       window.g_warnOnUnload = true;
+      window.addEventListener('beforeunload', (event) => {
+        if (window.g_warnOnUnload) { event.returnValue = `Do you really want to close CloudeeCMS?`; }
+      });
     } else {
       setTimeout(() => { that.waitForLogin(that); }, 600);
     }

@@ -44,6 +44,7 @@ export class MTEditComponent implements OnInit {
   showPugHelp = false;
   showUsageBox = false;
   lstPagesInUse = [];
+  hasChanges = false;
 
   ngOnInit() {
     const that = this;
@@ -88,7 +89,10 @@ export class MTEditComponent implements OnInit {
         that.setLoading(false);
         that.tabsSVC.setTabTitle(that.tabid, that.mt.title);
         that.tabsSVC.setTabDataExpired('tab-mtlist', true);
-        if (data.success) { that.tabsSVC.printNotification('Document saved'); }
+        if (data.success) { 
+          that.tabsSVC.printNotification('Document saved');
+          that.setHasChanges(false);
+        }
       },
       (err) => {
         that.tabsSVC.printNotification('Error while saving');
@@ -108,15 +112,18 @@ export class MTEditComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'addnew') { that.mt.custFields.push(result.fld); }
     });
+    that.setHasChanges(true);
   }
   btnEditField(fld) {
     this.dialog.open(LayoutFieldDialogComponent, { width: '800px', disableClose: false, data: { fld, accept: this.lstAcceptFieldTypes } });
+    this.setHasChanges(true);
   }
   btnDeleteField(fld) {
     if (!confirm('Do you really want to delete the field \'' + fld.fldName + '\'?')) { return false; }
     for (let i = 0; i < this.mt.custFields.length; i++) {
       if (this.mt.custFields[i] === fld) { this.mt.custFields.splice(i, 1); }
     }
+    this.setHasChanges(true);
   }
   btnDelete() {
     if (!confirm('Do you really want to delete this object?')) { return false; }
@@ -137,6 +144,7 @@ export class MTEditComponent implements OnInit {
   }
   dropSortObj(lst, event: CdkDragDrop<string[]>) {
     moveItemInArray(lst, event.previousIndex, event.currentIndex);
+    this.setHasChanges(true);
   }
   btnTogglePugHelp(): void {
     this.showPugHelp = !this.showPugHelp;
@@ -164,5 +172,11 @@ export class MTEditComponent implements OnInit {
         that.setLoading(false);
       }
     );
+  }
+  setHasChanges(hasChanges): void {
+    if (this.hasChanges !== hasChanges) {
+      this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
+      this.hasChanges = hasChanges;
+    }
   }
 }

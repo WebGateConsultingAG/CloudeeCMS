@@ -14,7 +14,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <mat-form-field class="full-width">
-                            <input matInput placeholder="App title" type="text" [(ngModel)]="config.apptitle"
+                            <input matInput placeholder="App title" type="text" (change)="setHasChanges(true)" [(ngModel)]="config.apptitle"
                                 (ngModelChange)="setRestartRequired()">
                         </mat-form-field>
                     </div>
@@ -173,7 +173,7 @@
                         target="_blank" class="dmLink">Check the documentation</a> for examples.
                 </div>
                 <br/>
-                <mat-checkbox [(ngModel)]="config.enablenavtree"> Enable navigation tree renderer
+                <mat-checkbox [(ngModel)]="config.enablenavtree" (change)="setHasChanges(true)"> Enable navigation tree renderer
                 </mat-checkbox>
             </mat-card>
         </div>

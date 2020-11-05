@@ -38,6 +38,7 @@ export class PugBlockEditComponent implements OnInit {
   viewList: any = [];
   block: PugBlock;
   showPugHelp = false;
+  hasChanges = false;
 
   ngOnInit() {
     const that = this;
@@ -86,7 +87,10 @@ export class PugBlockEditComponent implements OnInit {
         that.setLoading(false);
         that.tabsSVC.setTabTitle(that.tabid, that.block.title);
         that.tabsSVC.setTabDataExpired('tab-compos', true);
-        if (data.success) { that.tabsSVC.printNotification('Document saved'); }
+        if (data.success) {
+          that.tabsSVC.printNotification('Document saved');
+          that.setHasChanges(false);
+        }
       },
       (err) => {
         that.tabsSVC.printNotification('Error while saving');
@@ -116,6 +120,12 @@ export class PugBlockEditComponent implements OnInit {
   }
   btnNavigateTo(npath: string): void {
     this.tabsSVC.navigateTo(npath);
+  }
+  setHasChanges(hasChanges): void {
+    if (this.hasChanges !== hasChanges) {
+      this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
+      this.hasChanges = hasChanges;
+    }
   }
   setLoading(on: boolean) {
     this.loading = on;

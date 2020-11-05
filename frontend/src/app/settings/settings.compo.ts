@@ -57,6 +57,8 @@ export class SettingsComponent implements OnInit {
   enableOnlineUpdates: boolean;
   imageprofiles = null;
   APIGWURL = '';
+  hasChanges = false;
+  tabID = 'tab-settings';
 
   ngOnInit() {
     this.APIGWURL = environment.API_Gateway_Endpoint;
@@ -98,6 +100,7 @@ export class SettingsComponent implements OnInit {
         that.setLoading(false);
         if (rc.success) {
           that.tabsSVC.printNotification('Configuration saved');
+          that.setHasChanges(false);
           if (that.restartRequired) {
             if (confirm('Restart of Webapplication recommended.\nRestart now?')) { window.location.reload(); }
           }
@@ -132,6 +135,7 @@ export class SettingsComponent implements OnInit {
         that.config.buckets.push(result.bucket);
       }
     });
+    that.setHasChanges(true);
   }
   btnEditCFDist(thisDist: any) {
     const that = this;
@@ -143,6 +147,7 @@ export class SettingsComponent implements OnInit {
         that.config.cfdists.push(result.dist);
       }
     });
+    that.setHasChanges(true);
   }
   btnEditGlobalFunction(thisFN: any) {
     const that = this;
@@ -153,6 +158,7 @@ export class SettingsComponent implements OnInit {
         that.config.pugGlobalScripts.push(result.fn);
       }
     });
+    that.setHasChanges(true);
   }
   btnEditBM(thisBM: any) {
     const that = this;
@@ -164,11 +170,13 @@ export class SettingsComponent implements OnInit {
         that.config.bookmarks.push(result.bm);
       }
     });
+    that.setHasChanges(true);
   }
   btnEditFeed(thisFD: any) {
     const that = this;
-    const dialogRef = this.dialog.open(FeedEditDialogComponent, { width: '450px', disableClose: false,
-    data: { feed: thisFD, lstCategories: this.config.categories }
+    const dialogRef = this.dialog.open(FeedEditDialogComponent, {
+      width: '450px', disableClose: false,
+      data: { feed: thisFD, lstCategories: this.config.categories }
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
@@ -176,6 +184,7 @@ export class SettingsComponent implements OnInit {
         that.config.feeds.push(result.feed);
       }
     });
+    that.setHasChanges(true);
   }
   btnDeleteBucket(bucket: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -186,6 +195,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnDeleteCFDist(dist: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -196,6 +206,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnDeleteGlobalFunction(fn: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -205,6 +216,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnDeleteBM(bm: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -215,6 +227,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnDeleteFeed(fd: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -225,6 +238,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnAddCategory() {
     if (this.tmpAddCat !== '') {
@@ -232,6 +246,7 @@ export class SettingsComponent implements OnInit {
       this.config.categories.push(this.tmpAddCat);
       this.tmpAddCat = '';
     }
+    this.setHasChanges(true);
   }
   btnRemoveCategory(delCat: string) {
     if (!confirm('Delete this entry?')) { return; }
@@ -241,6 +256,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnDeleteImageProfile(delID: string) {
     if (!confirm('Delete this entry?')) { return; }
@@ -250,6 +266,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
   btnEditImageProfile(imgp: any) {
     const that = this;
@@ -269,6 +286,7 @@ export class SettingsComponent implements OnInit {
         }
       }
     });
+    this.setHasChanges(true);
   }
   btnBackup() {
     if (!confirm('Create database backup?')) { return; }
@@ -306,6 +324,7 @@ export class SettingsComponent implements OnInit {
   }
   setRestartRequired(): void {
     this.restartRequired = true;
+    this.setHasChanges(true);
   }
   btnShowUpdater(): void {
     this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: {} });
@@ -320,6 +339,7 @@ export class SettingsComponent implements OnInit {
         that.config.variables.push(result.variable);
       }
     });
+    this.setHasChanges(true);
   }
   btnDeleteVariable(variable: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -329,6 +349,7 @@ export class SettingsComponent implements OnInit {
         return;
       }
     }
+    this.setHasChanges(true);
   }
 
   getBucketByLabel(bLabel: string): any {
@@ -337,6 +358,12 @@ export class SettingsComponent implements OnInit {
       if (this.config.buckets[i].label === bLabel) {
         return this.config.buckets[i];
       }
+    }
+  }
+  setHasChanges(hasChanges): void {
+    if (this.hasChanges !== hasChanges) {
+      this.tabsSVC.setTabHasChanges(this.tabID, hasChanges);
+      this.hasChanges = hasChanges;
     }
   }
 }

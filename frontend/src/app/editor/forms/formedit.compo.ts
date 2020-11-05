@@ -41,6 +41,8 @@ export class FormEditComponent implements OnInit {
     frm: Form;
     tmpAddEmail: string;
     formAPIURL: string;
+    hasChanges = false;
+    editorTrackChanges = false;
 
     trumbooptions: any = { // any, because of missing "semantic" prop. in ngx-trumbowyg
         lang: 'en',
@@ -72,9 +74,11 @@ export class FormEditComponent implements OnInit {
         if (this.docid === 'NEW') {
             this.frm = new Form();
             this.frm.staticcaptcha = that.tabsSVC.getGUID();
-            that.tabsSVC.setTabTitle(this.tabid, 'New Form');
+            this.tabsSVC.setTabTitle(this.tabid, 'New Form');
             this.loading = false;
             setTimeout(() => { that.setLoading(false); }, 1000); // delay to prevent error
+            // enable trumbowyg editor onchange tracking
+            setTimeout(() => { that.editorTrackChanges = true; }, 2000);
         } else {
             this.loadByID(this.docid);
         }
@@ -89,6 +93,8 @@ export class FormEditComponent implements OnInit {
                     that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled Form');
                 }
                 that.setLoading(false);
+                // enable trumbowyg editor onchange tracking
+                setTimeout(() => { that.editorTrackChanges = true; }, 2000);
             },
             (err) => {
                 that.tabsSVC.printNotification('Error while loading form');
@@ -110,7 +116,10 @@ export class FormEditComponent implements OnInit {
                 that.frm.id = data.id;
                 that.setLoading(false);
                 that.tabsSVC.setTabDataExpired('tab-forms', true);
-                if (data.success) { that.tabsSVC.printNotification('Document saved'); }
+                if (data.success) {
+                    that.tabsSVC.printNotification('Document saved');
+                    that.setHasChanges(false);
+                }
             },
             (err) => {
                 that.tabsSVC.printNotification('Error while saving layout');
@@ -146,12 +155,30 @@ export class FormEditComponent implements OnInit {
             this.frm.lstEmail.push(this.tmpAddEmail);
             this.tmpAddEmail = '';
         }
+        this.setHasChanges(true);
     }
     btnRemoveEmail(delItem: string) {
         for (let i = 0; i < this.frm.lstEmail.length; i++) {
             if (this.frm.lstEmail[i] === delItem) {
                 this.frm.lstEmail.splice(i, 1);
                 return;
+            }
+        }
+        this.setHasChanges(true);
+    }
+    setHasChanges(hasChanges): void {
+        if (this.hasChanges !== hasChanges) {
+            this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
+            this.hasChanges = hasChanges;
+        }
+    }
+    setEditorHasChanges(): void {
+        // this event is muted by setTimeout for the first few seconds, editor triggers ngModelChange at least 2 times on startup
+        // editors own 'onchange' events are unavailable in ngx-trumbowyg wrapper
+        if (this.editorTrackChanges) {
+            if (this.hasChanges !== true) {
+                this.tabsSVC.setTabHasChanges(this.tabid, true);
+                this.hasChanges = true;
             }
         }
     }

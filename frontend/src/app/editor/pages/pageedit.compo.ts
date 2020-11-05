@@ -59,6 +59,8 @@ export class PageEditComponent implements OnInit {
   pathlist: string[] = [];
   pathlistFilter: string[];
   pathHint = '';
+  hasChanges = false;
+  editorTrackChanges = false;
 
   trumbooptions: any = { // any, because of missing "semantic" prop. in ngx-trumbowyg
     lang: 'en',
@@ -152,6 +154,9 @@ export class PageEditComponent implements OnInit {
           if (!that.page.lstMTObj) { that.page.lstMTObj = {}; }
           if (!that.page.doc) { that.page.doc = {}; }
           that.loadCustFields();
+
+          // enable trumbowyg editor onchange tracking
+          setTimeout(() => { that.editorTrackChanges = true; }, 2000);
         }
       },
       (err) => {
@@ -161,6 +166,7 @@ export class PageEditComponent implements OnInit {
     );
   }
   checkPath(): void {
+    this.setHasChanges(true);
     const thisPath = this.page.opath || '';
     if (thisPath !== '') {
       if (thisPath.startsWith('/')) {
@@ -204,6 +210,7 @@ export class PageEditComponent implements OnInit {
 
   onLayoutChange() {
     this.loadCustFields();
+    this.setHasChanges(true);
   }
 
   canPublish() { // toggle publish button visibility
@@ -233,7 +240,10 @@ export class PageEditComponent implements OnInit {
       (data: any) => {
         that.page.id = data.id;
         that.setLoading(false);
-        if (data.success) { that.tabsSVC.printNotification('Document saved'); }
+        if (data.success) {
+          that.tabsSVC.printNotification('Document saved');
+          that.setHasChanges(false);
+        }
         that.tabsSVC.setTabTitle(that.tabid, that.page.title || 'untitled');
         that.tabsSVC.setTabDataExpired('tab-pages', true);
       },
@@ -294,6 +304,7 @@ export class PageEditComponent implements OnInit {
         that.page.doc[fldName] = result.fileurl;
       }
     });
+    this.setHasChanges(true);
   }
   btnDlgSelectCoverImage(): void {
     const that = this;
@@ -309,6 +320,7 @@ export class PageEditComponent implements OnInit {
         that.page.img = result.fileurl;
       }
     });
+    this.setHasChanges(true);
   }
   btnAddNewObj(fld: any) {
     const that = this;
@@ -322,19 +334,23 @@ export class PageEditComponent implements OnInit {
         this.btnEditObj(result.mt);
       }
     });
+    this.setHasChanges(true);
   }
   btnNavigateTo(npath: string): void {
     this.tabsSVC.navigateTo(npath);
   }
   btnEditObj(fldMT) {
     this.dialog.open(MTContentDialogComponent, { width: '800px', disableClose: false, data: { fldMT } });
+    this.setHasChanges(true);
   }
   btnDeleteObj(lst, fldMT, idx) {
     if (!confirm('Do you really want to delete \'' + fldMT.title + '\'?')) { return; }
     lst.splice(idx, 1);
+    this.setHasChanges(true);
   }
   dropSortObj(lst, event: CdkDragDrop<string[]>) {
     moveItemInArray(lst, event.previousIndex, event.currentIndex);
+    this.setHasChanges(true);
   }
   btnDuplicate() {
     if (!confirm('Create a copy of this page?')) { return false; }
@@ -377,6 +393,22 @@ export class PageEditComponent implements OnInit {
       width: '500px',
       data: { filelist: [], uplPath: null, targetEnv: null, useDefaultUplPath: true }
     });
+  }
+  setHasChanges(hasChanges): void {
+    if (this.hasChanges !== hasChanges) {
+      this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
+      this.hasChanges = hasChanges;
+    }
+  }
+  setEditorHasChanges(): void {
+    // this event is muted by setTimeout for the first few seconds, because each editor triggers ngModelChange at least 2 times on startup
+    // editors own 'onchange' events are unavailable in ngx-trumbowyg wrapper
+    if (this.editorTrackChanges) {
+      if (this.hasChanges !== true) {
+        this.tabsSVC.setTabHasChanges(this.tabid, true);
+        this.hasChanges = true;
+      }
+    }
   }
   setLoading(on: boolean) {
     this.loading = on;

@@ -18,7 +18,7 @@ mat-sidenav a { cursor: pointer; }
 .flxtabs .tabIcon { font-size: 15px; margin-right: 2px; width: 18px; height: 16px; }
 .flxtabs .mat-tab-list, .flxtabs .mat-tab-body { background-color: #ffffff; }
 .flxtabs { margin-top: 7px; background-color: #f5f5f5; }
-
+.flxtabs .hasChanges { font-style: italic; border-bottom: 1px solid lightgray; }
 .loginpage { margin-left: auto; margin-right: auto; margin-top: 64px; 
     width: 50%; min-width: 380px; background-color: white;
     border: 1px solid #d6d3d3;

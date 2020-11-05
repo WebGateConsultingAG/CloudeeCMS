@@ -42,6 +42,7 @@ export class LayoutEditComponent implements OnInit {
   layout: Layout;
   lstAcceptFieldTypes: any = ['text', 'textarea', 'richtext', 'container', 'dropdown', 'checkbox', 'number', 'image'];
   showPugHelp = false;
+  hasChanges = false;
 
   ngOnInit() {
     const that = this;
@@ -90,7 +91,10 @@ export class LayoutEditComponent implements OnInit {
         that.setLoading(false);
         that.tabsSVC.setTabTitle(that.tabid, that.layout.title);
         that.tabsSVC.setTabDataExpired('tab-layouts', true);
-        if (data.success) { that.tabsSVC.printNotification('Document saved'); }
+        if (data.success) {
+          that.tabsSVC.printNotification('Document saved');
+          that.setHasChanges(false);
+        }
       },
       (err) => {
         that.tabsSVC.printNotification('Error while saving layout');
@@ -106,21 +110,25 @@ export class LayoutEditComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'addnew') { that.layout.custFields.push(result.fld); }
     });
+    this.setHasChanges(true);
   }
   btnEditField(fld) {
     this.dialog.open(LayoutFieldDialogComponent, { width: '800px', disableClose: false, data: { fld, accept: this.lstAcceptFieldTypes } });
+    this.setHasChanges(true);
   }
   btnDeleteField(fld) {
     if (!confirm('Do you really want to delete the field \'' + fld.fldName + '\'?')) { return false; }
     for (let i = 0; i < this.layout.custFields.length; i++) {
       if (this.layout.custFields[i] === fld) { this.layout.custFields.splice(i, 1); }
     }
+    this.setHasChanges(true);
   }
   btnNavigateTo(npath: string): void {
     this.tabsSVC.navigateTo(npath);
   }
   dropSortObj(lst, event: CdkDragDrop<string[]>) {
     moveItemInArray(lst, event.previousIndex, event.currentIndex);
+    this.setHasChanges(true);
   }
   btnDelete() {
     if (!confirm('Do you really want to delete this object?')) { return false; }
@@ -141,6 +149,12 @@ export class LayoutEditComponent implements OnInit {
   }
   btnTogglePugHelp(): void {
     this.showPugHelp = !this.showPugHelp;
+  }
+  setHasChanges(hasChanges): void {
+    if (this.hasChanges !== hasChanges) {
+      this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
+      this.hasChanges = hasChanges;
+    }
   }
   setLoading(on: boolean) {
     this.loading = on;

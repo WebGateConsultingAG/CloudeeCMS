@@ -50,7 +50,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <mat-form-field class="full-width">
-                            <input matInput placeholder="Page title" type="text" [(ngModel)]="page.title" required>
+                            <input matInput placeholder="Page title" type="text" [(ngModel)]="page.title" (change)="setHasChanges(true)" required>
                         </mat-form-field>
                     </div>
                     <div class="col-md-6">
@@ -81,14 +81,14 @@
                     </div>
                     <div class="col-md-2">
                         <mat-form-field class="full-width">
-                            <input matInput [matDatepicker]="dp" placeholder="Entry Date" [(ngModel)]="page.dt">
+                            <input matInput [matDatepicker]="dp" placeholder="Entry Date" (ngModelChange)="setHasChanges(true)" [(ngModel)]="page.dt">
                             <mat-datepicker-toggle matSuffix [for]="dp"></mat-datepicker-toggle>
                             <mat-datepicker #dp></mat-datepicker>
                         </mat-form-field>
                     </div>
                     <div class="col-md-4">
                         <mat-form-field class="full-width">
-                            <input matInput placeholder="Cover image" title="Optional cover image used in search results or lists" type="text" [(ngModel)]="page.img">
+                            <input matInput placeholder="Cover image" (change)="setHasChanges(true)" title="Optional cover image used in search results or lists" type="text" [(ngModel)]="page.img">
                             <mat-icon matSuffix (click)="btnDlgSelectCoverImage()" title="Select image" style="cursor: pointer;">photo_library</mat-icon>
                         </mat-form-field>
                     </div>
@@ -96,35 +96,35 @@
                 <div class="row">
                     <div class="col-md-6">
                         <mat-form-field class="full-width">
-                            <textarea matInput placeholder="Description" type="text" [(ngModel)]="page.descr"
+                            <textarea matInput placeholder="Description" (change)="setHasChanges(true)" type="text" [(ngModel)]="page.descr"
                                 title="Description used in meta tags and search result"></textarea>
                         </mat-form-field>
                     </div>
                     <div class="col-md-6">
                         <mat-form-field class="full-width">
-                            <textarea matInput placeholder="Keywords" type="text" [(ngModel)]="page.keywords"
+                            <textarea matInput placeholder="Keywords" type="text" (change)="setHasChanges(true)" [(ngModel)]="page.keywords"
                                 title="Keywords used in meta tags"></textarea>
                         </mat-form-field>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <mat-checkbox [(ngModel)]="page.queue" title="Show entry in bulk publication list"> List in
+                        <mat-checkbox [(ngModel)]="page.queue" (change)="setHasChanges(true)" title="Show entry in bulk publication list"> List in
                             publication
                             queue</mat-checkbox><br />
-                        <mat-checkbox [(ngModel)]="page.sitemap"
+                        <mat-checkbox [(ngModel)]="page.sitemap" (change)="setHasChanges(true)"
                             title="Attention: This setting is effective immediately!"> List
                             in sitemap.xml</mat-checkbox><br />
-                        <mat-checkbox [(ngModel)]="page.listnav" title="Show page in navigation tree"> Show page in
+                        <mat-checkbox [(ngModel)]="page.listnav" (change)="setHasChanges(true)" title="Show page in navigation tree"> Show page in
                             navigation
                             tree
                         </mat-checkbox><br />
-                        <mat-checkbox [(ngModel)]="page.ftindex" title="Add page to search index."> Add to search index
+                        <mat-checkbox [(ngModel)]="page.ftindex" (change)="setHasChanges(true)" title="Add page to search index."> Add to search index
                         </mat-checkbox>
                     </div>
                     <div class="col-md-6">
                         <mat-form-field class="full-width" *ngIf="config && config.categories">
-                            <mat-select multiple="true" placeholder="Categories" [(ngModel)]="page.categories">
+                            <mat-select multiple="true" placeholder="Categories" (selectionChange)="setHasChanges(true)" [(ngModel)]="page.categories">
                                 <mat-option *ngFor="let cat of config.categories" [value]="cat">
                                     {{ cat }}
                                 </mat-option>
@@ -132,11 +132,11 @@
                         </mat-form-field>
                         <div class="row" *ngIf="page.listnav">
                             <mat-form-field class="full-width col-md-9">
-                                <input matInput placeholder="Navigation label" type="text" [(ngModel)]="page.navlabel"
+                                <input matInput placeholder="Navigation label" (change)="setHasChanges(true)" type="text" [(ngModel)]="page.navlabel"
                                     required title="Label for link entry in navigation">
                             </mat-form-field>
                             <mat-form-field class="full-width col-md-3">
-                                <input matInput placeholder="Order" type="number" [(ngModel)]="page.navsort"
+                                <input matInput placeholder="Order" type="number" (change)="setHasChanges(true)" [(ngModel)]="page.navsort"
                                     required title="Sort order in navigation tree">
                             </mat-form-field>
                         </div>
@@ -166,24 +166,24 @@
 
                         <div *ngIf="fld.fldType==='richtext'">
                             {{fld.fldTitle}} (doc.{{fld.fldName}})
-                            <ngx-trumbowyg-editor name="{{page.doc[fld.fldName]}}" [(ngModel)]="page.doc[fld.fldName]"
+                            <ngx-trumbowyg-editor name="{{page.doc[fld.fldName]}}" (ngModelChange)="setEditorHasChanges()" [(ngModel)]="page.doc[fld.fldName]"
                                 [options]="trumbooptions"></ngx-trumbowyg-editor>
                         </div>
 
                         <mat-form-field class="full-width" *ngIf="fld.fldType==='text'">
-                            <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
+                            <input matInput (change)="setHasChanges(true)" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
                                 [(ngModel)]="page.doc[fld.fldName]">
                         </mat-form-field>
 
                         <mat-form-field class="full-width" *ngIf="fld.fldType==='number'">
-                            <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="number"
+                            <input matInput (change)="setHasChanges(true)" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="number"
                                 [(ngModel)]="page.doc[fld.fldName]">
                         </mat-form-field>
 
                         <div class="row" *ngIf="fld.fldType==='image'">
                             <div class="col-md-12">
                                 <mat-form-field class="full-width" *ngIf="fld.fldType==='image'">
-                                    <input matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
+                                    <input matInput (change)="setHasChanges(true)" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
                                         [(ngModel)]="page.doc[fld.fldName]">
                                         <mat-icon matSuffix (click)="btnDlgSelectImage(fld.fldName)" title="Select image" style="cursor: pointer;">photo_library</mat-icon>
                                 </mat-form-field>
@@ -192,19 +192,19 @@
 
                         <mat-form-field class="full-width" *ngIf="fld.fldType==='textarea'">
                             <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
-                            <textarea matInput placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
+                            <textarea matInput (change)="setHasChanges(true)" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})" type="text"
                                 [(ngModel)]="page.doc[fld.fldName]"></textarea>
                         </mat-form-field>
 
                         <mat-form-field class="full-width" *ngIf="fld.fldType==='dropdown'">
-                            <mat-select [multiple]="fld.multiple" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})"
+                            <mat-select [multiple]="fld.multiple" (selectionChange)="setHasChanges(true)" placeholder="{{fld.fldTitle}} (doc.{{fld.fldName}})"
                                 [(ngModel)]="page.doc[fld.fldName]">
                                 <mat-option *ngFor="let sv of fld.selValues" value="{{sv.val}}"> {{sv.label}}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
 
-                        <mat-checkbox *ngIf="fld.fldType==='checkbox'" [(ngModel)]="page.doc[fld.fldName]">
+                        <mat-checkbox *ngIf="fld.fldType==='checkbox'" (change)="setHasChanges(true)" [(ngModel)]="page.doc[fld.fldName]">
                             {{fld.fldTitle}} (doc.{{fld.fldName}})
                         </mat-checkbox>
 

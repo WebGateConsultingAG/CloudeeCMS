@@ -13,12 +13,12 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Layout title" type="text" [(ngModel)]="layout.title" required>
+                    <input matInput placeholder="Layout title" type="text" [(ngModel)]="layout.title" (change)="setHasChanges(true)" required>
                 </mat-form-field>
             </div>
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Description" type="text" [(ngModel)]="layout.descr">
+                    <input matInput placeholder="Description" type="text" [(ngModel)]="layout.descr" (change)="setHasChanges(true)">
                 </mat-form-field>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput [disabled]="layout.id" placeholder="Key name" type="text" [(ngModel)]="layout.okey"
+                    <input matInput [disabled]="layout.id" placeholder="Key name" type="text" [(ngModel)]="layout.okey" (change)="setHasChanges(true)"
                         required>
                 </mat-form-field>
             </div>
@@ -77,7 +77,7 @@
                 <mat-form-field class="full-width codeField">
                     <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
                     <textarea style="min-height: 360px" matInput placeholder="Layout content (pug syntax)" type="text"
-                        [(ngModel)]="layout.body"></textarea>
+                        [(ngModel)]="layout.body" (change)="setHasChanges(true)"></textarea>
                 </mat-form-field>
 
             </div>

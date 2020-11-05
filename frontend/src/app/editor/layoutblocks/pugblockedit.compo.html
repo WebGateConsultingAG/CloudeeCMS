@@ -12,12 +12,12 @@
     <div class="row">
         <div class="col-md-6">
             <mat-form-field class="full-width">
-                <input matInput placeholder="Block title" type="text" [(ngModel)]="block.title" required>
+                <input matInput placeholder="Block title" type="text" [(ngModel)]="block.title" (change)="setHasChanges(true)" required>
             </mat-form-field>
         </div>
         <div class="col-md-6">
             <mat-form-field class="full-width">
-                <input matInput placeholder="Description" type="text" [(ngModel)]="block.descr" required>
+                <input matInput placeholder="Description" type="text" [(ngModel)]="block.descr" (change)="setHasChanges(true)" required>
             </mat-form-field>
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="col-md-6">
             <mat-form-field class="full-width">
                 <input matInput [disabled]="block.id" placeholder="Key name" type="text" [(ngModel)]="block.okey"
-                    required>
+                (change)="setHasChanges(true)" required>
             </mat-form-field>
         </div>
         <div class="col-md-6" *ngIf="block.okey && block.okey!==''">
@@ -39,7 +39,7 @@
             <mat-form-field class="full-width codeField">
                 <!-- removed cdkTextareaAutosize due to scrolling bug on large fields -->
                 <textarea matInput style="min-height: 360px" placeholder="block content (pug syntax)" type="text"
-                    [(ngModel)]="block.body"></textarea>
+                    [(ngModel)]="block.body" (change)="setHasChanges(true)"></textarea>
             </mat-form-field>
         </div>
     </div>

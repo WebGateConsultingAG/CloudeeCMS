@@ -166,11 +166,11 @@
 
           <ng-template mat-tab-label>
             <mat-icon class="tabIcon" *ngIf="tab.icon">{{tab.icon}}</mat-icon>
-            <span class="tabtitle">{{tab.title.substring(0, 25)}}</span>
+            <span class="tabtitle{{tab.hasChanges?' hasChanges':''}}" title="{{tab.hasChanges?'Contains unsaved changes':''}}">{{tab.title.substring(0, 25)}}</span>
             <mat-icon class="closeIcon" *ngIf="i==tabsSVC.selectedTabIndex && !tab.preventClose"
               (click)="tabsSVC.closeTab(i)" title="Close this tab">close</mat-icon>
           </ng-template>
-
+        
           <app-home *ngIf="tab.compo==='app-home'"></app-home>
           <app-settings *ngIf="tab.compo==='app-settings'"></app-settings>
           <app-pages *ngIf="tab.compo==='app-pages'"></app-pages>

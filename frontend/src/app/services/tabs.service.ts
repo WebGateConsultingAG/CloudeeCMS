@@ -51,6 +51,10 @@ export class TabsNavService {
         const tabIndex = this.getExistingTabIndexByID(tabID);
         if (tabIndex >= 0) { this.lstTabs[tabIndex][evName] = evFn; }
     }
+    public setTabHasChanges(tabID: string, hasChanges: boolean): void {
+        const tabIndex = this.getExistingTabIndexByID(tabID);
+        if (tabIndex >= 0) { this.lstTabs[tabIndex].hasChanges = hasChanges; }
+    }
     public setTabDataExpired(tabID: string, expired: boolean) {
         const tabIndex = this.getExistingTabIndexByID(tabID);
         if (tabIndex >= 0) { this.lstTabs[tabIndex].needsUpdate = expired; }
@@ -60,6 +64,9 @@ export class TabsNavService {
         if (tabIndex >= 0) { return this.lstTabs[tabIndex].needsUpdate === true; }
     }
     public closeTab(idx: number) {
+        if (this.lstTabs[idx].hasChanges) {
+            if (!confirm('Discard unsaved changes?')) { return; }
+        }
         let newTabIndex = this.selectedTabIndex - 1;
         if (newTabIndex < 0 && this.lstTabs.length > 1) { newTabIndex = 0; } // first tab closed, but at least one remaining to the right
         this.selectedTabIndex = newTabIndex;

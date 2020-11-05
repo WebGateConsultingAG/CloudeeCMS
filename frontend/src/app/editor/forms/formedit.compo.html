@@ -13,12 +13,12 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Form title" type="text" [(ngModel)]="frm.title" required>
+                    <input matInput placeholder="Form title" type="text" [(ngModel)]="frm.title" (change)="setHasChanges(true)" required>
                 </mat-form-field>
             </div>
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Description" type="text" [(ngModel)]="frm.descr">
+                    <input matInput placeholder="Description" type="text" [(ngModel)]="frm.descr" (change)="setHasChanges(true)">
                 </mat-form-field>
             </div>
         </div>
@@ -26,13 +26,13 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="On success redirection URL" type="text"
+                    <input matInput placeholder="On success redirection URL" type="text" (change)="setHasChanges(true)"
                         [(ngModel)]="frm.redirectSuccess">
                 </mat-form-field>
             </div>
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="On failure redirection URL" type="text"
+                    <input matInput placeholder="On failure redirection URL" type="text" (change)="setHasChanges(true)"
                         [(ngModel)]="frm.redirectFailure">
                 </mat-form-field>
             </div>
@@ -41,7 +41,7 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Static captcha result" type="text" [(ngModel)]="frm.staticcaptcha">
+                    <input matInput placeholder="Static captcha result" type="text" [(ngModel)]="frm.staticcaptcha" (change)="setHasChanges(true)">
                 </mat-form-field>
             </div>
             <div class="col-md-6">
@@ -59,7 +59,7 @@
                     <mat-icon>help_outline</mat-icon>
                 </a>
                 <h4 style="margin: 0;">
-                    <mat-checkbox [(ngModel)]="frm.notifySNS"></mat-checkbox>
+                    <mat-checkbox [(ngModel)]="frm.notifySNS" (change)="setHasChanges(true)"></mat-checkbox>
                     Notification (SNS)
                 </h4>
                 <div class="clrhdr"></div>
@@ -69,14 +69,14 @@
             <div class="row">
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="SNS Topic ARN" type="text" [(ngModel)]="frm.snsTopicARN">
+                        <input matInput placeholder="SNS Topic ARN" type="text" [(ngModel)]="frm.snsTopicARN" (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubjectSNS">
+                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubjectSNS" (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
@@ -84,7 +84,7 @@
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
                         <textarea matInput style="font-size: 13px !important; min-height: 120px;" placeholder="SNS Message body"
-                            type="text" [(ngModel)]="frm.mailBodySNS"></textarea>
+                            type="text" [(ngModel)]="frm.mailBodySNS" (change)="setHasChanges(true)"></textarea>
                         <mat-hint align="start">You can insert fields of the submitted form in the body text by using EJS variables: [%= fieldname %] or [%= FIELDLIST %] to list all fields of the form.</mat-hint>
                     </mat-form-field>
                 </div>
@@ -100,7 +100,7 @@
                     <mat-icon>help_outline</mat-icon>
                 </a>
                 <h4 style="margin: 0;">
-                    <mat-checkbox [(ngModel)]="frm.notify"></mat-checkbox>
+                    <mat-checkbox [(ngModel)]="frm.notify" (change)="setHasChanges(true)"></mat-checkbox>
                     Notification (SQS)
                 </h4>
                 <div class="clrhdr"></div>
@@ -140,26 +140,26 @@
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
                         <input matInput placeholder="SQS Queue URL for mailer function" type="text"
-                            [(ngModel)]="frm.sqsQueueURL">
+                            [(ngModel)]="frm.sqsQueueURL" (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
             <div class="row" *ngIf="frm.notify">
                 <div class="col-md-6">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="Sender e-mail address" type="text" [(ngModel)]="frm.mailFrom">
+                        <input matInput placeholder="Sender e-mail address" type="text" [(ngModel)]="frm.mailFrom" (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
                 <div class="col-md-6">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubject">
+                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubject" (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
 
             <div class="row" *ngIf="frm.notify">
                 <div class="col-md-12">
-                    <ngx-trumbowyg-editor name="mailBody" [(ngModel)]="frm.mailBody" [options]="trumbooptions">
+                    <ngx-trumbowyg-editor name="mailBody" [(ngModel)]="frm.mailBody" (ngModelChange)="setEditorHasChanges()" [options]="trumbooptions">
                     </ngx-trumbowyg-editor>
                     <div class="hint">You can insert fields of the submitted form in the body text by using EJS variables: [%= fieldname %] or [%= FIELDLIST %] to list all fields of the form.</div>
                 </div>

@@ -34,6 +34,7 @@ export class FileEditorComponent implements OnInit {
   ) { }
 
   loading = true;
+  hasChanges = false;
   filePath: string;
   fileName: string;
   bucketName: string;
@@ -116,7 +117,10 @@ export class FileEditorComponent implements OnInit {
         that.setLoading(false);
         // that.tabsSVC.setTabTitle(that.tabid, that.fileName);
         // that.tabsSVC.setTabDataExpired('tab-...', true);
-        if (data.success) { that.tabsSVC.printNotification('File saved'); }
+        if (data.success) {
+          that.tabsSVC.printNotification('File saved');
+          that.setHasChanges(false);
+        }
       },
       (err) => {
         that.tabsSVC.printNotification('Error while saving');
@@ -126,6 +130,12 @@ export class FileEditorComponent implements OnInit {
   }
   btnNavigateTo(npath: string): void {
     this.tabsSVC.navigateTo(npath);
+  }
+  setHasChanges(hasChanges): void {
+    if (this.hasChanges !== hasChanges) {
+      this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
+      this.hasChanges = hasChanges;
+    }
   }
   setLoading(on: boolean) {
     this.loading = on;
