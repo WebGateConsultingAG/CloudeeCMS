@@ -74,9 +74,10 @@ export class AppComponent implements OnInit, OnDestroy {
   waitForLogin(that) {
     if (!that.configLoaded && that.cognitoSVC.signedIn) {
       that.loadConfig();
-      window.g_warnOnUnload = true;
       window.addEventListener('beforeunload', (event) => {
-        if (window.g_warnOnUnload) { event.returnValue = `Do you really want to close CloudeeCMS?`; }
+        if (this.tabsSVC.hasUnsavedTabs()) {
+          event.returnValue = `There are unsaved changes. Do you really want to close CloudeeCMS?`;
+        }
       });
     } else {
       setTimeout(() => { that.waitForLogin(that); }, 600);
@@ -128,7 +129,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.dialog.open(UpdaterDialogComponent, { width: '450px', disableClose: true, data: {} });
   }
   btnLogout() {
-    window.g_warnOnUnload = false;
+    if (this.tabsSVC.hasUnsavedTabs()) {
+      if (!confirm('There are unsaved changes.\nAre you sure you want to log out?')) { return false; }
+    }
+    this.tabsSVC.setIgnoreUnsavedChanges(true);
     this.cognitoSVC.logout();
   }
 

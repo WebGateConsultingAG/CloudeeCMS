@@ -28,6 +28,7 @@ export class TabsNavService {
 
     loading = false;
     selectedTabIndex = 0;
+    ignoreUnsavedChangesOnExit = false;
     lstTabs: any = [
         { title: 'Home', tabid: 'tab-home', compo: 'app-home', preventClose: true, icon: 'home' }
     ];
@@ -76,7 +77,17 @@ export class TabsNavService {
         const idx = this.getExistingTabIndexByID(id);
         if (idx >= 0) { this.closeTab(idx); }
     }
-
+    public hasUnsavedTabs(): boolean {
+        if (this.ignoreUnsavedChangesOnExit !== true) {
+            for (const tb of this.lstTabs) {
+                if (tb.hasChanges === true) { return true; }
+            }
+        }
+        return false;
+    }
+    public setIgnoreUnsavedChanges(ignore: boolean) {
+        this.ignoreUnsavedChangesOnExit = ignore;
+    }
     public navigateTo(npath: string) {
         if (npath === 'editor/pages') {
             this.openTab('Pages', 'app-pages', 'tab-pages', 'description');

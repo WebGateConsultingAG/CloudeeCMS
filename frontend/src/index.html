@@ -38,15 +38,11 @@
 <body class="wgc fixedAppHeader">
   <app-root></app-root>
   <script>
-    window.g_warnOnUnload = false;
     window.addEventListener('resize', adjustTabBody );
     function adjustTabBody() {
       var tb = document.getElementsByClassName('flxtabs');
       if (tb && tb[0]) tb[0].style.height=(window.innerHeight-65)+'px';
     }
-    window.addEventListener('beforeunload', (event) => {
-      if (g_warnOnUnload) event.returnValue = `Do you really want to close CloudeeCMS?`;
-    });
     setTimeout(adjustTabBody, 3000);
   </script>
   <script src="assets/js/trumbowyg.plugins.js"></script>
