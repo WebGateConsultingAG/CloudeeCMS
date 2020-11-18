@@ -3,6 +3,7 @@ export class MicroTemplate {
     title: string;
     otype: string;
     okey: string;
+    icon: string;
     descr: string;
     custFields: Array<any> = [];
     body: string;

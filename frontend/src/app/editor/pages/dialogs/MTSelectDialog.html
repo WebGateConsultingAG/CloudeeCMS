@@ -11,10 +11,14 @@
         <div *ngIf="!loading">
             <mat-form-field class="full-width">
                 <mat-select placeholder="Select micro template" [(ngModel)]="selectedMT" required>
+
+                    <mat-select-trigger>{{ selectedMT.title }}</mat-select-trigger>
+
                     <mat-option *ngFor="let itm of lstMT | orderBy: {property: 'title', direction: 1 }" [value]="itm">
-                        {{ itm.title }}
+                        <mat-icon>{{ itm.icon || 'dns' }}</mat-icon>&nbsp;{{ itm.title }}
                     </mat-option>
                 </mat-select>
+
             </mat-form-field>
         </div>
         <br />

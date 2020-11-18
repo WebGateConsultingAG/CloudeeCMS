@@ -22,10 +22,12 @@ import { MatDialog } from '@angular/material';
 import { LayoutFieldDialogComponent } from '../layouts/dialogs/layoutfield.dialog';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TabsNavService } from 'src/app/services/tabs.service';
+import { IconSelectDialogComponent } from './dialogs/IconSelectDialog';
 
 @Component({
   selector: 'app-mtedit',
-  templateUrl: './mtedit.compo.html'
+  templateUrl: './mtedit.compo.html',
+  styles: ['.icon-sel-btn:hover { color: red; }']
 })
 
 export class MTEditComponent implements OnInit {
@@ -172,6 +174,18 @@ export class MTEditComponent implements OnInit {
         that.setLoading(false);
       }
     );
+  }
+  btnDlgSelectIcon(): void {
+    const that = this;
+    const dialogRef = this.dialog.open(IconSelectDialogComponent,
+      { width: '600px', disableClose: false, data: { selectionText: 'Select icon to display in Micro Template selection dialogs.' } }
+    );
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'add') {
+        that.mt.icon = result.icon;
+        that.setHasChanges(true);
+      }
+    });
   }
   setHasChanges(hasChanges): void {
     if (this.hasChanges !== hasChanges) {

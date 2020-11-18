@@ -1,0 +1,35 @@
+<div>
+    <div mat-dialog-content>
+        <h1 mat-dialog-title>Select Icon</h1>
+        <p>{{ selectionText }}</p>
+        <div class="iconListContainer" *ngIf="!useCustomIcon">
+            <ul class="iconList">
+                <li *ngFor="let icn of lstIcons" (click)="selectIcon(icn)">
+                    <mat-icon>{{ icn }}</mat-icon>
+                </li>
+            </ul>
+        </div>
+        <br style="clear:both;" />
+        <mat-checkbox [(ngModel)]="useCustomIcon" title="Use an icon not found in the list">
+        </mat-checkbox>&nbsp; Use icon not in list..
+        <br />
+        <div *ngIf="useCustomIcon">
+            <p>You can use any of the <a href="https://material.io/resources/icons/" target="_blank" class="plainLink">icons provided by material design</a>. Enter the icon label of the icon in the field below. Uploading custom icons is not supported. </p>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Enter mat-icon name of icon to use" type="text" [(ngModel)]="customIcon" required>
+                <mat-icon matSuffix *ngIf="customIcon!==''">{{ customIcon }}</mat-icon>
+            </mat-form-field>
+        </div>
+        <br />
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-stroked-button *ngIf="useCustomIcon" [disabled]="customIcon===''" (click)="btnAdd()">
+            <mat-icon matListIcon>done</mat-icon>
+            Apply
+        </button>
+        <button mat-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

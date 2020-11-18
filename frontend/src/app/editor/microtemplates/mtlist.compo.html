@@ -43,7 +43,7 @@
             <tr
                 *ngFor="let item of viewList | orderBy: {property: 'title', direction: 1} | searchfilter: ['title','descr'] : viewFilter">
                 <td>
-                    <mat-icon matListIcon>dns</mat-icon>
+                    <mat-icon matListIcon>{{ item.icon || 'dns' }}</mat-icon>
                 </td>
                 <td class="clickable" (click)="btnNavigateTo('editor/microtemplates/edit/'+item.id)">{{item.title}}</td>
                 <td class="clickable" (click)="btnNavigateTo('editor/microtemplates/edit/'+item.id)">{{item.descr}}</td>

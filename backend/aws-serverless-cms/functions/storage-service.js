@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-21 1120 - RSC
+ * File Version: 2020-11-18 0636 - RSC
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -142,7 +142,7 @@ storage.getAllMicroTemplates = async function(done) {
         TableName: tableName,
         FilterExpression : 'otype = :fld',
         ExpressionAttributeValues : {':fld' : 'MT'},
-        ProjectionExpression: 'id, custFields, otype, title, descr, fldPreview'
+        ProjectionExpression: 'id, custFields, otype, title, descr, fldPreview, icon'
     };
     
     let lst = await DDBScan(params);

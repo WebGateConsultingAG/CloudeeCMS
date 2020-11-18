@@ -59,10 +59,13 @@
                     <input matInput placeholder="Template title" type="text" [(ngModel)]="mt.title" (change)="setHasChanges(true)" required>
                 </mat-form-field>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <mat-form-field class="full-width">
                     <input matInput placeholder="Description" type="text" [(ngModel)]="mt.descr" (change)="setHasChanges(true)" required>
                 </mat-form-field>
+            </div>
+            <div class="col-md-1" style="text-align: right; padding-top: 20px;">
+                <mat-icon class="icon-sel-btn" (click)="btnDlgSelectIcon()" style="cursor:pointer;" title="Icon displayed in Micro Template selection list">{{ mt.icon || 'dns' }}</mat-icon>
             </div>
         </div>
     </mat-card>

@@ -108,6 +108,7 @@ import { ImageProfileEditDialogComponent } from './settings/dialogs/imgprofileed
 import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/ImgUploadDialog';
 import { FeedEditDialogComponent } from './settings/dialogs/feededit-dialog';
 import { FeedPublishDialogComponent } from './editor/publication/dialogs/FeedPublishDialog';
+import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconSelectDialog';
 
 @NgModule({
   declarations: [
@@ -131,6 +132,7 @@ import { FeedPublishDialogComponent } from './editor/publication/dialogs/FeedPub
     VariableEditDialogComponent,
     NewUserProfileDialogComponent,
     BucketEditDialogComponent,
+    IconSelectDialogComponent,
     MyProfileComponent,
     UserListComponent,
     HomeComponent,
@@ -197,6 +199,7 @@ import { FeedPublishDialogComponent } from './editor/publication/dialogs/FeedPub
   entryComponents: [ // dynamic loadable compos using tag-names
     AboutDialogComponent,
     FileEditorComponent,
+    IconSelectDialogComponent,
     GroupAddDialogComponent,
     UserProfileDialogComponent,
     NewUserProfileDialogComponent,
