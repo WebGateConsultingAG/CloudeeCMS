@@ -18,21 +18,25 @@
 import { Injectable, Pipe, PipeTransform } from '@angular/core'; // for view filter
 @Pipe({
   name: 'searchfilter'
- })
+})
 
- @Injectable()
- export class SearchFilterPipe implements PipeTransform {
+@Injectable()
+export class SearchFilterPipe implements PipeTransform {
   transform(items: any[], fields: any[], searchstring: string): any[] {
-      if (!items || !searchstring) { return items; }
-      const LCvalue = searchstring.toLowerCase();
-      return items.filter( (item) => {
-          for (const fld of fields) {
-            if (typeof item[fld] !== 'undefined') {
-              const thisFld = item[fld] || '';
-              if (thisFld.toLowerCase().indexOf(LCvalue) !== -1) { return true; }
-            }
+    if (!items || !searchstring) { return items; }
+    const LCvalue = searchstring.toLowerCase();
+    return items.filter((item) => {
+      if (fields && fields.length > 0) { // search within properties of object array
+        for (const fld of fields) {
+          if (typeof item[fld] !== 'undefined') {
+            const thisFld = item[fld] || '';
+            if (thisFld.toLowerCase().indexOf(LCvalue) !== -1) { return true; }
           }
-          return false;
-      });
+        }
+      } else { // search in string array
+        if (item.toLowerCase().indexOf(LCvalue) !== -1) { return true; }
+      }
+      return false;
+    });
   }
- }
+}

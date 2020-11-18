@@ -15,7 +15,7 @@
  *
  */
 
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -24,15 +24,17 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
     styleUrls: ['IconSelectDialog.css']
 })
 
-export class IconSelectDialogComponent {
+export class IconSelectDialogComponent implements OnInit {
     constructor(
         public dialogRef: MatDialogRef<Component>,
         @Inject(MAT_DIALOG_DATA) public data: any) { }
 
+    viewFilter = '';
+    selectionText = '';
     customIcon = '';
     useCustomIcon = false;
     lstIcons = ['image', 'photo_camera', 'panorama_wide_angle', 'ondemand_video', 'movie', 'featured_video',
-        'featured_play_list', 'dashboard', 'art_track', 'call_to_action', 'account_box',
+        'featured_play_list', 'dashboard', 'art_track', 'call_to_action', 'account_box', 'account_circle', 'person',
         'all_inbox', 'analytics', 'anchor', 'announcement', 'article', 'aspect_ratio', 'assignment', 'assignment_late',
         'backup_table', 'backup', 'book', 'book_online', 'bookmark_border', 'build', 'calendar_today', 'calendar_view_day',
         'chrome_reader_mode', 'code', 'contact_support', 'copyright', 'contactless', 'credit_card', 'description', 'dns',
@@ -44,9 +46,12 @@ export class IconSelectDialogComponent {
         'shop', 'shopping_cart', 'source', 'subject', 'star_rate', 'tab', 'tab_unselected', 'toc',
         'theaters', 'thumb_up', 'timeline', 'tour', 'vertical_split', 'view_agenda', 'view_array',
         'view_carousel', 'view_column', 'view_list', 'view_module', 'view_quilt', 'view_sidebar', 'view_stream', 'view_week',
-        'wysiwyg'
+        'wysiwyg', 'grid_on', 'gradient', 'panorama', 'view_comfy', 'straighten', 'edit_attributes', 'train',
+        'my_location', 'apps', 'home_work', 'account_tree', 'phone_in_talk', ''
     ];
-
+    ngOnInit(): void {
+        this.selectionText = this.data.selectionText || '';
+    }
     btnCancel(): void {
         this.dialogRef.close(null);
     }

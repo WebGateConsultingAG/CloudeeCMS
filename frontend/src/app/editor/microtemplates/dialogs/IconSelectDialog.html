@@ -1,10 +1,18 @@
 <div>
     <div mat-dialog-content>
+        <div class="actionbar">
+            <mat-form-field *ngIf="!useCustomIcon">
+                <input matInput placeholder="Filter icons.." type="text" [(ngModel)]="viewFilter">
+                <mat-icon matSuffix (click)="viewFilter=''" style="cursor: pointer;">highlight_off
+                </mat-icon>
+            </mat-form-field>
+        </div>
         <h1 mat-dialog-title>Select Icon</h1>
+        <div style="clear: both;"></div>
         <p>{{ selectionText }}</p>
         <div class="iconListContainer" *ngIf="!useCustomIcon">
             <ul class="iconList">
-                <li *ngFor="let icn of lstIcons" (click)="selectIcon(icn)">
+                <li *ngFor="let icn of lstIcons | searchfilter: [] : viewFilter" (click)="selectIcon(icn)">
                     <mat-icon>{{ icn }}</mat-icon>
                 </li>
             </ul>
@@ -16,7 +24,8 @@
         <div *ngIf="useCustomIcon">
             <p>You can use any of the <a href="https://material.io/resources/icons/" target="_blank" class="plainLink">icons provided by material design</a>. Enter the icon label of the icon in the field below. Uploading custom icons is not supported. </p>
             <mat-form-field class="full-width">
-                <input matInput placeholder="Enter mat-icon name of icon to use" type="text" [(ngModel)]="customIcon" required>
+                <input matInput placeholder="Enter a valid mat-icon name" type="text" [(ngModel)]="customIcon" required>
+                <mat-hint>E.g.: feedback, favorite, help etc.</mat-hint>
                 <mat-icon matSuffix *ngIf="customIcon!==''">{{ customIcon }}</mat-icon>
             </mat-form-field>
         </div>
