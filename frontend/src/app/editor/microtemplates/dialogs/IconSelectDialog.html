@@ -30,9 +30,6 @@
             </mat-form-field>
         </div>
         <br />
-        <div class="isErrorBox" *ngIf="errorMessage">
-            {{errorMessage}}
-        </div>
     </div>
     <div mat-dialog-actions>
         <button mat-stroked-button *ngIf="useCustomIcon" [disabled]="customIcon===''" (click)="btnAdd()">
