@@ -12,7 +12,7 @@
                         <b>{{parentField.fldTitle}} - ({{parentField.fldName}})</b>
                     </td>
                     <td class="permaActions">
-                        <mat-icon title="Paste object" (click)="btnPasteObj(parentField)">content_paste</mat-icon>
+                        <mat-icon title="Paste object" *ngIf="tabsSVC.hasInternalClipboardContent" (click)="btnPasteObj(parentField)">content_paste</mat-icon>
                         <mat-icon title="Add new field" (click)="btnAddNewObj(parentField)">add</mat-icon>
                     </td>
                 </tr>

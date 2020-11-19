@@ -33,6 +33,7 @@ export class TabsNavService {
     lstTabs: any = [
         { title: 'Home', tabid: 'tab-home', compo: 'app-home', preventClose: true, icon: 'home' }
     ];
+    public hasInternalClipboardContent = false;
 
     public setLoading(on: boolean) {
         this.loading = on;
@@ -181,6 +182,7 @@ export class TabsNavService {
         this.toaster.open(msg, '', { duration: 4000 });
     }
     public setInternalClipboard(obj: any) {
+        this.hasInternalClipboardContent = true;
         this.internalClipboard = obj;
     }
     public getInternalClipboard(): any {
