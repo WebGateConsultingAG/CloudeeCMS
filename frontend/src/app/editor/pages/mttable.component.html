@@ -12,6 +12,7 @@
                         <b>{{parentField.fldTitle}} - ({{parentField.fldName}})</b>
                     </td>
                     <td class="permaActions">
+                        <mat-icon title="Paste object" (click)="btnPasteObj(parentField)">content_paste</mat-icon>
                         <mat-icon title="Add new field" (click)="btnAddNewObj(parentField)">add</mat-icon>
                     </td>
                 </tr>
@@ -28,6 +29,7 @@
                     <td colspan="2">
                         <div class="hoverActions">
                             <mat-icon title="Edit field" (click)="btnEditObj(fldMT)">edit</mat-icon>
+                            <mat-icon title="Copy this object" (click)="btnCopyObj(fldMT)">content_copy</mat-icon>
                             <mat-icon title="Delete"
                                 (click)="btnDeleteObj(parentField.lstObj, fldMT, i)">delete
                             </mat-icon>

@@ -29,6 +29,7 @@ export class TabsNavService {
     loading = false;
     selectedTabIndex = 0;
     ignoreUnsavedChangesOnExit = false;
+    internalClipboard = '';
     lstTabs: any = [
         { title: 'Home', tabid: 'tab-home', compo: 'app-home', preventClose: true, icon: 'home' }
     ];
@@ -179,7 +180,12 @@ export class TabsNavService {
     public printNotification(msg: string) {
         this.toaster.open(msg, '', { duration: 4000 });
     }
-
+    public setInternalClipboard(obj: any) {
+        this.internalClipboard = obj;
+    }
+    public getInternalClipboard(): any {
+        return this.internalClipboard || '';
+    }
     public getGUID() {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);

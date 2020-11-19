@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material';
 import { MTContentDialogComponent } from './dialogs/MTContentDialog';
 import { MTSelectDialogComponent } from './dialogs/MTSelectDialog';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { TabsNavService } from 'src/app/services/tabs.service';
 
 @Component({
   selector: 'app-mttable-component',
@@ -16,7 +17,8 @@ export class MTTableComponent implements OnInit {
   isExpanded: boolean;
 
   constructor(
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private tabsSVC: TabsNavService
   ) { }
 
   ngOnInit() { }
@@ -26,6 +28,29 @@ export class MTTableComponent implements OnInit {
   }
   btnEditObj(fldMT) {
     this.dialog.open(MTContentDialogComponent, { width: '800px', disableClose: false, data: { fldMT } });
+  }
+  btnCopyObj(fldMT) {
+    this.tabsSVC.setInternalClipboard( JSON.parse(JSON.stringify(fldMT))); // store dereferenced copy
+    this.tabsSVC.printNotification('Object copied to memory. You can now insert it in another position or page.');
+  }
+  btnPasteObj(pos: any) {
+    const cp = this.tabsSVC.getInternalClipboard();
+    if (!cp || cp === '') {
+      this.tabsSVC.printNotification('No object in memory. You must copy an object to memory first.');
+      return;
+    }
+    if (pos.restrictChilds) {
+      // check if parent object accepts pasted object
+      if (pos.accepts) {
+        if (pos.accepts.indexOf(cp.id) < 0) {
+          this.tabsSVC.printNotification('Unable to insert at this position. Object type is not allowed here.');
+          return;
+        }
+      }
+    }
+    if (!pos.lstObj) { pos.lstObj = []; }
+    pos.lstObj.push(cp);
+    this.tabsSVC.printNotification('Object inserted.');
   }
   // actions for nested MicroTemplates
   btnAddNewObj(fld: any) {
