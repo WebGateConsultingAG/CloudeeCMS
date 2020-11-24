@@ -243,8 +243,7 @@
                                         <td class="drag-handle">
                                             <mat-icon>drag_indicator</mat-icon>
                                         </td>
-                                        <td>{{fldMT.title}}</td>
-                                        <td colspan="2">
+                                        <td colspan="3">{{fldMT.title}} - {{fldMT.shortdesc}}
                                             <div class="hoverActions" style="text-align: right; float: right;">
                                                 <mat-icon title="Edit field" (click)="btnEditObj(fldMT)">edit</mat-icon>
                                                 <mat-icon title="Delete"
@@ -252,7 +251,7 @@
                                                     delete
                                                 </mat-icon>
                                             </div>
-                                            {{fldMT.shortdesc}}
+                                            
                                             <div style="clear: both; margin-bottom: 10px"></div>
                                             <div *ngFor="let fd of fldMT.custFields">
                                                 <app-mttable-component *ngIf="fd.fldType==='container'" [parentField]="fd"></app-mttable-component>

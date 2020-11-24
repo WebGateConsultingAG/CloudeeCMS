@@ -5,48 +5,43 @@
             <thead>
                 <tr>
                     <td style="width: 20px;" class="toggler">
-                        <mat-icon matListIcon class="clickable" *ngIf="!isExpanded" (click)="toggleExpand()" title="Click to expand">chevron_right</mat-icon>
-                        <mat-icon matListIcon class="clickable" *ngIf="isExpanded" (click)="toggleExpand()" title="Click to collapse">expand_more</mat-icon>
+                        <mat-icon matListIcon class="clickable" *ngIf="!isExpanded" (click)="toggleExpand()"
+                            title="Click to expand">chevron_right</mat-icon>
+                        <mat-icon matListIcon class="clickable" *ngIf="isExpanded" (click)="toggleExpand()"
+                            title="Click to collapse">expand_more</mat-icon>
                     </td>
-                    <td colspan="2">
+                    <td>
                         <b>{{parentField.fldTitle}} - ({{parentField.fldName}})</b>
                     </td>
                     <td class="permaActions">
-                        <mat-icon title="Paste object" *ngIf="tabsSVC.hasInternalClipboardContent" (click)="btnPasteObj(parentField)">content_paste</mat-icon>
+                        <mat-icon title="Paste object" *ngIf="tabsSVC.hasInternalClipboardContent"
+                            (click)="btnPasteObj(parentField)">content_paste</mat-icon>
                         <mat-icon title="Add new field" (click)="btnAddNewObj(parentField)">add</mat-icon>
                     </td>
                 </tr>
             </thead>
-            <tbody cdkDropList
-                (cdkDropListDropped)="dropSortObj(parentField.lstObj, $event)" *ngIf="isExpanded">
+            <tbody cdkDropList (cdkDropListDropped)="dropSortObj(parentField.lstObj, $event)" *ngIf="isExpanded">
 
-                <tr *ngFor="let fldMT of parentField.lstObj; let i=index" cdkDrag
-                    title="Drag to change sort order">
+                <tr *ngFor="let fldMT of parentField.lstObj; let i=index" cdkDrag title="Drag to change sort order">
                     <td class="drag-handle">
                         <mat-icon>drag_indicator</mat-icon>
                     </td>
-                    <td>{{fldMT.title}}</td>
-                    <td colspan="2">
+                    <td colspan="2">{{fldMT.title}} - {{fldMT.shortdesc}}
                         <div class="hoverActions">
                             <mat-icon title="Edit field" (click)="btnEditObj(fldMT)">edit</mat-icon>
                             <mat-icon title="Copy this object" (click)="btnCopyObj(fldMT)">content_copy</mat-icon>
-                            <mat-icon title="Delete"
-                                (click)="btnDeleteObj(parentField.lstObj, fldMT, i)">delete
+                            <mat-icon title="Delete" (click)="btnDeleteObj(parentField.lstObj, fldMT, i)">delete
                             </mat-icon>
-                            </div>
-                        {{fldMT.shortdesc}}
-
+                        </div>
                         <div style="clear: both; margin-bottom: 10px;"></div>
                         <div *ngFor="let fd of fldMT.custFields">
-                            <app-mttable-component *ngIf="fd.fldType==='container'" [parentField]="fd"></app-mttable-component>
+                            <app-mttable-component *ngIf="fd.fldType==='container'" [parentField]="fd">
+                            </app-mttable-component>
                         </div>
-                    
-                        
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-
 
 </mat-card>
