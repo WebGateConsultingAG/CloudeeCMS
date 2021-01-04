@@ -4,27 +4,50 @@
         <div class="isErrorBox" *ngIf="errorMessage">
             {{errorMessage}}
         </div>
+        <div class="row">
+            <div class="col-md-6">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Label" type="text" [(ngModel)]="bucket.label"
+                        [readonly]="bucket.label==='CDN' || bucket.label==='Test' || bucket.label==='Production'">
+                </mat-form-field>
+            </div>
+            <div class="col-md-6">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Bucket Name" type="text" [(ngModel)]="bucket.bucketname">
+                </mat-form-field>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="S3 Web URL" type="text" [(ngModel)]="bucket.webURL"
+                        (change)="validateInput()">
+                    <mat-hint>E.g. https://{{bucket.bucketname?bucket.bucketname:'[BUCKET-NAME]'}}.s3.amazonaws.com/
+                    </mat-hint>
+                </mat-form-field><br /><br />
+            </div>
+        </div>
 
-        <mat-form-field class="full-width">
-            <input matInput placeholder="Label" type="text" [(ngModel)]="bucket.label" [readonly]="bucket.label==='CDN' || bucket.label==='Test' || bucket.label==='Production'">
-        </mat-form-field>
-        <mat-form-field class="full-width">
-            <input matInput placeholder="Bucket Name" type="text" [(ngModel)]="bucket.bucketname">
-        </mat-form-field>
-        <mat-form-field class="full-width">
-            <input matInput placeholder="S3 Web URL" type="text" [(ngModel)]="bucket.webURL" (change)="validateInput()">
-        </mat-form-field>
-        <mat-form-field class="full-width">
-            <input matInput placeholder="CloudFront Web URL" type="text" [(ngModel)]="bucket.cdnURL">
-        </mat-form-field>
-        <mat-form-field class="full-width">
-            <input matInput placeholder="Search Index Name" type="text" [(ngModel)]="bucket.ftindex">
-        </mat-form-field>
+        <div class="row">
+            <div class="col-md-12">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="CloudFront Web URL" type="text" [(ngModel)]="bucket.cdnURL">
+                    <mat-hint>E.g. https://{{bucket.label==='CDN'?'cdn':'www'}}.yourdomain.com</mat-hint>
+                </mat-form-field><br /><br />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Search Index Name" type="text" [(ngModel)]="bucket.ftindex">
+                </mat-form-field>
+            </div>
+        </div>
         <mat-form-field class="full-width">
             <input matInput placeholder="Search Index SQS Queue URL" type="text" [(ngModel)]="bucket.ftindexSQS">
         </mat-form-field>
         <mat-checkbox [(ngModel)]="bucket.noPublish"> Do not show in publish dialog
-        </mat-checkbox><br/>
+        </mat-checkbox><br />
         <mat-checkbox [(ngModel)]="bucket.pastedImages"> Use for images pasted in richtext editor
         </mat-checkbox>
         <br />

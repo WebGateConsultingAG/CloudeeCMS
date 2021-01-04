@@ -47,6 +47,19 @@ export class BucketEditDialogComponent implements OnInit {
         if (webURL !== '' && webURL.lastIndexOf('/') !== webURL.length - 1) { this.bucket.webURL += '/'; }
     }
     btnDone(): void {
+        let warn = '';
+        if (!this.bucket.webURL.startsWith('https')) {
+            warn = 'S3 Bucket Web URL should use https to avoid mixed-content warnings. \nContinue?';
+        } else { // uses https
+            if (this.bucket.webURL.toLowerCase().indexOf('s3-website') > 0) {
+                warn = 'S3 Bucket Web URL does not support "s3-website" over SSL. You should replace "s3-website" in the URL with just "s3".';
+            }
+        }
+        if (warn !== '') {
+            if (!confirm(warn)) {
+                return;
+            }
+        }
         if (this.bucket.bucketname !== this.lastBucketName) {
             alert('Remember to update IAM role to grant access for bucket ' + this.bucket.bucketname);
         }

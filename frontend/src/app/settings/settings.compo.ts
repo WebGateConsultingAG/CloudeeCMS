@@ -127,7 +127,7 @@ export class SettingsComponent implements OnInit {
   }
   btnEditBucket(thisBucket: any) {
     const that = this;
-    const dialogRef = this.dialog.open(BucketEditDialogComponent, { width: '450px', disableClose: false, data: { bucket: thisBucket } });
+    const dialogRef = this.dialog.open(BucketEditDialogComponent, { width: '700px', disableClose: false, data: { bucket: thisBucket } });
     that.restartRequired = true;
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {

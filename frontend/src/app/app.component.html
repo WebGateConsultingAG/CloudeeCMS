@@ -112,7 +112,7 @@
               </button>
               <div *ngIf="config && config.buckets">
                 <a *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}"
-                  class="mat-button mat-menu-item" href="{{bucket.webURL}}" target="_blank">Open {{bucket.label}}</a>
+                  class="mat-button mat-menu-item" href="{{bucket.webURL}}index.html" target="_blank">Open {{bucket.label}}</a>
               </div>
             </mat-menu>
 
