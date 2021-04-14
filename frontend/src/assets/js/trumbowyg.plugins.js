@@ -22,7 +22,7 @@ function loadCDNImagePlugin() {
                 var iconFile = '<mat-icon class="mat-icon material-icons mat-icon-no-color" role="img" aria-hidden="true">description</mat-icon>';
                 var closeBtn = '<button class="' + prefix + 'cdnb-close" style="cursor: pointer; float: right; height: 20px;" title="' + trumbowyg.lang.close + '"><svg><use xlink:href="' + trumbowyg.svgPath + '#' + prefix + 'close"/></svg></button>';
                 var modalHTML = '<div style="padding: 10px 20px; text-align: left;">' + closeBtn + '<h4>Browse CDN Images</h4><div class="' + prefix + 'cdnb-modal"></div></div>';
-                modalHTML += '<style>.cdnfb {margin: 0; padding: 0; list-style: none; border-top: 1px solid lightgray;} .cdnfb li {padding: 6px; margin:0; cursor: pointer; border-bottom: 1px solid lightgray; vertical-align: middle; color: black;} .cdnfb span { vertical-align: super; }</style>';
+                modalHTML += '<style>.cdnfb {height: 274px; overflow-y: scroll; margin: 0; padding: 0; list-style: none; border-top: 1px solid lightgray;} .cdnfb li {padding: 6px; margin:0; cursor: pointer; border-bottom: 1px solid lightgray; vertical-align: middle; color: black;} .cdnfb span { vertical-align: super; }</style>';
                 var $modal = trumbowyg.openModal(null, modalHTML, false);
 
                 var $CDNModal = $('.' + prefix + 'cdnb-modal');
