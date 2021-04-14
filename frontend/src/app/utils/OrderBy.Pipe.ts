@@ -20,9 +20,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class OrderByPipe implements PipeTransform {
     transform(records: Array<any>, args?: any): any {
         return records.sort((a, b) => {
-            if (a[args.property] < b[args.property]) {
+            const iA = a[args.property] || '';
+            const iB = b[args.property] || '';
+            if (iA < iB) {
                 return -1 * args.direction;
-            } else if (a[args.property] > b[args.property]) {
+            } else if (iA > iB) {
                 return 1 * args.direction;
             } else {
                 return 0;
