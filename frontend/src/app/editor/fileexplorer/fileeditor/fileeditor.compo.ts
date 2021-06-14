@@ -18,6 +18,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { TabsNavService } from 'src/app/services/tabs.service';
 import { FileAdminService } from 'src/app/services/fileadmin.service';
+import { MatDialog } from '@angular/material';
+import { CFInvalidationDialogComponent } from '../../publication/dialogs/CFInvalidationDialog';
+import { BackendService } from 'src/app/services/backend.service';
 
 @Component({
   selector: 'app-fileeditor',
@@ -30,7 +33,9 @@ export class FileEditorComponent implements OnInit {
 
   constructor(
     private tabsSVC: TabsNavService,
-    private fileSVC: FileAdminService
+    private fileSVC: FileAdminService,
+    private backendSVC: BackendService,
+    public dialog: MatDialog
   ) { }
 
   loading = true;
@@ -56,13 +61,14 @@ export class FileEditorComponent implements OnInit {
     { label: '1 week', val: 'max-age=604800' },
     { label: '1 month', val: 'max-age=2419200' }
   ];
+  config: any;
 
   ngOnInit() {
-    const that = this;
+    this.loadConfig();
     if (this.docid === 'NEW') {
-      that.tabsSVC.setTabTitle(this.tabid, 'New File');
+      this.tabsSVC.setTabTitle(this.tabid, 'New File');
       this.loading = false;
-      setTimeout(() => { that.setLoading(false); }, 1000); // delay to prevent error
+      setTimeout(() => { this.setLoading(false); }, 1000); // delay to prevent error
     } else {
       const f = this.docid.split('|');
       this.bucketName = f[0];
@@ -71,40 +77,46 @@ export class FileEditorComponent implements OnInit {
       this.loadFileByKey(this.bucketName, this.filePath);
     }
   }
-
+  loadConfig(): void {
+    this.backendSVC.getConfig(false).then(
+      (rc: any) => {
+        this.config = rc.cfg;
+      },
+      (err) => {
+        this.tabsSVC.printNotification('Error while loading configuration');
+      }
+    );
+  }
   loadFileByKey(bucket: string, key: string) {
-    const that = this;
     this.fileSVC.getFileByKey(bucket, key).then(
       (data: any) => {
         if (data) {
           if (data.success && data.fileObj) {
-            that.contentType = data.fileObj.ContentType;
-            that.lastModified = data.fileObj.LastModified;
-            that.fileBody = data.fileObj.Body.toString();
-            if (data.fileObj.CacheControl) { that.ccMaxAge = data.fileObj.CacheControl; }
-            that.tabsSVC.setTabTitle(that.tabid, that.fileName || 'Untitled File');
-            that.fileLoaded = true;
+            this.contentType = data.fileObj.ContentType;
+            this.lastModified = data.fileObj.LastModified;
+            this.fileBody = data.fileObj.Body.toString();
+            if (data.fileObj.CacheControl) { this.ccMaxAge = data.fileObj.CacheControl; }
+            this.tabsSVC.setTabTitle(this.tabid, this.fileName || 'Untitled File');
+            this.fileLoaded = true;
           } else {
-            that.tabsSVC.printNotification('Error while loading file');
+            this.tabsSVC.printNotification('Error while loading file');
           }
         }
-        that.setLoading(false);
+        this.setLoading(false);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while loading file');
-        that.setLoading(false);
+        this.tabsSVC.printNotification('Error while loading file');
+        this.setLoading(false);
       }
     );
   }
 
-  saveFile() {
+  saveFile(): void {
     if (!this.filePath || this.filePath === '') {
       alert('File name is required!');
       return;
     }
     this.tabsSVC.setTabTitle(this.tabid, this.fileName || 'Untitled File');
-    const that = this;
-
     const fileInfo = {
       key: this.filePath,
       contentType: this.contentType,
@@ -114,17 +126,15 @@ export class FileEditorComponent implements OnInit {
     this.setLoading(true);
     this.fileSVC.saveFile(this.bucketName, fileInfo, this.fileBody).then(
       (data: any) => {
-        that.setLoading(false);
-        // that.tabsSVC.setTabTitle(that.tabid, that.fileName);
-        // that.tabsSVC.setTabDataExpired('tab-...', true);
+        this.setLoading(false);
         if (data.success) {
-          that.tabsSVC.printNotification('File saved');
-          that.setHasChanges(false);
+          this.tabsSVC.printNotification('File saved');
+          this.setHasChanges(false);
         }
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while saving');
-        that.setLoading(false);
+        this.tabsSVC.printNotification('Error while saving');
+        this.setLoading(false);
       }
     );
   }
@@ -137,8 +147,19 @@ export class FileEditorComponent implements OnInit {
       this.hasChanges = hasChanges;
     }
   }
-  setLoading(on: boolean) {
+  setLoading(on: boolean): void {
     this.loading = on;
     this.tabsSVC.setLoading(on);
+  }
+  btnOpenCFDialog(): void {
+    if (!this.config.cfdists || this.config.cfdists.length < 1) {
+      alert('No CloudFront Distributions configured in settings page.');
+      return;
+    }
+    let opaths = ['/' + this.filePath];
+    this.dialog.open(CFInvalidationDialogComponent, {
+      width: '450px', disableClose: false,
+      data: { cfdists: this.config.cfdists, opaths }
+    });
   }
 }
