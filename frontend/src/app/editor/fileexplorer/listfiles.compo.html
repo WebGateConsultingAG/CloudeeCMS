@@ -18,6 +18,7 @@
 
     <div class="actionbar" *ngIf="showListing">
         <mat-menu #miscMenu="matMenu">
+            <button mat-button class="mat-menu-item" (click)="btnInvalidateSelected()">Invalidate all selected</button>
             <button mat-button class="mat-menu-item" (click)="btnBatchDeleteFiles()">Delete all selected</button>
         </mat-menu>
 
@@ -86,6 +87,7 @@
                     <a *ngIf="item.otype==='File' && cdnURL" href="{{cdnURL}}/{{item.Key}}" target="_blank">
                         <mat-icon title="CDN Link">link</mat-icon>
                     </a>
+                    <mat-icon *ngIf="item.otype==='File'" title="Invalidate CloudFront cache for this file" (click)="btnOpenCFDialog(['/' + item.Key])">cloud_off</mat-icon>
                     <mat-icon title="Delete {{item.otype}}" (click)="deleteItem(item)">delete</mat-icon>
                 </td>
                 <td>

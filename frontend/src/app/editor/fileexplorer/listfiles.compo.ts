@@ -22,6 +22,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { TabsNavService } from 'src/app/services/tabs.service';
 import { BackendService } from 'src/app/services/backend.service';
 import { ImgUploadDialogComponent } from './imageuploader/ImgUploadDialog';
+import { CFInvalidationDialogComponent } from '../publication/dialogs/CFInvalidationDialog';
 
 @Component({
   selector: 'app-listfiles',
@@ -48,17 +49,16 @@ export class ListFilesComponent implements OnInit {
     public dialog: MatDialog,
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadConfig();
   }
 
-  loadBucket() {
+  loadBucket(): void {
     if (!this.selectedBucket || this.selectedBucket === '') { return; }
     this.listFiles('');
   }
 
-  listFiles(strPath: string) {
-    const that = this;
+  listFiles(strPath: string): void {
     this.setLoading(true);
     this.showListing = false;
     const bucketConfig = this.getBucketConfig(this.selectedBucket);
@@ -66,67 +66,64 @@ export class ListFilesComponent implements OnInit {
     this.cdnURL = (bucketConfig ? bucketConfig.cdnURL || '' : '');
     this.fileSVC.listFiles(this.selectedBucket, bucketURL, strPath).then(
       (data: any) => {
-        that.viewList = data.lstFiles;
-        that.currentKey = strPath;
-        that.showListing = true;
-        that.selectAll = false;
-        that.setSelectAll();
-        that.setLoading(false);
+        this.viewList = data.lstFiles;
+        this.currentKey = strPath;
+        this.showListing = true;
+        this.selectAll = false;
+        this.setSelectAll();
+        this.setLoading(false);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while loading files');
+        this.tabsSVC.printNotification('Error while loading files');
         console.error(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
-  getBucketConfig(bucketName: string) {
-    // tslint:disable-next-line: max-line-length prefer-for-of
+  getBucketConfig(bucketName: string): any {
     for (let i = 0; i < this.config.buckets.length; i++) { if (this.config.buckets[i].bucketname === bucketName) { return this.config.buckets[i]; } }
     return null;
   }
-  openParentFolder() {
+  openParentFolder(): void {
     if (this.currentKey === '') { return; }
     const tmp = this.currentKey.split('/');
     let newKey = '';
     for (let i = 0; i < tmp.length - 2; i++) { newKey += tmp[i] + '/'; }
     this.listFiles(newKey);
   }
-  openItem(itm) {
+  openItem(itm): void {
     if (itm.otype === 'Folder') {
       this.listFiles(itm.Key);
     } else if (itm.otype === 'File') {
       alert(itm.Key);
     }
   }
-  editItem(itm) {
+  editItem(itm): void {
     const fName = itm.Key.replace(/\//g, '\\');
     this.tabsSVC.navigateTo('editor/files/edit/' + this.selectedBucket + '|' + fName);
   }
-  deleteItem(itm) {
+  deleteItem(itm): void {
     if (itm.otype === 'File') {
       if (!confirm(itm.Key + '\nDo you really want to delete this file?')) { return; }
     } else {
       // tslint:disable-next-line: max-line-length
       if (!confirm(itm.Key + '\nNote: Folders must be empty before you can delete them.\nDo you really want to delete this folder?')) { return; }
     }
-    const that = this;
     this.setLoading(true);
     this.fileSVC.deleteFile(this.selectedBucket, itm.Key).then(
       (data: any) => {
-        that.listFiles(that.currentKey);
+        this.listFiles(this.currentKey);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while deleting file');
+        this.tabsSVC.printNotification('Error while deleting file');
         console.error(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
   btnBatchDeleteFiles(): void {
-    const that = this;
     const lstKeys = [];
-    this.viewList.forEach( f => {
+    this.viewList.forEach(f => {
       if (f.otype === 'File' && f.sel) { lstKeys.push(f.Key); }
     });
     if (lstKeys.length < 1) { return; }
@@ -134,34 +131,32 @@ export class ListFilesComponent implements OnInit {
     this.setLoading(true);
     this.fileSVC.batchDeleteFile(this.selectedBucket, lstKeys).then(
       (data: any) => {
-        that.listFiles(that.currentKey);
+        this.listFiles(this.currentKey);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while deleting file');
+        this.tabsSVC.printNotification('Error while deleting file');
         console.error(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
-  setSelectAll() {
-    const that = this;
+  setSelectAll(): void {
     if (!this.viewList || this.viewList.length < 1) { return; }
-    this.viewList.forEach( pg => {
-      if (pg.otype === 'File') { pg.sel = that.selectAll; }
+    this.viewList.forEach(pg => {
+      if (pg.otype === 'File') { pg.sel = this.selectAll; }
     });
   }
-  toKB(v: any) {
+  toKB(v: any): any {
     return Math.round((v / 1024));
   }
-  btnReloadDirectory() {
+  btnReloadDirectory(): void {
     this.listFiles(this.currentKey);
   }
-  btnCreateNewFolder() {
+  btnCreateNewFolder(): void {
     const folderName = prompt('Enter name of new folder', '');
     if (!folderName || folderName === '') { return; }
 
     // check if another entry with same name already exists
-    // tslint:disable-next-line: prefer-for-of
     for (let f = 0; f < this.viewList.length; f++) {
       if (this.viewList[f].label === folderName) {
         alert('An object with that name already exists!');
@@ -170,20 +165,19 @@ export class ListFilesComponent implements OnInit {
     }
 
     const newFolderKey = this.currentKey + folderName + '/';
-    const that = this;
     this.setLoading(true);
     this.fileSVC.createFolder(this.selectedBucket, newFolderKey).then(
       (data: any) => {
-        that.listFiles(that.currentKey);
+        this.listFiles(this.currentKey);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while creating folder');
+        this.tabsSVC.printNotification('Error while creating folder');
         console.error(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
-  btnShowFileUploadDialog(uplPath: string) {
+  btnShowFileUploadDialog(uplPath: string): void {
     const dialogRef = this.dialog.open(FileUploadDialogComponent, {
       width: '500px',
       data: { filelist: [], uplPath, targetEnv: this.selectedBucket }
@@ -193,7 +187,7 @@ export class ListFilesComponent implements OnInit {
       if (result && result.reload) { this.listFiles(this.currentKey); }
     });
   }
-  btnShowImageUploadDialog(uplPath: string) {
+  btnShowImageUploadDialog(uplPath: string): void {
     const dialogRef = this.dialog.open(ImgUploadDialogComponent, {
       width: '500px',
       data: { filelist: [], uplPath, targetEnv: this.selectedBucket, useDefaultUplPath: false }
@@ -203,23 +197,22 @@ export class ListFilesComponent implements OnInit {
       if (result && result.reload) { this.listFiles(this.currentKey); }
     });
   }
-  setLoading(on: boolean) {
+  setLoading(on: boolean): void {
     this.loading = on;
     this.tabsSVC.setLoading(on);
   }
 
-  loadConfig() {
-    const that = this;
+  loadConfig(): void {
     this.backendSVC.getConfig(false).then(
       (rc: any) => {
-        that.config = rc.cfg;
-        that.configLoaded = true;
-        that.tabsSVC.setLoading(false);
+        this.config = rc.cfg;
+        this.configLoaded = true;
+        this.tabsSVC.setLoading(false);
         // open default CDN bucket
-        const cdnBucket = that.getBucketByLabel('CDN');
+        const cdnBucket = this.getBucketByLabel('CDN');
         if (cdnBucket) {
-          that.selectedBucket = cdnBucket.bucketname;
-          that.listFiles('');
+          this.selectedBucket = cdnBucket.bucketname;
+          this.listFiles('');
         }
       },
       (err) => {
@@ -228,12 +221,28 @@ export class ListFilesComponent implements OnInit {
     );
   }
   getBucketByLabel(bLabel: string): any {
-    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < this.config.buckets.length; i++) {
       if (this.config.buckets[i].label === bLabel) {
         return this.config.buckets[i];
       }
     }
   }
-
+  btnInvalidateSelected(): void {
+    const lstKeys = [];
+    this.viewList.forEach(f => {
+      if (f.otype === 'File' && f.sel) { lstKeys.push( '/' + f.Key); }
+    });
+    if (lstKeys.length < 1) { return; }
+    this.btnOpenCFDialog(lstKeys);
+  }
+  btnOpenCFDialog(opaths): void {
+    if (!this.config.cfdists || this.config.cfdists.length < 1) {
+      alert('No CloudFront Distributions configured in settings page.');
+      return;
+    }
+    this.dialog.open(CFInvalidationDialogComponent, {
+      width: '450px', disableClose: false,
+      data: { cfdists: this.config.cfdists, opaths }
+    });
+  }
 }

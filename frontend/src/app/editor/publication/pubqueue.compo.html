@@ -1,10 +1,10 @@
 <div class="container">
     <div class="loaderOverlay" *ngIf="loading"></div>
     <div class="actionbar">
-        <button mat-stroked-button (click)="btnCFDialog(null)">
+        <button mat-stroked-button (click)="btnCFDialog(null)" title="Invalidate cache in CloudFront">
             <mat-icon>cloud_off</mat-icon> CloudFront invalidation..
         </button>
-        <button mat-stroked-button (click)="btnFeedDialog()">
+        <button mat-stroked-button (click)="btnFeedDialog()" title="Update and publish JSON/RSS feeds">
             <mat-icon>rss_feed</mat-icon> Publish feeds..
         </button>
         <button mat-stroked-button (click)="btnAddAllToPubQueue()">
