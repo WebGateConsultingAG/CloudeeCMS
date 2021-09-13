@@ -15,8 +15,9 @@
  *
  */
 
-import { Injectable, ApplicationRef } from '@angular/core';
-import { AmplifyService } from 'aws-amplify-angular';
+import { Injectable, ApplicationRef, ChangeDetectorRef } from '@angular/core';
+// import { AmplifyService } from '@aws-amplify/ui-angular';
+import { onAuthUIStateChange, CognitoUserInterface, AuthState } from '@aws-amplify/ui-components';
 import { Auth } from '@aws-amplify/auth';
 import { environment } from '../../environments/environment';
 
@@ -29,15 +30,17 @@ export class WGCCognitoService {
     public cognitoAllowUserPassLogin: boolean;
     public cognitoAllowOAuthLogin: boolean;
     public federatedLoginLabel: string;
+    public authState: AuthState;
 
     constructor(
-        private app: ApplicationRef,
-        private amplifyService: AmplifyService
+        //private app: ApplicationRef,
+     //   private ref: ChangeDetectorRef
+   //     private amplifyService: AmplifyService
     ) {
         this.cognitoAllowUserPassLogin = environment.cognitoAllowUserPassLogin;
         this.cognitoAllowOAuthLogin = environment.cognitoAllowOAuthLogin;
         this.federatedLoginLabel = environment.federatedLoginLabel || 'Single Sign On';
-        this.amplifyService.authStateChange$.subscribe((authState) => {
+        /*this.amplifyService.authStateChange$.subscribe((authState) => {
             console.log('authState', authState);
             // if (!authState.user || typeof authState.user.username === 'undefined') {
             if (authState.state === 'signedIn' || (authState.state === 'cognitoHostedUI' && authState.user ) ) {
@@ -49,7 +52,12 @@ export class WGCCognitoService {
                 this.user = null;
             }
             app.tick(); // update angular UI
-        });
+        });*/
+        onAuthUIStateChange((authState, authData) => {
+            this.authState = authState;
+            this.user = authData as CognitoUserInterface;
+         //   this.ref.detectChanges();
+          })
     }
 
     logout() {

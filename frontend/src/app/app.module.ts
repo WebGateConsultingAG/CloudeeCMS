@@ -89,7 +89,8 @@ import { FormsInboxComponent } from './form-inbox/formsinbox.compo';
 import { SubmittedFormComponent } from './form-inbox/submittedform.compo';
 import { SearchFilterPipe } from './utils/searchfilterpipe';
 import { BookmarkEditDialogComponent } from './settings/dialogs/bookmarkedit-dialog';
-import { AmplifyAngularModule, AmplifyService, AmplifyModules } from 'aws-amplify-angular';
+// import { AmplifyAngularModule, AmplifyService, AmplifyModules } from 'aws-amplify-angular';
+import { AmplifyUIAngularModule } from "@aws-amplify/ui-angular";
 import { Auth } from '@aws-amplify/auth';
 import { Interactions } from '@aws-amplify/interactions';
 import { WGCCognitoService } from './services/wgccognito.service';
@@ -168,7 +169,8 @@ import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconS
     DragDropModule,
     BrowserModule,
     FormsModule,
-    AmplifyAngularModule,
+    // AmplifyAngularModule,
+    AmplifyUIAngularModule,
     HttpClientModule,
     BrowserAnimationsModule,
     MatListModule,
@@ -244,9 +246,9 @@ import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconS
     FileAdminService,
     FileBrowserService,
     TabsNavService,
-    AmplifyService,
+    //AmplifyService,
     WGCCognitoService,
-    {
+    /*{
       provide: AmplifyService,
       useFactory: () => {
         return AmplifyModules({
@@ -254,7 +256,7 @@ import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconS
           Interactions
         });
       }
-    },
+    },*/
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: MyHttpInterceptor, multi: true },
   ],
