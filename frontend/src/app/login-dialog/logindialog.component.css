@@ -1,0 +1,5 @@
+.loginDialog { font-family: Roboto, "Helvetica Neue", sans-serif; }
+.full-width { width: 100%; }
+.warning { font-family: Roboto, "Helvetica Neue", sans-serif; padding: 7px 12px; border-radius: 24px; background-color: #ffa640; color: rgb(0, 0, 0); }
+.spinnerContainer { height: 120px; }
+.loginLogo { width: 100px; float: right; }

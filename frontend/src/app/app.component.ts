@@ -22,9 +22,9 @@ import { TabsNavService } from './services/tabs.service';
 import { environment } from '../environments/environment';
 import { AboutDialogComponent } from './settings/AboutDialog';
 import { MatDialog } from '@angular/material/dialog';
-import { WGCCognitoService } from './services/wgccognito.service';
 import { UpdaterDialogComponent } from './settings/dialogs/updater-dialog';
 import { FileBrowserService } from './services/filebrowser.service';
+import { UserLoginService } from './auth/userlogin.service';
 
 declare var window: any;
 declare var jQuery: any;
@@ -43,8 +43,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public tabsSVC: TabsNavService,
     private backendSVC: BackendService,
     public dialog: MatDialog,
-    public cognitoSVC: WGCCognitoService,
     private ngZone: NgZone,
+    private usrSVC: UserLoginService,
     private fileBrowserSVC: FileBrowserService
   ) { }
 
@@ -72,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.dialog.open(AboutDialogComponent, { width: '450px', disableClose: true });
   }
   waitForLogin(that) {
-    if (!that.configLoaded && that.cognitoSVC.signedIn) {
+    if (!that.configLoaded && that.usrSVC.isLoggedIn) {
       that.loadConfig();
       window.addEventListener('beforeunload', (event) => {
         if (this.tabsSVC.hasUnsavedTabs()) {
@@ -90,23 +90,22 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   loadConfig(): void {
-    const that = this;
     this.backendSVC.getConfig(false).then(
       (rc: any) => {
-        that.config = rc.cfg;
-        if (that.config.apptitle && that.config.apptitle !== '') {
-          that.apptitle = that.config.apptitle;
-          window.document.title = 'CloudeeCMS | ' + that.apptitle;
+        this.config = rc.cfg;
+        if (this.config.apptitle && this.config.apptitle !== '') {
+          this.apptitle = this.config.apptitle;
+          window.document.title = 'CloudeeCMS | ' + this.apptitle;
         }
-        that.configLoaded = true;
-        that.tabsSVC.setLoading(false);
-        that.loadNotifications();
+        this.configLoaded = true;
+        this.tabsSVC.setLoading(false);
+        this.loadNotifications();
 
         if (rc.userGroups) {
           console.log('UserGroups', rc.userGroups);
-          if (rc.userGroups.indexOf('CloudeeCMS-LayoutEditor') >= 0) { that.backendSVC.isLayoutEditor = true; }
-          if (rc.userGroups.indexOf('CloudeeCMS-UserAdmin') >= 0) { that.backendSVC.isUserAdmin = true; }
-          if (rc.userGroups.indexOf('CloudeeCMS-Admin') >= 0) { that.backendSVC.isAdmin = true; }
+          if (rc.userGroups.indexOf('CloudeeCMS-LayoutEditor') >= 0) { this.backendSVC.isLayoutEditor = true; }
+          if (rc.userGroups.indexOf('CloudeeCMS-UserAdmin') >= 0) { this.backendSVC.isUserAdmin = true; }
+          if (rc.userGroups.indexOf('CloudeeCMS-Admin') >= 0) { this.backendSVC.isAdmin = true; }
         }
       },
       (err) => {
@@ -115,10 +114,9 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
   loadNotifications(): void {
-    const that = this;
     this.backendSVC.getNotifications().then(
       (rc: any) => {
-        that.notifications = rc.notifications;
+        this.notifications = rc.notifications;
       },
       (err) => {
         console.log('Error while loading notifications', err);
@@ -133,7 +131,10 @@ export class AppComponent implements OnInit, OnDestroy {
       if (!confirm('There are unsaved changes.\nAre you sure you want to log out?')) { return false; }
     }
     this.tabsSVC.setIgnoreUnsavedChanges(true);
-    this.cognitoSVC.logout();
+    this.usrSVC.logout(true); // true = reload window after logout
+  }
+  btnShowLoginForm(): void {
+    this.tabsSVC.showLoginForm({ onSuccessReload: false });
   }
 
   // Export functions outside angular for trumbowyg plugins

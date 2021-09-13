@@ -19,47 +19,31 @@ mat-sidenav a { cursor: pointer; }
 .flxtabs .mat-tab-list, .flxtabs .mat-tab-body { background-color: #ffffff; }
 .flxtabs { margin-top: 7px; background-color: #f5f5f5; }
 .flxtabs .hasChanges { font-style: italic; border-bottom: 1px solid lightgray; }
-.loginpage { margin-left: auto; margin-right: auto; margin-top: 64px; 
-    width: 50%; min-width: 380px; background-color: white;
-    border: 1px solid #d6d3d3;
-    box-shadow: 0 1px 3px rgba(0,0,0,.16),5px 6px 12px rgba(0,0,0,.23);
-}
-.loginpage h2 { font-size: 20px; font-weight: normal; margin-top: 4px; }
-.loginpage .logintitle { 
-    border-bottom: 1px solid #d6d3d3;
+
+.centerContent { place-items: center; display: grid; }
+
+.loginpage {    
+    height: 100%;
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ffffff+0,ffffff+14,65ddff+100 */
     background: #ffffff; /* Old browsers */
-    background: -moz-linear-gradient(left, #ffffff 0%, #f1f1f1 16%, #e1e1e1 32%, #e1e1e1 32%, #f6f6f6 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(left, #ffffff 0%,#f1f1f1 16%,#e1e1e1 32%,#e1e1e1 32%,#f6f6f6 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to right, #ffffff 0%,#f1f1f1 16%,#e1e1e1 32%,#e1e1e1 32%,#f6f6f6 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=1 ); 
-    color: #616161;
-    padding: 9px 12px;
-    font-size: 18px;
+    background: -moz-linear-gradient(top,  #ffffff 0%, #ffffff 14%, #65ddff 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  #ffffff 0%,#ffffff 14%,#65ddff 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  #ffffff 0%,#ffffff 14%,#65ddff 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#65ddff',GradientType=0 ); /* IE6-9 */
 }
-.loginpage .logintitle img { width: 212px; margin-top: 4px; }
-.loginpage .loginblock { padding: 16px 12px; color: black; }
-.loginpage .amplify-form-input { border-radius: 3px; border: 1px solid #d6d3d3; padding: 7px; background-color: transparent; color: black; margin-bottom: 16px; width: 100%; }
-.loginpage .amplify-form-header { margin-bottom: 12px; }
-.loginpage .amplify-form-input::placeholder { color: rgb(83, 83, 83); }
-.loginpage button { margin-bottom: 10px; border-radius: 4px; background-color: rgb(69, 105, 151); color: white; border: 1px solid rgb(0, 0, 0); padding: 9px 14px; cursor: pointer; font-size: 14px; } 
-.loginpage button:hover { background-color: rgb(98, 126, 161); } 
-.loginpage .amplify-form-action, .loginpage .amplify-form-actions { font-size: 12px; color: rgb(104, 104, 104); }
+.loginpage .hdr-right { text-align: right; font-size: 12px; padding: 8px 12px; }
+.loginpage .hdr-right img { height: 12px; vertical-align: middle; margin-left: 3px;  }
+.loginpage .cloudeecmslogo { max-width: 257px; margin-top: 42px; }
+.loginpage .subtitle { color: #4184ca; font-size: 23px; text-shadow: #ffffff 0px 0px 3px; margin: 12px; }
+.loginpage .prompt { margin: 12px; font-size: 14px; }
 
-.loginpage .amplify-form-link { color: rgb(69, 105, 151); cursor: pointer; }
-.loginpage .amplify-form-link:focus { text-decoration: underline; }
-
-.loginpage .amplify-input-label[for="passwordField"] { display: none; }
-.loginpage .amplify-input-label[for="usernameField"] { display: none; }
-.loginpage .footer { text-align: right; margin: 3px 12px; font-size: 12px; color: #a0a0a0; border-top: 1px solid lightgray; padding: 3px 0; }
-.loginpage .footer img { height: 12px; vertical-align: middle; margin-left: 3px;  }
-
-.loginpage .amplify-form-cell-left { float: left; }
-.loginpage .amplify-form-cell-right { float: right; }
-
-.loginpage .amplify-alert { margin-top: 8px; font-size: 13px; background-color: #ffb000; padding: 3px 8px; float: left; border-radius: 3px; }
-.loginpage .amplify-alert-icon { float: left; margin-right: 8px; }
-.loginpage .amplify-alert-message { float: left; }
-.loginpage .amplify-alert-close {}
-
-.loginpage .oauth h2 { margin-top: 0; }
-.loginpage .oauth button { float: right; }
+.loginpage .loginButtons button { margin: 3px; min-width: 120px; 
+    transition: background-color 0.5s linear; border-radius: 16px; border: 1px solid #52aeff; color: white; font-weight: bold; 
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#52aeff+0,68cce8+100 */
+    background: #52aeff; /* Old browsers */
+    background: -moz-linear-gradient(left,  #52aeff 0%, #68cce8 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left,  #52aeff 0%,#68cce8 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right,  #52aeff 0%,#68cce8 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#52aeff', endColorstr='#68cce8',GradientType=1 ); /* IE6-9 */
+}
+.loginpage .loginButtons button:hover { color: white; background-color: #007ae3; border-color: black; transition: all 1s linear; }

@@ -1,0 +1,159 @@
+<div class="loginDialog">
+    <!-- login form -->
+    <div *ngIf="authresult==='' || authresult==='UserNotFoundException' || authresult==='NotAuthorizedException'">
+        <div mat-dialog-content>
+            <img src="./assets/img/CloudeeCMS.svg" class="loginLogo" alt="Logo" />
+            <h1 mat-dialog-title>Log in</h1>
+            <div *ngIf="!processLogin">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Username or email" autocomplete="username" [(ngModel)]="username" type="text" />
+                </mat-form-field>
+                <br />
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="Password" autocomplete="current-password" [(ngModel)]="pwd"
+                        type="password" (keydown)="loginKeyDown($event)" />
+                </mat-form-field>
+
+                <div *ngIf="loginMessage" class="warning">{{loginMessage}}</div>
+            </div>
+            <div *ngIf="processLogin" class="spinnerContainer">
+                <mat-spinner diameter="30" style="margin: auto;"></mat-spinner>
+            </div>
+        </div>
+        <div mat-dialog-actions>
+            <div *ngIf="!processLogin" style="width: 100%;">
+                <button mat-flat-button color="primary" (click)="doLogin()">Log in</button>
+                <button mat-button (click)="doClose()">Cancel</button>
+                <button mat-button (click)="btnForgotPassword()">
+                    Forgot password?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOTP authenticator token or SMS token required -->
+    <div *ngIf="authresult==='SOFTWARE_TOKEN_MFA' || authresult==='SMS_MFA'">
+        <div mat-dialog-content>
+            <p *ngIf="authresult==='SOFTWARE_TOKEN_MFA'">Please enter the code displayed in your authenticator app.</p>
+            <p *ngIf="authresult==='SMS_MFA'">Please enter the SMS code sent to you.</p>
+            <br />
+            <mat-form-field style="width: 100%">
+                <input matInput placeholder="Enter code" [(ngModel)]="confirmationCode" type="text"
+                    (keydown)="TOTPKeyDown($event)" />
+            </mat-form-field>
+            <div *ngIf="loginMessage" class="warning">
+                {{loginMessage}}
+            </div>
+        </div>
+        <div mat-dialog-actions>
+            <div *ngIf="!processLogin">
+                <button mat-flat-button color="primary" *ngIf="data.confirmationCode!==''"
+                    (click)="btnSubmitTOTPCode()">Submit</button>
+                <button mat-button (click)="doClose()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOTP authenticator is not yet configured -->
+    <div *ngIf="authresult==='MFA_SETUP'">
+        <div mat-dialog-content>
+            Your authenticator device needs to be configured.<br/>
+            Press continue to proceed to the configuration page.
+        </div>
+        <div mat-dialog-actions>
+            <div *ngIf="!processLogin">
+                <button mat-flat-button color="primary" (click)="btnTOTPSetup()">Continue</button>
+                <button mat-button (click)="doClose()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- signup confirmation code required -->
+    <div *ngIf="authresult==='UserNotConfirmedException'">
+        <div mat-dialog-content>
+            <p>Please enter the verification code which has been sent to you by email.</p>
+            <br />
+            <mat-form-field style="width: 100%">
+                <input matInput placeholder="verification code" [(ngModel)]="confirmationCode" type="text" />
+            </mat-form-field>
+            <div *ngIf="loginMessage" class="warning">
+                {{loginMessage}}
+            </div>
+        </div>
+        <div mat-dialog-actions>
+            <div *ngIf="!processLogin">
+                <button mat-button color="primary" style="float: right;"
+                    (click)="btnRequestNewConfirmationCde()">Request new code</button>
+                <button mat-flat-button color="primary" (click)="btnConfirmSignupCode()">Confirm</button>
+                <button mat-button (click)="doClose()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- password reset required -->
+    <div *ngIf="authresult==='PasswordResetRequiredException'">
+        <div mat-dialog-content>
+            <p>You must reset your password. Please enter a new password and the code received by email, or request a new code by clicking the respective button.</p>
+            <p>The password must consist of upper-/lowercase, numeric and special characters.</p>
+            <br />
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Password" [type]="hidepwd ? 'password' : 'text'" [(ngModel)]="newPwd1"
+                    required />
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd"> {{ hidepwd ? 'visibility' : 'visibility_off' }}
+                </mat-icon>
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Repeat password" [type]="hidepwd ? 'password' : 'text'"
+                    [(ngModel)]="newPwd2" required />
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd"> {{ hidepwd ? 'visibility' : 'visibility_off' }}
+                </mat-icon>
+            </mat-form-field>
+            <mat-form-field style="width: 100%">
+                <input matInput placeholder="verification code" [(ngModel)]="confirmationCode" type="text" />
+            </mat-form-field>
+            <div *ngIf="loginMessage" class="warning">
+                {{loginMessage}}
+            </div>
+        </div>
+        <div mat-dialog-actions>
+            <div *ngIf="!processLogin">
+                <button mat-button color="primary" style="float: right;"
+                    (click)="btnRequestNewConfirmationCde()">Request new code</button>
+                <button mat-flat-button color="primary" (click)="btnSubmitPasswordReset()">Confirm</button>
+                <button mat-button (click)="doClose()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- new password required -->
+    <div *ngIf="authresult==='NEW_PASSWORD_REQUIRED'">
+        <div mat-dialog-content>
+            <p>Please enter a new password for your account.</p>
+            <p>The password must consist of upper-/lowercase, numeric and special characters.</p>
+            <br />
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Password" [type]="hidepwd ? 'password' : 'text'" [(ngModel)]="newPwd1"
+                    required />
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd"> {{ hidepwd ? 'visibility' : 'visibility_off' }}
+                </mat-icon>
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input matInput placeholder="Repeat password" [type]="hidepwd ? 'password' : 'text'"
+                    [(ngModel)]="newPwd2" required />
+                <mat-icon matSuffix (click)="hidepwd = !hidepwd"> {{ hidepwd ? 'visibility' : 'visibility_off' }}
+                </mat-icon>
+            </mat-form-field>
+            <div *ngIf="loginMessage" class="warning">
+                {{loginMessage}}
+            </div>
+        </div>
+        <div mat-dialog-actions>
+            <div *ngIf="!processLogin">
+                <button mat-flat-button color="primary" (click)="btnSubmitNewPassword()">Confirm</button>
+                <button mat-button (click)="doClose()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+</div>

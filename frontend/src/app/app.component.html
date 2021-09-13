@@ -1,20 +1,26 @@
-<div class="loginpage" *ngIf="!cognitoSVC.signedIn">
-  <div class="logintitle"><img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" /></div>
-  <div class="loginblock" *ngIf="cognitoSVC.cognitoAllowUserPassLogin">
-    <amplify-authenticator [hide]="['Greetings','SignUp','ConfirmSignUp']"></amplify-authenticator>
-    <div style="clear: both;"></div>
+<div class="loginpage" *ngIf="!usrSVC.isLoggedIn">
+  <div class="hdr-right">
+    CloudeeCMS editor - Open Source built by <a href="https://www.webgate.biz" target="_blank"><img
+        alt="WebGate Consulting AG" src="assets/img/WebGateLogo.svg" /></a>
   </div>
-  <div class="loginblock oauth" *ngIf="cognitoSVC.cognitoAllowOAuthLogin">
-    <button (click)="cognitoSVC.openFederatedLogin()">Sign In</button>
-    <h2>Sign in with {{cognitoSVC.federatedLoginLabel}}</h2>
-    <div style="clear: both;"></div>
-  </div>
-  <div class="footer">
-    CloudeeCMS - by <a href="https://www.webgate.biz" target="_blank"><img alt="WebGate Consulting AG" src="assets/img/WebGateLogo.svg" /></a>
+  <div class="centerContent">
+    <img src="assets/img/CloudeeCMS-v0bb.svg" alt="CloudeeCMS" class="cloudeecmslogo" />
+    <div class="subtitle">
+      Serverless Web Content Management
+    </div>
+    <div class="prompt">You're not logged in</div>
+    <div class="loginButtons">
+      <button mat-flat-button (click)="btnShowLoginForm()" *ngIf="usrSVC.cognitoAllowUserPassLogin">
+        Log in
+      </button>
+      <button mat-flat-button (click)="usrSVC.openFederatedLogin()" *ngIf="usrSVC.cognitoAllowOAuthLogin">
+        Log in with {{usrSVC.federatedLoginLabel}}
+      </button>
+    </div>
   </div>
 </div>
 
-<ng-container *ngIf="cognitoSVC.signedIn">
+<ng-container *ngIf="usrSVC.isLoggedIn">
   <mat-sidenav-container style="height: 100%;">
     <mat-sidenav #sidenav mode="over" fixedInViewport>
       <mat-toolbar>
@@ -32,13 +38,16 @@
         <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/pubqueue')">
           <mat-icon matListIcon>library_books</mat-icon> Publication Queue
         </a>
-        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/layouts')" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/layouts')"
+          *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
           <mat-icon matListIcon>table_chart</mat-icon> Layouts
         </a>
-        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/blocks')" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/blocks')"
+          *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
           <mat-icon matListIcon>art_track</mat-icon> Layout Blocks
         </a>
-        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/microtemplates')" *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
+        <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/microtemplates')"
+          *ngIf="backendSVC.isLayoutEditor || backendSVC.isAdmin">
           <mat-icon matListIcon>dns</mat-icon> Micro Templates
         </a>
         <a mat-list-item role="navigation" (click)="btnNavigateTo('editor/fileexplorer')">
@@ -88,11 +97,19 @@
             </mat-menu>
 
             <mat-menu #notifyMenu="matMenu">
-                <div *ngFor="let nEntry of notifications">
-                  <button *ngIf="nEntry.otype==='button'" mat-button class="mat-menu-item"><mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}</button>
-                  <button *ngIf="nEntry.otype==='updateavailable'" mat-button class="mat-menu-item" (click)="btnShowUpdater()"><mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}</button>
-                  <a *ngIf="nEntry.otype==='link'" class="mat-button mat-menu-item" href="{{nEntry.webURL}}" target="_blank"><mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}</a>
-                </div>
+              <div *ngFor="let nEntry of notifications">
+                <button *ngIf="nEntry.otype==='button'" mat-button class="mat-menu-item">
+                  <mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}
+                </button>
+                <button *ngIf="nEntry.otype==='updateavailable'" mat-button class="mat-menu-item"
+                  (click)="btnShowUpdater()">
+                  <mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}
+                </button>
+                <a *ngIf="nEntry.otype==='link'" class="mat-button mat-menu-item" href="{{nEntry.webURL}}"
+                  target="_blank">
+                  <mat-icon>{{nEntry.icon}}</mat-icon> {{nEntry.label}}
+                </a>
+              </div>
             </mat-menu>
 
             <mat-menu #linksMenu="matMenu">
@@ -112,21 +129,24 @@
               </button>
               <div *ngIf="config && config.buckets">
                 <a *ngFor="let bucket of config.buckets | orderBy: {property: 'label', direction: 1}"
-                  class="mat-button mat-menu-item" href="{{bucket.webURL}}index.html" target="_blank">Open {{bucket.label}}</a>
+                  class="mat-button mat-menu-item" href="{{bucket.webURL}}index.html" target="_blank">Open
+                  {{bucket.label}}</a>
               </div>
             </mat-menu>
 
             <mat-menu #userMenu="matMenu">
               <button mat-button class="mat-menu-item" (click)="tabsSVC.navigateTo('myprofile')"
                 title="Edit user profile">
-                <mat-icon>person</mat-icon> {{ cognitoSVC.username }}
+                <mat-icon>person</mat-icon> {{ usrSVC.username }}
               </button>
-              <button mat-button class="mat-menu-item" (click)="tabsSVC.navigateTo('useradmin')" *ngIf="backendSVC.isUserAdmin">
+              <button mat-button class="mat-menu-item" (click)="tabsSVC.navigateTo('useradmin')"
+                *ngIf="backendSVC.isUserAdmin">
                 <mat-icon>supervisor_account</mat-icon> User Administration
               </button>
               <button mat-button class="mat-menu-item" (click)="toggleDarkMode()"
                 title="Switch between bright and dark mode">
-                <mat-icon>{{darkMode?'toggle_on':'toggle_off'}}</mat-icon> Switch to {{darkMode?'bright mode':'dark mode'}}
+                <mat-icon>{{darkMode?'toggle_on':'toggle_off'}}</mat-icon> Switch to {{darkMode?'bright mode':'dark
+                mode'}}
               </button>
               <button mat-button class="mat-menu-item" (click)="btnLogout()">
                 <mat-icon>exit_to_app</mat-icon> Logout
@@ -166,11 +186,12 @@
 
           <ng-template mat-tab-label>
             <mat-icon class="tabIcon" *ngIf="tab.icon">{{tab.icon}}</mat-icon>
-            <span class="tabtitle{{tab.hasChanges?' hasChanges':''}}" title="{{tab.hasChanges?'Contains unsaved changes':''}}">{{tab.title.substring(0, 25)}}</span>
+            <span class="tabtitle{{tab.hasChanges?' hasChanges':''}}"
+              title="{{tab.hasChanges?'Contains unsaved changes':''}}">{{tab.title.substring(0, 25)}}</span>
             <mat-icon class="closeIcon" *ngIf="i==tabsSVC.selectedTabIndex && !tab.preventClose"
               (click)="tabsSVC.closeTab(i)" title="Close this tab">close</mat-icon>
           </ng-template>
-        
+
           <app-home *ngIf="tab.compo==='app-home'"></app-home>
           <app-settings *ngIf="tab.compo==='app-settings'"></app-settings>
           <app-pages *ngIf="tab.compo==='app-pages'"></app-pages>
@@ -189,9 +210,10 @@
           <app-blockedit *ngIf="tab.compo==='app-blockedit'" [docid]=tab.docid [tabid]=tab.tabid></app-blockedit>
           <app-mtedit *ngIf="tab.compo==='app-mtedit'" [docid]=tab.docid [tabid]=tab.tabid></app-mtedit>
           <app-formedit *ngIf="tab.compo==='app-formedit'" [docid]=tab.docid [tabid]=tab.tabid></app-formedit>
-          <app-submittedform *ngIf="tab.compo==='app-submittedform'" [docid]=tab.docid [tabid]=tab.tabid></app-submittedform>
+          <app-submittedform *ngIf="tab.compo==='app-submittedform'" [docid]=tab.docid [tabid]=tab.tabid>
+          </app-submittedform>
           <app-fileeditor *ngIf="tab.compo==='app-fileeditor'" [docid]=tab.docid [tabid]=tab.tabid></app-fileeditor>
-          
+
         </mat-tab>
       </mat-tab-group>
 

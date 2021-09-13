@@ -121,36 +121,33 @@ export class BackendService {
             });
     }
     public getAllBlocks(forceUpdate: boolean) {
-        const that = this;
         if (forceUpdate || !this.lstBlocks) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getallblocks' }).toPromise().then((result: any) => {
-                    that.lstBlocks = result.data || null;
-                    return that.lstBlocks;
+                    this.lstBlocks = result.data || null;
+                    return this.lstBlocks;
                 });
         } else {
             return new Promise<any>((resolve, reject) => { resolve(this.lstBlocks); });
         }
     }
     public getAllMicroTemplates(forceUpdate) {
-        const that = this;
         if (forceUpdate || !this.lstMicroTemplates) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getallmt' }).toPromise().then((result: any) => {
-                    that.lstMicroTemplates = result.data || null;
-                    return that.lstMicroTemplates;
+                    this.lstMicroTemplates = result.data || null;
+                    return this.lstMicroTemplates;
                 });
         } else {
             return new Promise<any>((resolve, reject) => { resolve(this.lstMicroTemplates); });
         }
     }
     public getAllPages(forceUpdate) {
-        const that = this;
         if (forceUpdate || !this.lstPages) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getallpages' }).toPromise().then((result: any) => {
-                    that.lstPages = result.data || null;
-                    return that.lstPages;
+                    this.lstPages = result.data || null;
+                    return this.lstPages;
                 });
         } else {
             return new Promise<any>((resolve, reject) => { resolve(this.lstPages); });
@@ -169,24 +166,22 @@ export class BackendService {
             });
     }
     public getAllLayouts(forceUpdate: boolean) {
-        const that = this;
         if (forceUpdate || !this.lstLayouts) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getalllayouts' }).toPromise().then((result: any) => {
-                    that.lstLayouts = result.data || null;
-                    return that.lstLayouts;
+                    this.lstLayouts = result.data || null;
+                    return this.lstLayouts;
                 });
         } else {
             return new Promise<any>((resolve, reject) => { resolve(this.lstLayouts); });
         }
     }
     public getAllForms(forceUpdate: boolean) {
-        const that = this;
         if (forceUpdate || !this.lstForms) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getallforms' }).toPromise().then((result: any) => {
-                    that.lstForms = result.data || null;
-                    return that.lstForms;
+                    this.lstForms = result.data || null;
+                    return this.lstForms;
                 });
         } else {
             return new Promise<any>((resolve, reject) => { resolve(this.lstForms); });
@@ -244,16 +239,15 @@ export class BackendService {
             });
     }
     public getConfig(forceUpdate: boolean) {
-        const that = this;
         if (forceUpdate || !this.configDoc) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getconfig' }).toPromise().then((result: any) => {
-                    that.configDoc = result.data || null;
-                    that.configLoaded = true;
-                    return that.configDoc;
+                    this.configDoc = result.data || null;
+                    this.configLoaded = true;
+                    return this.configDoc;
                 });
         } else {
-            return new Promise<any>((resolve, reject) => { resolve(that.configDoc); });
+            return new Promise<any>((resolve, reject) => { resolve(this.configDoc); });
         }
     }
     public saveConfig(conf: any) {
@@ -264,15 +258,14 @@ export class BackendService {
             });
     }
     public getImageProfiles(forceUpdate: boolean) {
-        const that = this;
         if (forceUpdate || !this.imageProfiles) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getimageprofiles' }).toPromise().then((result: any) => {
-                    that.imageProfiles = result.data || null;
-                    return that.imageProfiles;
+                    this.imageProfiles = result.data || null;
+                    return this.imageProfiles;
                 });
         } else {
-            return new Promise<any>((resolve, reject) => { resolve(that.imageProfiles); });
+            return new Promise<any>((resolve, reject) => { resolve(this.imageProfiles); });
         }
     }
     public saveImageProfiles(imageProfiles: any) {

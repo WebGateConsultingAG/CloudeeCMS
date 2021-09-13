@@ -89,11 +89,6 @@ import { FormsInboxComponent } from './form-inbox/formsinbox.compo';
 import { SubmittedFormComponent } from './form-inbox/submittedform.compo';
 import { SearchFilterPipe } from './utils/searchfilterpipe';
 import { BookmarkEditDialogComponent } from './settings/dialogs/bookmarkedit-dialog';
-// import { AmplifyAngularModule, AmplifyService, AmplifyModules } from 'aws-amplify-angular';
-import { AmplifyUIAngularModule } from "@aws-amplify/ui-angular";
-import { Auth } from '@aws-amplify/auth';
-import { Interactions } from '@aws-amplify/interactions';
-import { WGCCognitoService } from './services/wgccognito.service';
 import { PasswordChangeDialogComponent } from './useradmin/dialogs/pwdchange-dialog';
 import { ImportDialogComponent } from './settings/dialogs/restore-dialog';
 import { GroupAddDialogComponent } from './useradmin/dialogs/addgroup-dialog';
@@ -110,6 +105,8 @@ import { ImgUploadDialogComponent } from './editor/fileexplorer/imageuploader/Im
 import { FeedEditDialogComponent } from './settings/dialogs/feededit-dialog';
 import { FeedPublishDialogComponent } from './editor/publication/dialogs/FeedPublishDialog';
 import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconSelectDialog';
+import { UserLoginService } from './auth/userlogin.service';
+import { LoginDialogComponent } from './login-dialog/logindialog.component';
 
 @NgModule({
   declarations: [
@@ -163,14 +160,13 @@ import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconS
     GlobalFunctionEditDialogComponent,
     ImportDialogComponent,
     OrderByPipe,
+    LoginDialogComponent,
     TreeViewComponent
   ],
   imports: [
     DragDropModule,
     BrowserModule,
     FormsModule,
-    // AmplifyAngularModule,
-    AmplifyUIAngularModule,
     HttpClientModule,
     BrowserAnimationsModule,
     MatListModule,
@@ -246,17 +242,7 @@ import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconS
     FileAdminService,
     FileBrowserService,
     TabsNavService,
-    //AmplifyService,
-    WGCCognitoService,
-    /*{
-      provide: AmplifyService,
-      useFactory: () => {
-        return AmplifyModules({
-          Auth,
-          Interactions
-        });
-      }
-    },*/
+    UserLoginService,
     AuthGuard,
     { provide: HTTP_INTERCEPTORS, useClass: MyHttpInterceptor, multi: true },
   ],

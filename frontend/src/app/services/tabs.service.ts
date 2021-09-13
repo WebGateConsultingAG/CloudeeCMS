@@ -18,6 +18,8 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { environment } from 'src/environments/environment';
+import { LoginDialogComponent } from '../login-dialog/logindialog.component';
 
 @Injectable()
 export class TabsNavService {
@@ -193,5 +195,19 @@ export class TabsNavService {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         }
         return s4() + s4();
+    }
+    public showLoginForm(opts: any): void {
+        const lastuser = localStorage.getItem(environment.lastuservar) || '';
+        const dialogRef = this.dialog.open(LoginDialogComponent, { width: '450px', disableClose: true, data: { email: lastuser } });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result.action === 'close') { return; }
+            if (result.action === 'success') {
+                if (opts.onSuccessReload) {
+                    console.log('reloading window after login');
+                    window.location.reload();
+                }
+            }
+        });
     }
 }

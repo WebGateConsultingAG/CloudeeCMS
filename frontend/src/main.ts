@@ -7,7 +7,7 @@ import { environment } from './environments/environment';
 
 // AWS Amplify for Cognito
 import Amplify from '@aws-amplify/core';
-import awsconfig from './aws-config';
+import awsconfig from './app/auth/aws-config';
 Amplify.configure({ Auth: awsconfig });
 
 if (environment.production) {

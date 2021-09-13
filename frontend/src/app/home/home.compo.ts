@@ -15,7 +15,7 @@
  *
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { TabsNavService } from '../services/tabs.service';
 import { BackendService } from '../services/backend.service';
 
@@ -25,13 +25,11 @@ import { BackendService } from '../services/backend.service';
   styleUrls: ['./home.compo.css']
 })
 
-export class HomeComponent implements OnInit {
+export class HomeComponent {
 
   constructor(
     public tabsSVC: TabsNavService,
     public backendSVC: BackendService
   ) { }
-
-  ngOnInit() { }
 
 }

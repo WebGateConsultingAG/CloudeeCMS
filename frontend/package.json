@@ -27,7 +27,6 @@
     "@angular/platform-browser": "~12.2.5",
     "@angular/platform-browser-dynamic": "~12.2.5",
     "@angular/router": "~12.2.5",
-    "@aws-amplify/ui-angular": "^1.0.24",
     "aws-amplify": "^4.2.9",
     "jquery": "^3.4.1",
     "ngx-trumbowyg": "^6.0.7",
