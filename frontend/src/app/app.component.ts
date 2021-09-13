@@ -37,14 +37,14 @@ declare var jQuery: any;
 })
 
 export class AppComponent implements OnInit, OnDestroy {
-  @ViewChild('sidenav', null) public sidenav: MatSidenav;
+  @ViewChild('sidenav', {}) public sidenav: MatSidenav;
 
   constructor(
     public tabsSVC: TabsNavService,
     private backendSVC: BackendService,
     public dialog: MatDialog,
     private ngZone: NgZone,
-    private usrSVC: UserLoginService,
+    public usrSVC: UserLoginService,
     private fileBrowserSVC: FileBrowserService
   ) { }
 
