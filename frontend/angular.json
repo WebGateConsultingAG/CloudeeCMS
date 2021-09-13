@@ -37,7 +37,13 @@
               "./node_modules/jquery/dist/jquery.js",
               "./node_modules/trumbowyg/dist/trumbowyg.min.js",
               "./node_modules/trumbowyg/dist/plugins/fontsize/trumbowyg.fontsize.min.js"
-            ]
+            ],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -63,7 +69,8 @@
                 }
               ]
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
