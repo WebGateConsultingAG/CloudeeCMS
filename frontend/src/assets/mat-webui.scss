@@ -1,18 +1,18 @@
-@import '~@angular/material/theming';
-@include mat-core();
+@use '~@angular/material' as mat;
+@include mat.core();
 
-$wgc-primary: mat-palette($mat-indigo, 700, 200, A700);
-$wgc-accent: mat-palette($mat-grey);
-$wgc-warn: mat-palette($mat-indigo);
+$wgc-primary: mat.define-palette(mat.$indigo-palette, 700, 200, A700);
+$wgc-accent: mat.define-palette(mat.$grey-palette);
+$wgc-warn: mat.define-palette(mat.$indigo-palette);
 
-$wgc-theme: mat-light-theme($wgc-primary, $wgc-accent, $wgc-warn);
+$wgc-theme: mat.define-light-theme($wgc-primary, $wgc-accent, $wgc-warn);
 
-$dark-primary: mat-palette($mat-red);
-$dark-accent:  mat-palette($mat-amber, A200, A100, A400);
-$dark-warn:    mat-palette($mat-deep-orange);
-$dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+$dark-primary: mat.define-palette(mat.$red-palette);
+$dark-accent:  mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$dark-warn:    mat.define-palette(mat.$deep-orange-palette);
+$dark-theme: mat.define-dark-theme($dark-primary, $dark-accent, $dark-warn);
 
-@include angular-material-theme($wgc-theme);
+@include mat.all-component-themes($wgc-theme);
 
 .fixedAppHeader { overflow-y: hidden; } /* apply this to the html.BODY tag to enable scrollable tab bodies */
 .fixedAppHeader .flxtabs { height: 100%; overflow-y: auto; background-color: white; } /* scrollbar in tab body. height set using javascript onresize! */
@@ -188,7 +188,7 @@ body.wgc { background-color: #f5f5f5; }
 
 /* Dark Mode Theme */
 
-.dm { @include angular-material-theme($dark-theme); }
+.dm { @include mat.all-component-themes($dark-theme); }
 .dm .flxtabs { background-color: #353535; }
 .dm .mat-sidenav-content { background-color: #353535; }
 .dm .flxtabs .mat-tab-label { background-color: #696969; border: 1px solid #989898 !important;}
