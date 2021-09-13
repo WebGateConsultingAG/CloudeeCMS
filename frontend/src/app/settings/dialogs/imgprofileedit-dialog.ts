@@ -24,7 +24,7 @@ import { ImageConversion } from './ImageConversion';
     selector: 'app-imgprofileedit-dialog',
     templateUrl: 'imgprofileedit-dialog.html',
     // tslint:disable-next-line: max-line-length
-    styles: [`.chkboxfield { font-size: 12px; } .linebox { border: 1px solid grey; padding: 6px; border-radius: 4px; } .linebox h4 { margin-top: 0; } .viewTable thead th { font-size: 12px; }  } button { margin-right: 6px;}`]
+    styles: [`.chkboxfield { font-size: 12px; } .linebox { border: 1px solid grey; padding: 6px; border-radius: 4px; } .linebox h4 { margin-top: 0; } .viewTable thead th { font-size: 12px; } button { margin-right: 6px; }`]
 })
 
 export class ImageProfileEditDialogComponent implements OnInit {
@@ -41,17 +41,17 @@ export class ImageProfileEditDialogComponent implements OnInit {
     cmode = 1; // list or edit image conversions
 
     lstFormats = [
-        { val: '', label: '- Do not convert -'},
-        { val: 'jpg', label: 'JPEG'},
-        { val: 'webp', label: 'WebP'},
-        { val: 'png', label: 'PNG'}
+        { val: '', label: '- Do not convert -' },
+        { val: 'jpg', label: 'JPEG' },
+        { val: 'webp', label: 'WebP' },
+        { val: 'png', label: 'PNG' }
     ];
     lstResizeOpts = [
-        { val: 'cover', label: 'Cover (default) - Crop to fit, preserve aspect ratio'},
-        { val: 'contain', label: 'Contain - Letterbox fit, preserve aspect ratio'},
-        { val: 'fill', label: 'Fill - Stretch to fit, ignore aspect ratio'},
-        { val: 'inside', label: 'Inside - Large as possible, preserve aspect ratio'},
-        { val: 'outside', label: 'Outside - Small as possible, preserve aspect ratio'}
+        { val: 'cover', label: 'Cover (default) - Crop to fit, preserve aspect ratio' },
+        { val: 'contain', label: 'Contain - Letterbox fit, preserve aspect ratio' },
+        { val: 'fill', label: 'Fill - Stretch to fit, ignore aspect ratio' },
+        { val: 'inside', label: 'Inside - Large as possible, preserve aspect ratio' },
+        { val: 'outside', label: 'Outside - Small as possible, preserve aspect ratio' }
     ];
     lstCCMaxAge = [
         { label: '1 day', val: '86400' },
@@ -93,7 +93,7 @@ export class ImageProfileEditDialogComponent implements OnInit {
     }
     validateInput(): boolean {
         if (this.pathHint !== '') {
-            alert( 'Upload path: ' + this.pathHint );
+            alert('Upload path: ' + this.pathHint);
             return false;
         } else if (!this.imgp.tpath || this.imgp.tpath === '') {
             alert('Please specify a default upload path!');
@@ -145,16 +145,16 @@ export class ImageProfileEditDialogComponent implements OnInit {
         this.cmode = 1;
     }
     btnDeleteImageConversion() {
-        if (!confirm('Do you want to remove this entry?'))  { return; }
+        if (!confirm('Do you want to remove this entry?')) { return; }
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this.imgp.conversions.length; i++) {
             if (this.imgp.conversions[i] === this.imgc) {
-              this.imgp.conversions.splice(i, 1);
-              this.imgc = null;
-              this.cmode = 1;
-              return;
+                this.imgp.conversions.splice(i, 1);
+                this.imgc = null;
+                this.cmode = 1;
+                return;
             }
-          }
+        }
         this.cmode = 1;
     }
 }

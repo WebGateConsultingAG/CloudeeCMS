@@ -33,6 +33,16 @@
               "src/styles.scss",
               "src/assets/mat-webui.scss"
             ],
+            "allowedCommonJsDependencies": [
+              "crypto-js",
+              "@aws-crypto",
+              "@aws-crypto/crc32",
+              "@aws-crypto/sha256-browser",
+              "@aws-crypto/sha256-js",
+              "lodash",
+              "uuid",
+              "forkJoin"
+            ],
             "scripts": [
               "./node_modules/jquery/dist/jquery.js",
               "./node_modules/trumbowyg/dist/trumbowyg.min.js",
