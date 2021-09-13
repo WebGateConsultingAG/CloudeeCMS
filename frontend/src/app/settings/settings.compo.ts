@@ -19,7 +19,7 @@ import { Component, OnInit } from '@angular/core';
 import { BackendService } from '../services/backend.service';
 import { TabsNavService } from '../services/tabs.service';
 import { BucketEditDialogComponent } from './dialogs/bucketedit-dialog';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { CFDistEditDialogComponent } from './dialogs/cfdistedit-dialog';
 import { BookmarkEditDialogComponent } from './dialogs/bookmarkedit-dialog';
 import { ImportDialogComponent } from './dialogs/restore-dialog';

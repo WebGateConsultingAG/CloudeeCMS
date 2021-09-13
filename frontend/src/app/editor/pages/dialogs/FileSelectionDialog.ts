@@ -17,7 +17,7 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { FileAdminService } from 'src/app/services/fileadmin.service';
 import { BackendService } from 'src/app/services/backend.service';
 

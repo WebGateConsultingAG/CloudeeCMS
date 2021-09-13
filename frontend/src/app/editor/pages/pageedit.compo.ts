@@ -18,7 +18,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BackendService } from 'src/app/services/backend.service';
 import { Page } from './page';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { PublishDialogComponent } from './dialogs/PublishDialog';
 import { MTSelectDialogComponent } from './dialogs/MTSelectDialog';
 import { MTContentDialogComponent } from './dialogs/MTContentDialog';

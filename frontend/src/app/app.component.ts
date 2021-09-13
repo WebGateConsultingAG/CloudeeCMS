@@ -16,12 +16,12 @@
  */
 
 import { Component, ViewChild, OnInit, ViewEncapsulation, OnDestroy, NgZone } from '@angular/core';
-import { MatSidenav } from '@angular/material';
+import { MatSidenav } from '@angular/material/sidenav';
 import { BackendService } from './services/backend.service';
 import { TabsNavService } from './services/tabs.service';
 import { environment } from '../environments/environment';
 import { AboutDialogComponent } from './settings/AboutDialog';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { WGCCognitoService } from './services/wgccognito.service';
 import { UpdaterDialogComponent } from './settings/dialogs/updater-dialog';
 import { FileBrowserService } from './services/filebrowser.service';

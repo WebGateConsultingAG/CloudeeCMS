@@ -18,7 +18,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { TabsNavService } from 'src/app/services/tabs.service';
 import { FileAdminService } from 'src/app/services/fileadmin.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { CFInvalidationDialogComponent } from '../../publication/dialogs/CFInvalidationDialog';
 import { BackendService } from 'src/app/services/backend.service';
 

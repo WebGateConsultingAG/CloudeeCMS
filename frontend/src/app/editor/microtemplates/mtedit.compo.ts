@@ -18,7 +18,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BackendService } from 'src/app/services/backend.service';
 import { MicroTemplate } from './MicroTemplate';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { LayoutFieldDialogComponent } from '../layouts/dialogs/layoutfield.dialog';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { TabsNavService } from 'src/app/services/tabs.service';

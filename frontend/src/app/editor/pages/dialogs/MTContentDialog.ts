@@ -17,7 +17,7 @@
 
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { MTSelectDialogComponent } from '../dialogs/MTSelectDialog';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FileSelectionDialogComponent } from './FileSelectionDialog';

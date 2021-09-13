@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { MTContentDialogComponent } from './dialogs/MTContentDialog';
 import { MTSelectDialogComponent } from './dialogs/MTSelectDialog';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';

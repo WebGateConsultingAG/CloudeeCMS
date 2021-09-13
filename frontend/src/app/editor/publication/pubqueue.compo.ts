@@ -18,7 +18,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendService } from 'src/app/services/backend.service';
 import { TabsNavService } from 'src/app/services/tabs.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { BulkPublishDialogComponent } from './dialogs/BulkPublishDialog';
 import { CFInvalidationDialogComponent } from './dialogs/CFInvalidationDialog';
 import { FeedPublishDialogComponent } from './dialogs/FeedPublishDialog';
