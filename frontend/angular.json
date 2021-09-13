@@ -34,6 +34,7 @@
               "src/assets/mat-webui.scss"
             ],
             "allowedCommonJsDependencies": [
+              "buffer",
               "crypto-js",
               "@aws-crypto",
               "@aws-crypto/crc32",
@@ -41,7 +42,11 @@
               "@aws-crypto/sha256-js",
               "lodash",
               "uuid",
-              "rxjs/observable/forkJoin"
+              "ulid",
+              "fast-xml-parser",
+              "isomorphic-unfetch",
+              "rxjs/observable/forkJoin",
+              "rxjs/Subject"
             ],
             "scripts": [
               "./node_modules/jquery/dist/jquery.js",
