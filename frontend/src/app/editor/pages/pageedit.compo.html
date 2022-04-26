@@ -160,13 +160,16 @@
                 </mat-form-field>
             </div>
             <!-- Add custom input fields from page layout -->
+            
             <mat-card *ngFor="let fld of custFields">
                 <div class="row">
                     <div class="col-md-12">
 
                         <div *ngIf="fld.fldType==='richtext'">
                             {{fld.fldTitle}} (doc.{{fld.fldName}})
-                            <ngx-trumbowyg-editor name="{{page.doc[fld.fldName]}}" (ngModelChange)="setEditorHasChanges()" [(ngModel)]="page.doc[fld.fldName]"
+                            
+                            <!-- 20220426 removed name="{{page.doc[fld.fldname]}}" attribute due to change in angular13 rendering behavior -->
+                            <ngx-trumbowyg-editor name="" (ngModelChange)="setEditorHasChanges()" [(ngModel)]="page.doc[fld.fldName]"
                                 [options]="trumbooptions"></ngx-trumbowyg-editor>
                         </div>
 
