@@ -4,7 +4,7 @@
   "description": "Forms POST API handler",
   "main": "index.js",
   "dependencies": {
-    "ejs": "^3.1.5"
+    "ejs": "^3.1.8"
   },
   "devDependencies": {},
   "scripts": {
