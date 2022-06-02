@@ -9,6 +9,6 @@
   "author": "WebGate Consulting AG",
   "license": "Apache-2.0",
   "dependencies": {
-    "sharp": "^0.25.4"
+    "sharp": "^0.30.6"
   }
 }
