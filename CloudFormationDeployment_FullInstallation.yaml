@@ -698,7 +698,7 @@ Resources:
           AcmCertificateArn: !Ref AcmCertificateCDN
           MinimumProtocolVersion: TLSv1.1_2016
           SslSupportMethod: sni-only
-        HttpVersion: http2
+        HttpVersion: http2and3
   CloudfrontDistProd:
     Type: AWS::CloudFront::Distribution
     DependsOn: CloudFrontOrigin
@@ -734,7 +734,7 @@ Resources:
           AcmCertificateArn: !Ref AcmCertificatePROD
           MinimumProtocolVersion: TLSv1.1_2016
           SslSupportMethod: sni-only
-        HttpVersion: http2
+        HttpVersion: http2and3
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
