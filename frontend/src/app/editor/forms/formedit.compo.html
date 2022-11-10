@@ -184,7 +184,7 @@ form(method="POST" action="{{formAPIURL}}")
               
     input(type="text" class="hidden" id="result" name="result" value="")
     p(class="cslider-warn") Prove that you're not a robot by sliding the button to the right.
-    div(class="cslider" title="Swipe to the right" unlockelem="sBtn" unlockv="{{frm.staticcaptcha}}" unlockf="result")
+    div(class="cslider" title="Swipe to the right" data-unlockelem="sBtn" data-unlockv="{{frm.staticcaptcha}}" data-unlockf="result")
         div(class="cHandle draggable" id="cHandle")
             i(class="far fa-caret-square-right")
     input(type="submit" style="display: none;" id="sBtn" value="Submit" disabled="")
@@ -202,7 +202,7 @@ form(method="POST" action="{{formAPIURL}}")
 
     &lt;input type="text" class="hidden" id="result" name="result" value=""&gt;
     &lt;p class="cslider-warn"&gt;Prove that you're not a robot by sliding the button to the right.&lt;/p&gt;
-    &lt;div class="cslider" title="Swipe to the right" unlockelem="sBtn" unlockv="{{frm.staticcaptcha}}" unlockf="result"&gt;
+    &lt;div class="cslider" title="Swipe to the right" data-unlockelem="sBtn" data-unlockv="{{frm.staticcaptcha}}" data-unlockf="result"&gt;
         &lt;div class="cHandle draggable" id="cHandle"&gt;
             &lt;i class="far fa-caret-square-right"&gt;&lt;/i&gt;
         &lt;/div&gt;
