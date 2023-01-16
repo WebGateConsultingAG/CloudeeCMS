@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MTContentDialogComponent } from './dialogs/MTContentDialog';
 import { MTSelectDialogComponent } from './dialogs/MTSelectDialog';
@@ -11,7 +11,7 @@ import { TabsNavService } from 'src/app/services/tabs.service';
   styleUrls: ['./mttable.component.css']
 })
 
-export class MTTableComponent implements OnInit {
+export class MTTableComponent {
   @Input() parentField: any;
 
   isExpanded: boolean;
@@ -21,16 +21,14 @@ export class MTTableComponent implements OnInit {
     private tabsSVC: TabsNavService
   ) { }
 
-  ngOnInit() { }
-
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
   }
-  btnEditObj(fldMT) {
+  btnEditObj(fldMT: any) {
     this.dialog.open(MTContentDialogComponent, { width: '800px', disableClose: false, data: { fldMT } });
   }
-  btnCopyObj(fldMT) {
-    this.tabsSVC.setInternalClipboard( JSON.parse(JSON.stringify(fldMT))); // store dereferenced copy
+  btnCopyObj(fldMT: any) {
+    this.tabsSVC.setInternalClipboard(JSON.parse(JSON.stringify(fldMT))); // store dereferenced copy
     this.tabsSVC.printNotification('Object copied to memory. You can now insert it in another position or page.');
   }
   btnPasteObj(pos: any) {
@@ -49,7 +47,8 @@ export class MTTableComponent implements OnInit {
       }
     }
     if (!pos.lstObj) { pos.lstObj = []; }
-    pos.lstObj.push(cp);
+    let cpDeref = JSON.parse(JSON.stringify(cp)); // dereference again, in case same object gets pasted again
+    pos.lstObj.push(cpDeref);
     this.tabsSVC.printNotification('Object inserted.');
   }
   // actions for nested MicroTemplates
@@ -62,11 +61,11 @@ export class MTTableComponent implements OnInit {
       }
     });
   }
-  btnDeleteObj(lst, fldMT, idx) {
+  btnDeleteObj(lst: any, fldMT: any, idx: any) {
     if (!confirm('Do you really want to delete \'' + fldMT.title + '\'?')) { return; }
     lst.splice(idx, 1);
   }
-  dropSortObj(lst, event: CdkDragDrop<string[]>) {
+  dropSortObj(lst: any, event: CdkDragDrop<string[]>) {
     moveItemInArray(lst, event.previousIndex, event.currentIndex);
   }
 }
