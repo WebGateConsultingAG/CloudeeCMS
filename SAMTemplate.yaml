@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: CloudeeCMS Backend Auto Deployment 2020-06-02 09:20
+Description: CloudeeCMS Backend Auto Deployment 2023-03-27
 Parameters:
   AdminBucket:
     Type: String
@@ -177,7 +177,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms
       Description: CloudeeCMS API for content admin interface
       MemorySize: 256
@@ -202,7 +202,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-publish
       Description: CloudeeCMS API for content publishing
       MemorySize: 512
@@ -226,7 +226,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-fileadmin
       Description: CloudeeCMS API for file explorer
       MemorySize: 256
@@ -247,7 +247,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-img
       Description: CloudeeCMS API for image resizing
       MemorySize: 512
@@ -268,7 +268,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-fileupload
       Description: CloudeeCMS Upload images pasted in trumbowyg editor
       MemorySize: 256
@@ -292,7 +292,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-backup
       Description: CloudeeCMS API for backup and restore
       MemorySize: 512
@@ -317,7 +317,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-forms
       Description: CloudeeCMS API for user submitted forms
       MemorySize: 256
@@ -338,7 +338,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       CodeUri: ./backend/aws-serverless-cms-listcontent
       Description: CloudeeCMS API to get pages by category
       MemorySize: 128

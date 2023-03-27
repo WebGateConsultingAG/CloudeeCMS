@@ -1,5 +1,5 @@
 /*
- * Copyright WebGate Consulting AG, 2020
+ * Copyright WebGate Consulting AG, 2023
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-19 0754 - RSC
+ * File Version: 2023-03-27 14:00
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -21,56 +21,67 @@ const documentClient = new DynamoDB.DocumentClient({ convertEmptyValues: true })
 const querystring = require('querystring');
 const tableName = process.env.DB_TABLE || '';
 const AWSSQS = require('aws-sdk/clients/sqs');
-const sqs = new AWSSQS();
 const AWSSNS = require('aws-sdk/clients/sns');
+const sqs = new AWSSQS();
 const sns = new AWSSNS();
 const ejs = require('ejs');
 
+const reCAPTCHA = require('./reCAPTCHAv3');
+
 exports.handler = async (event) => {
     let redirectToFail = event.headers.referer || '/';
-
     try {
-
-        const params = querystring.parse(event.body);
+        let params = querystring.parse(event.body);
         let redirectToSuccess = params['redirectto'] || event.headers.referer || '/';
-
-        // check captcha first
-        let captcha = params['result'] || '';
-
-        if (captcha === '') return getResponse(redirectToFail);
+        const clientIP = getClientIP(event);
 
         let formID = params['formid'];
         if (!formID || formID === '') return getResponse(redirectToFail);
 
+        // check captcha type
+        let captchaMode = 'static';
+        const staticcaptcha = params['result'] || '';
+        const reCAPTCHAResponse = params['g-recaptcha-response'] || '';
+        if (reCAPTCHAResponse !== '') { // switch mode if google recaptcha supplied
+            captchaMode = 'reCAPTCHAv3';
+        } else {
+            if (staticcaptcha === '') return getResponse(redirectToFail);
+        }
+
         // lookup form by id
         let fdoc = await documentClient.get({ TableName: tableName, Key: { id: formID } }).promise();
         let formdoc = fdoc.Item || "";
-
         if (!formdoc || formdoc.otype !== 'Form') return getResponse(redirectToFail);
+        if (formdoc.redirectFailure) redirectToFail = formdoc.redirectFailure;
 
-        if (formdoc.staticcaptcha) {
-            if (formdoc.staticcaptcha !== captcha) {
-                console.log("Captcha input failed", "User: " + captcha, "Expected: " + formdoc.staticcaptcha);
+        if (captchaMode === 'reCAPTCHAv3') {
+            let gcrc = await reCAPTCHA.verifyResponse(formdoc.staticcaptcha, reCAPTCHAResponse, clientIP);
+            console.log("reCAPTCHAv3 verify response", gcrc);
+            if (!gcrc || !gcrc.success) return getResponse(redirectToFail);
+            delete params['g-recaptcha-response']; // remove from form field list
+        } else { // static captcha
+            if (formdoc.staticcaptcha !== staticcaptcha) {
+                console.log("Static CAPTCHA input failed", "Received: " + staticcaptcha, "Expected: " + formdoc.staticcaptcha);
                 return getResponse(redirectToFail);
             }
         }
 
         // store the form in DB
         let userform = {};
-        userform.id = "SF-" + guid();
-        userform.otype = "SubmittedForm";
+        userform.id = 'SF-' + guid();
+        userform.otype = 'SubmittedForm';
         userform.dt = new Date().getTime();
-        userform.ip = event.headers['X-Forwarded-For'] || '';
+        userform.ip = clientIP || '';
         userform.referer = event.headers['referer'] || '';
-        userform.title = formdoc.title;
-        userform.email = params['email'] || "";
+        userform.title = formdoc.title || '';
+        userform.email = params['email'] || '';
         userform.frm = params;
+        userform.captchaMode = captchaMode;
 
         await documentClient.put({ TableName: tableName, Item: userform }).promise();
-
         if (formdoc.redirectSuccess) redirectToSuccess = formdoc.redirectSuccess;
 
-        // notifiy someone (SQS queue for separate lambda mailer)
+        // notifiy someone
         if (formdoc.notify) { await notifyByEmail(userform, formdoc, params); }
         if (formdoc.notifySNS) { await notifyBySNS(userform, formdoc, params); }
 
@@ -104,10 +115,8 @@ async function notifyByEmail(userform, formdoc, fldList) {
             "subject": formdoc.mailSubject,
             "mailbody": mailBody || ''
         };
-
         console.log("sending message", msg);
         await sendSQS(msg, formdoc.sqsQueueURL);
-
     } catch (e) {
         console.error(e);
     }
@@ -115,9 +124,9 @@ async function notifyByEmail(userform, formdoc, fldList) {
 function getFormattedBody(bodyTemplate, fldList) {
     try {
         const ejsVars = getEJSData(fldList);
-        return ejs.render(bodyTemplate || '', ejsVars, { openDelimiter: '[', closeDelimiter: ']', delimiter: '%'} );
+        return ejs.render(bodyTemplate || '', ejsVars, { openDelimiter: '[', closeDelimiter: ']', delimiter: '%' });
     } catch (e) {
-        return bodyTemplate + "\n\n---TEMPLATE ERROR---\n\n"+e.toString();
+        return bodyTemplate + "\n\n---TEMPLATE ERROR---\n\n" + e.toString();
     }
 }
 function getEJSData(fldList) {
@@ -159,8 +168,13 @@ function sendSQS(msg, SQS_QUEUE_URL) {
     });
 }
 function guid() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
+    function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) }
     return s4() + s4();
+}
+function getClientIP(evt) {
+    try {
+        return evt.requestContext.identity.sourceIp || evt.headers['X-Forwarded-For'] || '';
+    } catch (e) {
+        return '';
+    }
 }
