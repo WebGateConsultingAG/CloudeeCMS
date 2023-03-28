@@ -9,6 +9,7 @@ export class Form {
     staticcaptcha: string;
     redirectFailure: string;
     redirectSuccess: string;
+    captchaMethod: string;
     notify: string;
     lstEmail: any;
 

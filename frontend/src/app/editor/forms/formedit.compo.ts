@@ -41,6 +41,8 @@ export class FormEditComponent implements OnInit {
     frm: Form;
     tmpAddEmail: string;
     formAPIURL: string;
+    redirectSuccessHint = "";
+    redirectFailureHint = "";
     hasChanges = false;
     editorTrackChanges = false;
 
@@ -85,24 +87,35 @@ export class FormEditComponent implements OnInit {
     }
 
     loadByID(id: string) {
-        const that = this;
         this.backendSVC.getItemByID(id).then(
             (data: any) => {
                 if (data.item) {
-                    that.frm = data.item;
-                    that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled Form');
+                    this.frm = data.item;
+                    if (!this.frm.captchaMethod || this.frm.captchaMethod ==='' ) this.frm.captchaMethod = 'static'; // backwards compatibility
+                    this.tabsSVC.setTabTitle(this.tabid, data.item.title || 'Untitled Form');
                 }
-                that.setLoading(false);
+                this.setLoading(false);
                 // enable trumbowyg editor onchange tracking
-                setTimeout(() => { that.editorTrackChanges = true; }, 2000);
+                setTimeout(() => { this.editorTrackChanges = true; }, 2000);
             },
             (err) => {
-                that.tabsSVC.printNotification('Error while loading form');
-                that.setLoading(false);
+                this.tabsSVC.printNotification('Error while loading form');
+                this.setLoading(false);
             }
         );
     }
-
+    checkRedirectSuccess(): void {
+        this.setHasChanges(true);
+        this.redirectSuccessHint = "";
+        let path = this.frm.redirectSuccess || '';
+        if (path !== '' && !path.startsWith('https://'))  this.redirectSuccessHint = 'Warning! Redirection URL must start with https://';
+    }
+    checkRedirectFailure(): void {
+        this.setHasChanges(true);
+        this.redirectFailureHint = "";
+        let path = this.frm.redirectFailure || '';
+        if (path !== '' && !path.startsWith('https://'))  this.redirectFailureHint = 'Warning! Redirection URL must start with https://';
+    }
     saveDocument() {
         const that = this;
         this.setLoading(true);
