@@ -13,12 +13,14 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Form title" type="text" [(ngModel)]="frm.title" (change)="setHasChanges(true)" required>
+                    <input matInput placeholder="Form title" type="text" [(ngModel)]="frm.title"
+                        (change)="setHasChanges(true)" required>
                 </mat-form-field>
             </div>
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Description" type="text" [(ngModel)]="frm.descr" (change)="setHasChanges(true)">
+                    <input matInput placeholder="Description" type="text" [(ngModel)]="frm.descr"
+                        (change)="setHasChanges(true)">
                 </mat-form-field>
             </div>
         </div>
@@ -26,14 +28,16 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="On success redirection URL" type="text" (change)="setHasChanges(true)"
+                    <input matInput placeholder="On success redirection URL" type="text" (change)="checkRedirectSuccess()"
                         [(ngModel)]="frm.redirectSuccess">
+                        <mat-hint *ngIf="redirectSuccessHint" style="color:red;">{{redirectSuccessHint}}</mat-hint>
                 </mat-form-field>
             </div>
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="On failure redirection URL" type="text" (change)="setHasChanges(true)"
+                    <input matInput placeholder="On failure redirection URL" type="text" (change)="checkRedirectFailure()"
                         [(ngModel)]="frm.redirectFailure">
+                        <mat-hint *ngIf="redirectFailureHint" style="color:red;">{{redirectFailureHint}}</mat-hint>
                 </mat-form-field>
             </div>
         </div>
@@ -41,11 +45,18 @@
         <div class="row">
             <div class="col-md-6">
                 <mat-form-field class="full-width">
-                    <input matInput placeholder="Static captcha result" type="text" [(ngModel)]="frm.staticcaptcha" (change)="setHasChanges(true)">
+                    <mat-select placeholder="CAPTCHA method" [(ngModel)]="frm.captchaMethod">
+                        <mat-option value="static">Static captcha</mat-option>
+                        <mat-option value="reCAPTCHAv3">Google reCAPTCHA v3</mat-option>
+                    </mat-select>
                 </mat-form-field>
             </div>
             <div class="col-md-6">
-
+                <mat-form-field class="full-width">
+                    <input matInput
+                        [placeholder]="frm.captchaMethod==='reCAPTCHAv3'?'reCAPTCHA secret key':'Static captcha result'"
+                        type="text" [(ngModel)]="frm.staticcaptcha" (change)="setHasChanges(true)">
+                </mat-form-field>
             </div>
         </div>
 
@@ -69,23 +80,28 @@
             <div class="row">
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="SNS Topic ARN" type="text" [(ngModel)]="frm.snsTopicARN" (change)="setHasChanges(true)">
+                        <input matInput placeholder="SNS Topic ARN" type="text" [(ngModel)]="frm.snsTopicARN"
+                            (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubjectSNS" (change)="setHasChanges(true)">
+                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubjectSNS"
+                            (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <mat-form-field class="full-width">
-                        <textarea matInput style="font-size: 13px !important; min-height: 120px;" placeholder="SNS Message body"
-                            type="text" [(ngModel)]="frm.mailBodySNS" (change)="setHasChanges(true)"></textarea>
-                        <mat-hint align="start">You can insert fields of the submitted form in the body text by using EJS variables: [%= fieldname %] or [%= FIELDLIST %] to list all fields of the form.</mat-hint>
+                        <textarea matInput style="font-size: 13px !important; min-height: 120px;"
+                            placeholder="SNS Message body" type="text" [(ngModel)]="frm.mailBodySNS"
+                            (change)="setHasChanges(true)"></textarea>
+                        <mat-hint align="start">You can insert fields of the submitted form in the body text by using
+                            EJS variables: [%= fieldname %] or [%= FIELDLIST %] to list all fields of the
+                            form.</mat-hint>
                     </mat-form-field>
                 </div>
             </div>
@@ -147,21 +163,25 @@
             <div class="row" *ngIf="frm.notify">
                 <div class="col-md-6">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="Sender e-mail address" type="text" [(ngModel)]="frm.mailFrom" (change)="setHasChanges(true)">
+                        <input matInput placeholder="Sender e-mail address" type="text" [(ngModel)]="frm.mailFrom"
+                            (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
                 <div class="col-md-6">
                     <mat-form-field class="full-width">
-                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubject" (change)="setHasChanges(true)">
+                        <input matInput placeholder="Subject" type="text" [(ngModel)]="frm.mailSubject"
+                            (change)="setHasChanges(true)">
                     </mat-form-field>
                 </div>
             </div>
 
             <div class="row" *ngIf="frm.notify">
                 <div class="col-md-12">
-                    <ngx-trumbowyg-editor name="mailBody" [(ngModel)]="frm.mailBody" (ngModelChange)="setEditorHasChanges()" [options]="trumbooptions">
+                    <ngx-trumbowyg-editor name="mailBody" [(ngModel)]="frm.mailBody"
+                        (ngModelChange)="setEditorHasChanges()" [options]="trumbooptions">
                     </ngx-trumbowyg-editor>
-                    <div class="hint">You can insert fields of the submitted form in the body text by using EJS variables: [%= fieldname %] or [%= FIELDLIST %] to list all fields of the form.</div>
+                    <div class="hint">You can insert fields of the submitted form in the body text by using EJS
+                        variables: [%= fieldname %] or [%= FIELDLIST %] to list all fields of the form.</div>
                 </div>
             </div>
 
@@ -175,14 +195,14 @@
 
                 <mat-tab-group mat-align-tabs="start">
                     <mat-tab label="Pug Form Code">
-                        <pre>
-form(method="POST" action="{{formAPIURL}}")
+                        <pre *ngIf="frm.captchaMethod!=='reCAPTCHAv3'">
+form(method="POST" id="cform" action="{{formAPIURL}}")
     input(type="hidden" name="formid" value="{{frm.id}}")
     input(type="text" name="name" placeholder="Name" value="")
     input(type="email" name="email" placeholder="E-Mail address" value="")
     textarea(rows="6" name="message" placeholder="Your message")
               
-    input(type="text" class="hidden" id="result" name="result" value="")
+    input(type="text" type="hidden" id="result" name="result" value="")
     p(class="cslider-warn") Prove that you're not a robot by sliding the button to the right.
     div(class="cslider" title="Swipe to the right" data-unlockelem="sBtn" data-unlockv="{{frm.staticcaptcha}}" data-unlockf="result")
         div(class="cHandle draggable" id="cHandle")
@@ -190,17 +210,31 @@ form(method="POST" action="{{formAPIURL}}")
     input(type="submit" style="display: none;" id="sBtn" value="Submit" disabled="")
 
                         </pre>
+
+                        <pre *ngIf="frm.captchaMethod==='reCAPTCHAv3'">
+form(method="POST" id="cform" action="{{formAPIURL}}")
+    input(type="hidden" name="formid" value="{{frm.id}}")
+    input(type="text" name="name" placeholder="Name" value="")
+    input(type="email" name="email" placeholder="E-Mail address" value="")
+    textarea(rows="6" name="message" placeholder="Your message")
+    button(class="g-recaptcha" data-sitekey="INSERT_YOUR_reCAPTCHA_SITEKEY" data-callback="onFormSubmit" data-action="submit") Submit!!
+    script(src="https://www.google.com/recaptcha/api.js")
+    script. 
+        function onFormSubmit(token)｛ document.getElementById("cform").submit() ｝
+                        </pre>
+                        
                     </mat-tab>
                     <mat-tab label="HTML Form Code">
-                        <pre>
-&lt;form method="POST" action="{{formAPIURL}}"&gt;
+                        
+                        <pre *ngIf="frm.captchaMethod!=='reCAPTCHAv3'">
+&lt;form method="POST" id="cform" action="{{formAPIURL}}"&gt;
 
     &lt;input type="hidden" name="formid" value="{{frm.id}}"&gt;
     &lt;input type="text" name="name" placeholder="Name" value=""&gt;
     &lt;input type="email" name="email" placeholder="E-Mail address" value=""&gt;
     &lt;textarea rows="6" name="message" placeholder="Your message"&gt;&lt;/textarea&gt;
 
-    &lt;input type="text" class="hidden" id="result" name="result" value=""&gt;
+    &lt;input type="text" type="hidden" id="result" name="result" value=""&gt;
     &lt;p class="cslider-warn"&gt;Prove that you're not a robot by sliding the button to the right.&lt;/p&gt;
     &lt;div class="cslider" title="Swipe to the right" data-unlockelem="sBtn" data-unlockv="{{frm.staticcaptcha}}" data-unlockf="result"&gt;
         &lt;div class="cHandle draggable" id="cHandle"&gt;
@@ -212,6 +246,23 @@ form(method="POST" action="{{formAPIURL}}")
 
 &lt;/form&gt;
                         </pre>
+                        
+                        <pre *ngIf="frm.captchaMethod==='reCAPTCHAv3'">
+&lt;form method="POST" id="cform" action="{{formAPIURL}}"&gt;
+
+&lt;input type="hidden" name="formid" value="{{frm.id}}"&gt;
+&lt;input type="text" name="name" placeholder="Name" value=""&gt;
+&lt;input type="email" name="email" placeholder="E-Mail address" value=""&gt;
+&lt;textarea rows="6" name="message" placeholder="Your message"&gt;&lt;/textarea&gt;
+&lt;button class="g-recaptcha" data-sitekey="INSERT_YOUR_reCAPTCHA_SITEKEY" data-callback="onFormSubmit" data-action="submit"&gt;
+Submit
+&lt;/button&gt;
+&lt;script src="https://www.google.com/recaptcha/api.js"&gt;&lt;/script&gt;
+&lt;script&gt;function onFormSubmit(token)｛ document.getElementById("cform").submit() ｝&lt;/script&gt;
+
+&lt;/form&gt;
+                        </pre>
+
                     </mat-tab>
                 </mat-tab-group>
 

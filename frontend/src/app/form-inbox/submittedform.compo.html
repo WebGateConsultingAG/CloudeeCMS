@@ -25,9 +25,14 @@
                     <input matInput placeholder="E-Mail" type="text" [(ngModel)]="frm.email" [readonly]=readonly>
                 </mat-form-field>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <mat-form-field class="full-width">
                     <input matInput placeholder="IP" type="text" [(ngModel)]="frm.ip" [readonly]=readonly>
+                </mat-form-field>
+            </div>
+            <div class="col-md-3">
+                <mat-form-field class="full-width">
+                    <input matInput placeholder="CAPTCHA method" type="text" [(ngModel)]="frm.captchaMode" [readonly]=readonly>
                 </mat-form-field>
             </div>
         </div>
