@@ -202,7 +202,7 @@ form(method="POST" id="cform" action="{{formAPIURL}}")
     input(type="email" name="email" placeholder="E-Mail address" value="")
     textarea(rows="6" name="message" placeholder="Your message")
               
-    input(type="text" class="hidden" id="result" name="result" value="")
+    input(type="text" type="hidden" id="result" name="result" value="")
     p(class="cslider-warn") Prove that you're not a robot by sliding the button to the right.
     div(class="cslider" title="Swipe to the right" data-unlockelem="sBtn" data-unlockv="{{frm.staticcaptcha}}" data-unlockf="result")
         div(class="cHandle draggable" id="cHandle")
@@ -234,7 +234,7 @@ form(method="POST" id="cform" action="{{formAPIURL}}")
     &lt;input type="email" name="email" placeholder="E-Mail address" value=""&gt;
     &lt;textarea rows="6" name="message" placeholder="Your message"&gt;&lt;/textarea&gt;
 
-    &lt;input type="text" class="hidden" id="result" name="result" value=""&gt;
+    &lt;input type="text" type="hidden" id="result" name="result" value=""&gt;
     &lt;p class="cslider-warn"&gt;Prove that you're not a robot by sliding the button to the right.&lt;/p&gt;
     &lt;div class="cslider" title="Swipe to the right" data-unlockelem="sBtn" data-unlockv="{{frm.staticcaptcha}}" data-unlockf="result"&gt;
         &lt;div class="cHandle draggable" id="cHandle"&gt;
