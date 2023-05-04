@@ -324,6 +324,7 @@ Resources:
               - lambda:UpdateFunctionCode
               - lambda:UpdateFunctionConfiguration
               - lambda:ListTags
+              - lambda:TagResource
               - apigateway:POST
               - apigateway:PATCH
               - apigateway:DELETE
