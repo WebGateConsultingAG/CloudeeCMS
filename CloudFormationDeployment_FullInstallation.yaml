@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2020-06-29 06:00
+Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2023-05-04 11:00
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -119,6 +119,14 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${ProjectName}-cloudeecms-editor-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
       MetricsConfigurations:
         - Id: EntireBucket
       WebsiteConfiguration:
@@ -129,6 +137,14 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${ProjectName}-cloudeecms-test-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
@@ -166,6 +182,14 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${ProjectName}-cloudeecms-prod-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
@@ -203,6 +227,14 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${ProjectName}-cloudeecms-cdn-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
