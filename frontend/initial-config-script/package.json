@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "aws-sdk": "^2.1373.0"
+  },
+  "name": "initial-config-script",
+  "version": "1.0.0",
+  "description": "Create configuration during deployment",
+  "main": "create-initial-config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WebGate",
+  "license": "ISC"
+}
