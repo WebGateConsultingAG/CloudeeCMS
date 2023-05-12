@@ -4,6 +4,7 @@
 /frontend/src/environments/environment.ts
 /frontend/stackinfo.json
 /frontend/output.yaml
+/frontend/.angular
 
 # compiled output
 /frontend/dist
