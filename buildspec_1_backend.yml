@@ -3,6 +3,7 @@ version: 0.2
 phases:
     build:
         commands:
+        - node --version
         - cd ./backend/aws-serverless-cms-publish
         - npm install
         - cd ../..

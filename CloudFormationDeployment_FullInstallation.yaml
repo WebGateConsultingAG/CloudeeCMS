@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2023-05-04 11:00
+Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2023-05-12 08:45
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -498,7 +498,7 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        Image: aws/codebuild/standard:6.0
         EnvironmentVariables:
           - Name: PIPELINE_BUCKET
             Type: PLAINTEXT
@@ -517,7 +517,7 @@ Resources:
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        Image: aws/codebuild/standard:6.0
         EnvironmentVariables:
           - Name: S3_BUCKET
             Type: PLAINTEXT
