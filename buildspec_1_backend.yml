@@ -1,11 +1,9 @@
 version: 0.2
 
 phases:
-    install:
-        runtime-versions:
-            nodejs: 12
     build:
         commands:
+        - node --version
         - cd ./backend/aws-serverless-cms-publish
         - npm install
         - cd ../..

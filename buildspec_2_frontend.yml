@@ -1,18 +1,17 @@
 version: 0.2
 
 phases:
-    install:
-        runtime-versions:
-            nodejs: 12
     build:
         commands:
+        - node --version
         - echo "Bucket name is ${S3BUCKET_ADMIN} and Stack name is ${STACKNAME}"
         - aws cloudformation describe-stacks --region ${REGION} --stack-name ${STACKNAME} > ./frontend/stackinfo.json
-        - cd ./frontend
-        - npm run update-env
-        - npm install aws-sdk
-        - npm run initial-config
+        - cd ./frontend/initial-config-script
         - npm install
+        - node create-initial-config.js
+        - cd ..
+        - npm run update-env
+        - npm install --legacy-peer-deps
         - npm install -g @angular/cli
         - npm run build
         - cd ..
