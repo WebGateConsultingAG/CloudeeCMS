@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-05-22 12:19 - RSC
+ * File Version: 2023-05-22 12:54 - RSC
  */
 
 const AWS = require('aws-sdk');
@@ -622,7 +622,7 @@ async function getBuildProjectInfo() {
         const buildprojects = [];
         let hasWarning = false;
         cbp.projects.forEach(bp => {
-            let isOK = (EXPECTED_BUILD_IMAGE !== (bp.environment.image || ''));
+            let isOK = (EXPECTED_BUILD_IMAGE === (bp.environment.image || ''));
             if (!isOK) hasWarning = true;
             buildprojects.push({
                 name: bp.name || '-untitled',
