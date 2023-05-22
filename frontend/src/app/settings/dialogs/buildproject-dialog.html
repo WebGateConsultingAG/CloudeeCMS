@@ -9,7 +9,7 @@
             {{errorMessage}}
         </div>
 
-        <div *ngIf="buildinfo.buildprojects">
+        <div *ngIf="buildinfo && buildinfo.buildprojects">
             <table class="viewTable">
                 <thead>
                     <tr>
@@ -39,7 +39,7 @@
             </table>
         </div>
         <br />
-        <div *ngIf="buildinfo.hasWarning" class="warn">
+        <div *ngIf="buildinfo && buildinfo.hasWarning" class="warn">
             Upgrade of BuildProject image recommended! Please <a
                 href="https://www.cloudee-cms.com/news/2023/buildcontainer-upgrade" target="_blank">read how to
                 update</a> the CodePipeline CloudFormation stack.

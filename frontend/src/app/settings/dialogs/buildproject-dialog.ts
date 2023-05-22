@@ -31,7 +31,7 @@ export class BuildprojectDialogComponent implements OnInit {
 
   errorMessage = '';
   loading = true;
-  buildinfo = {};
+  buildinfo: any = {};
 
   ngOnInit(): void {
     this.getBuildProjectInfo();

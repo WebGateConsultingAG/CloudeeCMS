@@ -45,7 +45,7 @@ export class UpdaterDialogComponent implements OnInit {
   updProgress  = { pStatus: null };
   waitForCompletion = false;
   enableOnlineUpdates: boolean;
-  buildinfo = {};
+  buildinfo: any = {};
 
   ngOnInit(): void {
     this.isAdmin = this.backendSVC.isAdmin;
