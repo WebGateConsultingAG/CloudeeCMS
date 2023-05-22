@@ -13,13 +13,14 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-10-26 06:39 - RSC
+ * File Version: 2023-05-22 12:19 - RSC
  */
 
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const codepipeline = new AWS.CodePipeline();
+const codebuild = new AWS.CodeBuild();
 const fs = require('fs');
 const admZIP = require('adm-zip');
 const http = require('https');
@@ -27,6 +28,7 @@ const mime = require('mime');
 const tableName = process.env.DB_TABLE;
 const pipelineName = process.env.PIPELINE_NAME;
 const pipelineBucket = process.env.PIPELINE_BUCKET;
+const EXPECTED_BUILD_IMAGE = 'aws/codebuild/standard:6.0';
 
 exports.handler = async function (event, context, callback) {
     const done = _done(callback);
@@ -54,6 +56,8 @@ exports.handler = async function (event, context, callback) {
                 return startUpdate(payload, done);
             } else if (action === 'getpipelinestatus') {
                 return getPipelineStatus(done);
+            } else if (action === 'getbuildprojectinfo') {
+                return done.done(await getBuildProjectInfo());
             }
         } else {
             return done.error(new Error(`Not allowed: ${action}`));
@@ -605,4 +609,31 @@ function getDateString(dt) {
 function getPackageInfo(pkgPath) {
     const pkginfo = require(pkgPath);
     return pkginfo.type === 'CloudeeCMS-Package' ? pkginfo : null;
+}
+async function getBuildProjectInfo() {
+    try {
+        const p = pipelineName.lastIndexOf("-pipeline");
+        if (p < 1) return { success: false, message: 'Unable to extract project name' };
+        const projectname = pipelineName.substring(0, p);
+        const params = { names: [] };
+        params.names.push(projectname + '-buildproject-frontend');
+        params.names.push(projectname + '-buildproject-backend');
+        const cbp = await codebuild.batchGetProjects(params).promise();
+        const buildprojects = [];
+        let hasWarning = false;
+        cbp.projects.forEach(bp => {
+            let isOK = (EXPECTED_BUILD_IMAGE !== (bp.environment.image || ''));
+            if (!isOK) hasWarning = true;
+            buildprojects.push({
+                name: bp.name || '-untitled',
+                image: bp.environment.image || '-unknown-',
+                computeType: bp.environment.computeType || '-unknown-',
+                isOK
+            });
+        });
+        return { success: true, buildinfo: { buildprojects, hasWarning, EXPECTED_BUILD_IMAGE } };
+    } catch (e) {
+        console.log(e);
+        return { success: false, message: e.message || 'Error while processing' };
+    }
 }

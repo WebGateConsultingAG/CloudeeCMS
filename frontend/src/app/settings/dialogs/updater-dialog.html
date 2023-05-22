@@ -15,7 +15,8 @@
         <div *ngIf="updaterstatus==1" class="borderbox">
             You are using version: {{APP_VERSION}}<br />
             A new version is available: {{updaterData.availableVersion}} ({{updaterData.repobranch}})<br /><br />
-            Please read the <a href="{{updaterData.releaseNotes}}" target="_blank" class="dmLink">Release Notes</a> before upgrading!
+            Please read the <a href="{{updaterData.releaseNotes}}" target="_blank" class="dmLink">Release Notes</a>
+            before upgrading!
             <div *ngIf="!isAdmin" class="warn">
                 You do not have admin rights to start this update!
             </div>
@@ -33,8 +34,7 @@
             </div>
             <div class="borderbox" *ngIf="updProgress">
                 <ul *ngIf="updProgress.pStatus" class="updStatus">
-                    <li *ngFor="let st of updProgress.pStatus.stageStates"
-                        class="{{st.latestExecution.status}}">
+                    <li *ngFor="let st of updProgress.pStatus.stageStates" class="{{st.latestExecution.status}}">
                         <mat-spinner diameter="20" *ngIf="st.latestExecution.status==='InProgress'"></mat-spinner>
                         <mat-icon *ngIf="st.latestExecution.status!=='InProgress'">filter_tilt_shift</mat-icon>
                         {{st.stageName}}
@@ -46,6 +46,12 @@
             <p><b>Update completed!</b></p>
             <p>Please restart CloudeeCMS to continue.</p>
         </div>
+        <!-- show buildproject information -->
+        <div *ngIf="buildinfo.hasWarning && (updaterstatus===1 || updaterstatus===0)">
+            <button mat-button (click)="btnShowBuildInfoDialog()">
+                <mat-icon>warning</mat-icon> CodePipeline upgrade information..
+            </button>
+        </div>
         <br />
     </div>
     <div mat-dialog-actions *ngIf="updaterstatus!==2">
@@ -53,7 +59,8 @@
             <mat-icon matListIcon>system_update_alt</mat-icon>
             Update now
         </button>
-        <button mat-button (click)="btnCancel()" *ngIf="updaterstatus!==3">{{updaterstatus==0?'Close':'Cancel'}}</button>
+        <button mat-button (click)="btnCancel()"
+            *ngIf="updaterstatus!==3">{{updaterstatus==0?'Close':'Cancel'}}</button>
         <button mat-stroked-button *ngIf="updaterstatus===3" (click)="btnRestart()">
             <mat-icon matListIcon>power_settings_new</mat-icon>
             Restart Application
