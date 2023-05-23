@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: CloudeeCMS Backend Auto Deployment 2023-03-27
+Description: CloudeeCMS Backend Auto Deployment 2023-05-22
 Parameters:
   AdminBucket:
     Type: String
@@ -139,6 +139,12 @@ Resources:
               "codepipeline:StopPipelineExecution"
             ]
             Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineName}'
+          - Sid: codebuild
+            Effect: Allow
+            Action: [
+              "codebuild:BatchGetProjects"
+            ]
+            Resource: !Sub 'arn:${AWS::Partition}:codebuild:${AWS::Region}:${AWS::AccountId}:project/*'
 
   SCMSLambdaRole:
     Type: AWS::IAM::Role

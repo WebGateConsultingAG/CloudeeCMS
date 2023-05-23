@@ -31,6 +31,7 @@ import { PackageUploadDialogComponent } from './dialogs/pkgupload-dialog';
 import { GlobalFunctionEditDialogComponent } from './dialogs/fnedit-dialog';
 import { ImageProfileEditDialogComponent } from './dialogs/imgprofileedit-dialog';
 import { FeedEditDialogComponent } from './dialogs/feededit-dialog';
+import { BuildprojectDialogComponent } from './dialogs/buildproject-dialog';
 
 @Component({
   selector: 'app-settings',
@@ -66,50 +67,48 @@ export class SettingsComponent implements OnInit {
   }
 
   loadConfig() {
-    const that = this;
     this.enableOnlineUpdates = environment.enableOnlineUpdates;
-    that.setLoading(true);
+    this.setLoading(true);
     this.backendSVC.getConfig(true).then(
       (rc: any) => {
-        that.config = rc.cfg;
-        that.setLoading(false);
+        this.config = rc.cfg;
+        this.setLoading(false);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while loading');
+        this.tabsSVC.printNotification('Error while loading');
         console.error(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
     // Load image profiles
     this.backendSVC.getImageProfiles(true).then(
       (rc: any) => {
-        that.imageprofiles = rc.imgprofiles;
+        this.imageprofiles = rc.imgprofiles;
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while loading imageprofiles');
+        this.tabsSVC.printNotification('Error while loading imageprofiles');
         console.error(err);
       }
     );
   }
 
   btnSave(): void {
-    const that = this;
-    that.setLoading(true);
+    this.setLoading(true);
     this.backendSVC.saveConfig(this.config).then(
       (rc: any) => {
-        that.setLoading(false);
+        this.setLoading(false);
         if (rc.success) {
-          that.tabsSVC.printNotification('Configuration saved');
-          that.setHasChanges(false);
-          if (that.restartRequired) {
+          this.tabsSVC.printNotification('Configuration saved');
+          this.setHasChanges(false);
+          if (this.restartRequired) {
             if (confirm('Restart of Webapplication recommended.\nRestart now?')) { window.location.reload(); }
           }
         }
       },
       (err) => {
         console.error(err);
-        that.tabsSVC.printNotification('Error while saving configuration');
-        that.setLoading(false);
+        this.tabsSVC.printNotification('Error while saving configuration');
+        this.setLoading(false);
       }
     );
     // Save image profiles
@@ -117,7 +116,7 @@ export class SettingsComponent implements OnInit {
       (rc: any) => { },
       (err) => {
         console.error(err);
-        that.tabsSVC.printNotification('Error while saving image profiles');
+        this.tabsSVC.printNotification('Error while saving image profiles');
       }
     );
   }
@@ -126,65 +125,60 @@ export class SettingsComponent implements OnInit {
     this.tabsSVC.setLoading(on);
   }
   btnEditBucket(thisBucket: any) {
-    const that = this;
     const dialogRef = this.dialog.open(BucketEditDialogComponent, { width: '700px', disableClose: false, data: { bucket: thisBucket } });
-    that.restartRequired = true;
+    this.restartRequired = true;
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        if (!that.config.buckets) { that.config.buckets = []; }
-        that.config.buckets.push(result.bucket);
+        if (!this.config.buckets) { this.config.buckets = []; }
+        this.config.buckets.push(result.bucket);
       }
     });
-    that.setHasChanges(true);
+    this.setHasChanges(true);
   }
   btnEditCFDist(thisDist: any) {
-    const that = this;
     const dialogRef = this.dialog.open(CFDistEditDialogComponent, { width: '450px', disableClose: false, data: { dist: thisDist } });
     dialogRef.afterClosed().subscribe(result => {
-      that.restartRequired = true;
+      this.restartRequired = true;
       if (result && result.action === 'add') {
-        if (!that.config.cfdists) { that.config.cfdists = []; }
-        that.config.cfdists.push(result.dist);
+        if (!this.config.cfdists) { this.config.cfdists = []; }
+        this.config.cfdists.push(result.dist);
       }
     });
-    that.setHasChanges(true);
+    this.setHasChanges(true);
   }
   btnEditGlobalFunction(thisFN: any) {
-    const that = this;
     const dialogRef = this.dialog.open(GlobalFunctionEditDialogComponent, { width: '800px', disableClose: false, data: { fn: thisFN } });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        if (!that.config.pugGlobalScripts) { that.config.pugGlobalScripts = []; }
-        that.config.pugGlobalScripts.push(result.fn);
+        if (!this.config.pugGlobalScripts) { this.config.pugGlobalScripts = []; }
+        this.config.pugGlobalScripts.push(result.fn);
       }
     });
-    that.setHasChanges(true);
+    this.setHasChanges(true);
   }
   btnEditBM(thisBM: any) {
-    const that = this;
     const dialogRef = this.dialog.open(BookmarkEditDialogComponent, { width: '450px', disableClose: false, data: { bm: thisBM } });
     dialogRef.afterClosed().subscribe(result => {
-      that.restartRequired = true;
+      this.restartRequired = true;
       if (result && result.action === 'add') {
-        if (!that.config.bookmarks) { that.config.bookmarks = []; }
-        that.config.bookmarks.push(result.bm);
+        if (!this.config.bookmarks) { this.config.bookmarks = []; }
+        this.config.bookmarks.push(result.bm);
       }
     });
-    that.setHasChanges(true);
+    this.setHasChanges(true);
   }
   btnEditFeed(thisFD: any) {
-    const that = this;
     const dialogRef = this.dialog.open(FeedEditDialogComponent, {
       width: '450px', disableClose: false,
       data: { feed: thisFD, lstCategories: this.config.categories }
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        if (!that.config.feeds) { that.config.feeds = []; }
-        that.config.feeds.push(result.feed);
+        if (!this.config.feeds) { this.config.feeds = []; }
+        this.config.feeds.push(result.feed);
       }
     });
-    that.setHasChanges(true);
+    this.setHasChanges(true);
   }
   btnDeleteBucket(bucket: any) {
     if (!confirm('Delete this entry?')) { return; }
@@ -269,18 +263,16 @@ export class SettingsComponent implements OnInit {
     this.setHasChanges(true);
   }
   btnEditImageProfile(imgp: any) {
-    const that = this;
-    // tslint:disable-next-line: max-line-length
     const dialogRef = this.dialog.open(ImageProfileEditDialogComponent, { width: '800px', disableClose: false, data: { imageprofile: imgp } });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         if (result.action === 'add') {
-          if (!that.imageprofiles.lstProfiles) { that.imageprofiles.lstProfiles = []; }
-          that.imageprofiles.lstProfiles.push(result.imageprofile);
+          if (!this.imageprofiles.lstProfiles) { this.imageprofiles.lstProfiles = []; }
+          this.imageprofiles.lstProfiles.push(result.imageprofile);
         } else if (result.action === 'update') {
-          for (let i = 0; i < that.imageprofiles.lstProfiles.length; i++) {
-            if (that.imageprofiles.lstProfiles[i].id === result.imageprofile.id) {
-              that.imageprofiles.lstProfiles[i] = result.imageprofile;
+          for (let i = 0; i < this.imageprofiles.lstProfiles.length; i++) {
+            if (this.imageprofiles.lstProfiles[i].id === result.imageprofile.id) {
+              this.imageprofiles.lstProfiles[i] = result.imageprofile;
             }
           }
         }
@@ -291,7 +283,6 @@ export class SettingsComponent implements OnInit {
   btnBackup() {
     if (!confirm('Create database backup?')) { return; }
     this.backupLog = [];
-    const that = this;
     if (!this.selectedTargetEnv || this.selectedTargetEnv === '-') {
       alert('You must select a bucket.');
       return;
@@ -299,15 +290,15 @@ export class SettingsComponent implements OnInit {
     this.bkupLoading = true;
     this.backendSVC.createDBBackup(this.selectedTargetEnv).then(
       (data: any) => {
-        that.bkupLoading = false;
-        if (data.log) { that.backupLog = data.log; }
-        if (data.success) { that.tabsSVC.printNotification('Backup saved to S3 bucket'); }
+        this.bkupLoading = false;
+        if (data.log) { this.backupLog = data.log; }
+        if (data.success) { this.tabsSVC.printNotification('Backup saved to S3 bucket'); }
       },
       (err) => {
         console.error(err);
-        that.backupLog.push(err.status + ': ' + err.message);
-        that.tabsSVC.printNotification('Error while loading');
-        that.bkupLoading = false;
+        this.backupLog.push(err.status + ': ' + err.message);
+        this.tabsSVC.printNotification('Error while loading');
+        this.bkupLoading = false;
       }
     );
   }
@@ -331,12 +322,11 @@ export class SettingsComponent implements OnInit {
   }
 
   btnEditVariable(thisVar: any) {
-    const that = this;
     const dialogRef = this.dialog.open(VariableEditDialogComponent, { width: '450px', disableClose: false, data: { variable: thisVar } });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        if (!that.config.variables) { that.config.variables = []; }
-        that.config.variables.push(result.variable);
+        if (!this.config.variables) { this.config.variables = []; }
+        this.config.variables.push(result.variable);
       }
     });
     this.setHasChanges(true);
@@ -353,17 +343,19 @@ export class SettingsComponent implements OnInit {
   }
 
   getBucketByLabel(bLabel: string): any {
-    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < this.config.buckets.length; i++) {
       if (this.config.buckets[i].label === bLabel) {
         return this.config.buckets[i];
       }
     }
   }
-  setHasChanges(hasChanges): void {
+  setHasChanges(hasChanges: boolean): void {
     if (this.hasChanges !== hasChanges) {
       this.tabsSVC.setTabHasChanges(this.tabID, hasChanges);
       this.hasChanges = hasChanges;
     }
+  }
+  btnShowBuildInfoDialog(): void {
+    this.dialog.open(BuildprojectDialogComponent, { width: '800px', disableClose: false });
   }
 }

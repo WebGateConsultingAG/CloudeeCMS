@@ -107,6 +107,7 @@ import { FeedPublishDialogComponent } from './editor/publication/dialogs/FeedPub
 import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconSelectDialog';
 import { UserLoginService } from './auth/userlogin.service';
 import { LoginDialogComponent } from './login-dialog/logindialog.component';
+import { BuildprojectDialogComponent } from './settings/dialogs/buildproject-dialog';
 
 @NgModule({
     declarations: [
@@ -146,6 +147,7 @@ import { LoginDialogComponent } from './login-dialog/logindialog.component';
         SettingsComponent,
         UpdaterDialogComponent,
         AboutDialogComponent,
+        BuildprojectDialogComponent,
         FileSelectionDialogComponent,
         ListFilesComponent,
         MTTableComponent,

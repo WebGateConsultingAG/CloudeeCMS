@@ -1,0 +1,52 @@
+<div>
+    <div mat-dialog-content>
+        <img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" class="logo dmLogo" />
+        <h1 mat-dialog-title>CodePipeline Build Projects</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <div *ngIf="buildinfo && buildinfo.buildprojects">
+            <table class="viewTable">
+                <thead>
+                    <tr>
+                        <th>Build Project</th>
+                        <th>Build Container Image Version</th>
+                        <th>Recommended Version</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let bp of buildinfo.buildprojects">
+                        
+                        <td>
+                            <b>{{bp.name}}</b><br />
+                            {{bp.computeType}}
+                        </td>
+                        <td>{{bp.image}}</td>
+                        <td>{{buildinfo.EXPECTED_BUILD_IMAGE}}</td>
+                        <td>
+                            <mat-icon *ngIf="bp.isOK" title="Image version is OK"
+                                style="color: green">check_circle</mat-icon>
+                            <mat-icon *ngIf="!bp.isOK" title="Image version needs upgrade"
+                                style="color: rgb(255, 81, 0)">warning</mat-icon>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br />
+        <div *ngIf="buildinfo && buildinfo.hasWarning" class="warn">
+            Upgrade of BuildProject image recommended! Please <a
+                href="https://www.cloudee-cms.com/news/2023/buildcontainer-upgrade" target="_blank">read how to
+                update</a> the CodePipeline CloudFormation stack.
+        </div>
+        <br />
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button (click)="btnCancel()">Close</button>
+    </div>
+</div>

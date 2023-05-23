@@ -382,4 +382,20 @@ export class BackendService {
                 return result.data || null;
             });
     }
+    // Generic actions
+    public actionContent(action: string, params: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES, { action, params }).toPromise().then((result: any) => {
+            return result.data || null;
+        });
+    }
+    public actionBkup(action: string, params: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES, { action, params }).toPromise().then((result: any) => {
+            return result.data || null;
+        });
+    }
+    public actionPublish(action: string, params: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES, { action, params }).toPromise().then((result: any) => {
+            return result.data || null;
+        });
+    }
 }
