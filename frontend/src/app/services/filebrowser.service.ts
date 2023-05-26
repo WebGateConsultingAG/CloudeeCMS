@@ -26,32 +26,32 @@ export class FileBrowserService {
         private backendSVC: BackendService,
         private fileSVC: FileAdminService,
     ) { }
-
-    // Convenience wrapper service
-
+    
     fileFilter = [];
 
     public listFilesOfBucket(thisBucketLabel: string, strPath: string, fileFilter: any, cb: any) {
         this.fileFilter = fileFilter || ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
-        const that = this;
         this.backendSVC.getConfig(false).then(
             (rc: any) => {
                 const config = rc.cfg;
-                const bucketConfig = that.getBucketByLabel(config, thisBucketLabel);
+                const bucketConfig = this.getBucketByLabel(config, thisBucketLabel);
                 const bucketURL = bucketConfig.webURL || '';
                 const CDN_URL = (bucketConfig.cdnURL ? bucketConfig.cdnURL + '/' : bucketURL);
-                this.fileSVC.listFiles(bucketConfig.bucketname, bucketURL, strPath).then(
+                this.fileSVC.fileAdminAction('listFiles', { bucketName: bucketConfig.bucketname, bucketURL, path: strPath }).then(
                     (data: any) => {
                         const filteredList = [];
-                        data.lstFiles.forEach(element => {
-                            if (element.otype && element.otype === 'Folder') {
-                                filteredList.push(element);
-                            } else {
-                                if (that.isAllowedFileExt(element.Key)) { filteredList.push(element); }
-                            }
-                        });
-
-                        cb(null, { folder: strPath, parentfolder: that.getParentFolder(strPath), CDNURL: CDN_URL, lst: filteredList });
+                        if (data.success) {
+                            data.lstFiles.forEach(element => {
+                                if (element.otype && element.otype === 'Folder') {
+                                    filteredList.push(element);
+                                } else {
+                                    if (this.isAllowedFileExt(element.Key)) { filteredList.push(element); }
+                                }
+                            });
+                        } else {
+                            alert(data.message || "Error in listFilesOfBucket()");
+                        }
+                        cb(null, { folder: strPath, parentfolder: this.getParentFolder(strPath), CDNURL: CDN_URL, lst: filteredList });
                     },
                     (err) => {
                         console.error(err);

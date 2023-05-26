@@ -64,13 +64,17 @@ export class ListFilesComponent implements OnInit {
     const bucketConfig = this.getBucketConfig(this.selectedBucket);
     const bucketURL: string = (bucketConfig ? bucketConfig.webURL || '' : '');
     this.cdnURL = (bucketConfig ? bucketConfig.cdnURL || '' : '');
-    this.fileSVC.listFiles(this.selectedBucket, bucketURL, strPath).then(
+    this.fileSVC.fileAdminAction('listFiles', { bucketName: this.selectedBucket, bucketURL, path: strPath }).then(
       (data: any) => {
-        this.viewList = data.lstFiles;
-        this.currentKey = strPath;
-        this.showListing = true;
-        this.selectAll = false;
-        this.setSelectAll();
+        if (data.success) {
+          this.viewList = data.lstFiles;
+          this.currentKey = strPath;
+          this.showListing = true;
+          this.selectAll = false;
+          this.setSelectAll();
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading files');
+        }
         this.setLoading(false);
       },
       (err) => {
@@ -102,17 +106,21 @@ export class ListFilesComponent implements OnInit {
     const fName = itm.Key.replace(/\//g, '\\');
     this.tabsSVC.navigateTo('editor/files/edit/' + this.selectedBucket + '|' + fName);
   }
-  deleteItem(itm): void {
+  deleteItem(itm: any): void {
     if (itm.otype === 'File') {
-      if (!confirm(itm.Key + '\nDo you really want to delete this file?')) { return; }
+      if (!confirm(itm.Key + '\nDo you really want to delete this file?')) return;
     } else {
-      // tslint:disable-next-line: max-line-length
-      if (!confirm(itm.Key + '\nNote: Folders must be empty before you can delete them.\nDo you really want to delete this folder?')) { return; }
+      if (!confirm(itm.Key + '\nNote: Folders must be empty before you can delete them.\nDo you really want to delete this folder?')) return;
     }
     this.setLoading(true);
-    this.fileSVC.deleteFile(this.selectedBucket, itm.Key).then(
+    this.fileSVC.fileAdminAction('deleteFile', { bucketName: this.selectedBucket, key: itm.Key }).then(
       (data: any) => {
-        this.listFiles(this.currentKey);
+        if (data.success) {
+          this.listFiles(this.currentKey);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while deleting file');
+          this.setLoading(false);
+        }
       },
       (err) => {
         this.tabsSVC.printNotification('Error while deleting file');
@@ -126,12 +134,17 @@ export class ListFilesComponent implements OnInit {
     this.viewList.forEach(f => {
       if (f.otype === 'File' && f.sel) { lstKeys.push(f.Key); }
     });
-    if (lstKeys.length < 1) { return; }
-    if (!confirm('Do you really want to delete all selected files?')) { return; }
+    if (lstKeys.length < 1) return;
+    if (!confirm('Do you really want to delete all selected files?')) return;
     this.setLoading(true);
-    this.fileSVC.batchDeleteFile(this.selectedBucket, lstKeys).then(
+    this.fileSVC.fileAdminAction('batchDeleteFiles', { bucketName: this.selectedBucket, lstKeys }).then(
       (data: any) => {
-        this.listFiles(this.currentKey);
+        if (data.success) {
+          this.listFiles(this.currentKey);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while deleting files');
+          this.setLoading(false);
+        }
       },
       (err) => {
         this.tabsSVC.printNotification('Error while deleting file');
@@ -166,9 +179,14 @@ export class ListFilesComponent implements OnInit {
 
     const newFolderKey = this.currentKey + folderName + '/';
     this.setLoading(true);
-    this.fileSVC.createFolder(this.selectedBucket, newFolderKey).then(
+    this.fileSVC.fileAdminAction('createFolder', { bucketName: this.selectedBucket, key: newFolderKey }).then(
       (data: any) => {
-        this.listFiles(this.currentKey);
+        if (data.success) {
+          this.listFiles(this.currentKey);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while creating folder');
+          this.setLoading(false);
+        }
       },
       (err) => {
         this.tabsSVC.printNotification('Error while creating folder');
@@ -230,7 +248,7 @@ export class ListFilesComponent implements OnInit {
   btnInvalidateSelected(): void {
     const lstKeys = [];
     this.viewList.forEach(f => {
-      if (f.otype === 'File' && f.sel) { lstKeys.push( '/' + f.Key); }
+      if (f.otype === 'File' && f.sel) { lstKeys.push('/' + f.Key); }
     });
     if (lstKeys.length < 1) { return; }
     this.btnOpenCFDialog(lstKeys);

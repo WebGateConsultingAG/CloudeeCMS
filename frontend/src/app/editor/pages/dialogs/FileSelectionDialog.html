@@ -1,19 +1,18 @@
 <div>
     <div mat-dialog-actions>
-        <div class="row hdr-row">
-            <div class="col-md-6">
-                <h1 mat-dialog-title>{{dlgTitle}}</h1>
-            </div>
-            <div class="col-md-5">
-                <mat-form-field class="full-width" *ngIf="configLoaded && config.buckets">
-                    <mat-select placeholder="Environment" [(ngModel)]="selectedBucket" (selectionChange)="loadBucket()" [disabled]="!allowBucketSelection">
+        <div style="display: flex; width: 100%;">
+            <h1 mat-dialog-title style="flex-grow: 2;">{{dlgTitle}}</h1>
+            <div style="flex-grow: 1;">
+                <mat-form-field *ngIf="configLoaded && config.buckets">
+                    <mat-select placeholder="Environment" [(ngModel)]="selectedBucket" (selectionChange)="loadBucket()"
+                        [disabled]="!allowBucketSelection">
                         <mat-option *ngFor="let bucket of config.buckets" value="{{bucket.bucketname}}">
                             {{bucket.label}}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="col-md-1">
+            <div style="flex-grow: 1; text-align: right;">
                 <button mat-icon-button (click)="btnClose()">
                     <mat-icon>close</mat-icon>
                 </button>

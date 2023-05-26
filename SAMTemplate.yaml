@@ -232,7 +232,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: ./backend/aws-serverless-cms-fileadmin
       Description: CloudeeCMS API for file explorer
       MemorySize: 256

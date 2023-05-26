@@ -65,16 +65,21 @@ export class FileUploadDialogComponent implements OnInit {
     public startFileUpload(selectedFiles) {
         console.log('startFileUpload');
         this.showUploader = true;
-        const that = this;
+        this.hasError = false;
         for (const key in selectedFiles) { if (!isNaN(parseInt(key, 10))) { this.files.add(selectedFiles[key]); } }
 
         // Get a presigned upload policy from lambda
-        this.fileSVC.getSignedUploadPolicy(this.targetEnv, this.uplPath).then(
+        this.fileSVC.fileAdminAction('getsigneduploadpolicy', { bucketName: this.targetEnv, keyPrefix: this.uplPath }).then(
             (reqdata: any) => {
-                that.processUploads(reqdata.data);
+                if (reqdata.success) {
+                    this.processUploads(reqdata.data);
+                } else {
+                    this.hasError = true;
+                    alert(reqdata.message || 'Error while requesting signed upload policy');
+                }
             },
-            (err) => {
-                that.hasError = true;
+            (err: any) => {
+                this.hasError = true;
                 console.log('Error in getSignedUploadPolicy', err);
             }
         );
