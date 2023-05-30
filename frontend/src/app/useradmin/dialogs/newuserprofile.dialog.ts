@@ -43,22 +43,22 @@ export class NewUserProfileDialogComponent implements OnInit {
   }
 
   btnCreateUser() {
-    const that = this;
-    that.loading = true;
-    this.backendSVC.createCognitoUser(this.usr).then(
+    this.loading = true;
+    this.errorMessage = '';
+    this.backendSVC.cognitoAction('createCognitoUser', { usr: this.usr }).then(
       (data: any) => {
-        that.loading = false;
         if (data.success) {
-          that.regDone = true;
-          that.tempPwd = data.tempPwd;
+          this.regDone = true;
+          this.tempPwd = data.tempPwd;
         } else {
-          that.errorMessage = data.message.message;
+          this.errorMessage = data.message || 'Failed to create user';
         }
+        this.loading = false;
       },
-      (err) => {
-        that.loading = false;
+      (err: any) => {
+        this.loading = false;
         console.error('Error', err);
-        that.errorMessage = 'Failed to create user';
+        this.errorMessage = 'Failed to create user';
       }
     );
   }

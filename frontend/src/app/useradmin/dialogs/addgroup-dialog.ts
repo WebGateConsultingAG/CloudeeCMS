@@ -21,16 +21,15 @@ export class GroupAddDialogComponent implements OnInit {
     userID: string;
 
     ngOnInit(): void {
-        const that = this;
         this.userID = this.data.userID;
-        this.backendSVC.cognitoListGroups().then(
+        this.backendSVC.cognitoAction('listGroups', {}).then(
             (data: any) => {
-                that.allgroups = data.groups || [];
-                that.loading = false;
+                this.allgroups = data.groups || [];
+                this.loading = false;
             },
-            (err) => {
+            (err: any) => {
                 console.log('Error', err);
-                that.tabsSVC.printNotification('Failed to retrieve list of groups!');
+                this.tabsSVC.printNotification('Failed to retrieve list of groups!');
             }
         );
     }
@@ -40,13 +39,16 @@ export class GroupAddDialogComponent implements OnInit {
             this.tabsSVC.printNotification('UserID is missing');
             return;
         }
-        const that = this;
-        this.backendSVC.cognitoAddUserToGroup(this.userID, this.selectedGroup).then(
+        this.backendSVC.cognitoAction('addUserToGroup', { id: this.userID, groupname: this.selectedGroup }).then(
             (data: any) => {
-                if (data.success) { that.dialogRef.close(that.selectedGroup); }
+                if (data.success) {
+                    this.dialogRef.close(this.selectedGroup);
+                } else {
+                    this.tabsSVC.printNotification(data.message || 'Failed to add group!');
+                }
             },
             (err) => {
-                that.tabsSVC.printNotification('Failed to add group!');
+                this.tabsSVC.printNotification('Failed to add group!');
                 console.log('Error', err);
             }
         );

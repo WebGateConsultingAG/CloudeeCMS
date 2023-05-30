@@ -204,6 +204,30 @@ Resources:
             RestApiId:
               Ref: WebGateSCMSAPI
 
+  scmscognitoapi:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      CodeUri: ./backend/aws-serverless-cms-cognito
+      Description: CloudeeCMS API for cognito user administration
+      MemorySize: 256
+      Timeout: 10
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          CognitoUserPoolID: !Ref CognitoUserPoolID
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /cognito-admin
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
   scmspublishapi:
     Type: 'AWS::Serverless::Function'
     Properties:

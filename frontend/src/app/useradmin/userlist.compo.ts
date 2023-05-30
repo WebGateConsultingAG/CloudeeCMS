@@ -45,33 +45,34 @@ export class UserListComponent implements OnInit {
   }
 
   loadView(forceUpdate: boolean): void {
-    const that = this;
-    that.setLoading(true);
-    this.backendSVC.listCognitoUsers(this.maxEntries, this.nextToken).then(
-       (data: any) => {
-        that.viewList = data.list;
-        that.nextToken = data.PaginationToken || null;
-        that.setLoading(false);
+    this.setLoading(true);
+    this.backendSVC.cognitoAction('listCognitoUsers', { maxEntries: this.maxEntries, nextToken: this.nextToken }).then(
+      (data: any) => {
+        if (data.success) {
+          this.viewList = data.list || [];
+          this.nextToken = data.PaginationToken || null;
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
+        }
+        this.setLoading(false);
       },
-       (err) => {
+      (err: any) => {
         console.error(err);
-        that.tabsSVC.printNotification('Error while loading');
-        that.setLoading(false);
+        this.tabsSVC.printNotification('Error while loading');
+        this.setLoading(false);
       }
     );
   }
   btnEditUser(thisID: string) {
-    const that = this;
     const dialogRef = this.dialog.open(UserProfileDialogComponent, { width: '650px', disableClose: false, data: { id: thisID } });
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.action === 'refreshview') { that.loadView(true); }
+      if (result && result.action === 'refreshview') { this.loadView(true); }
     });
   }
   btnNewUser() {
-    const that = this;
     const dialogRef = this.dialog.open(NewUserProfileDialogComponent, { width: '450px', disableClose: false, data: {} });
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.action === 'refreshview') { that.loadView(true); }
+      if (result && result.action === 'refreshview') { this.loadView(true); }
     });
   }
   setLoading(on: boolean) {

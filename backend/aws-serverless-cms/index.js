@@ -13,11 +13,10 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-07-30 0703 - RSC
+ * File Version: 2023-05-30 0726 - RSC
  */
 
 const storage = require('./functions/storage-service').storage;
-const cognitoService = require('./functions/cognito-service').cognitoSvc;
 const cfService = require('./functions/cloudfront-service').cfSvc;
 
 exports.handler = function(event, context, callback) {
@@ -70,10 +69,6 @@ exports.handler = function(event, context, callback) {
             return storage.getImageProfiles(done);
         } else if (action === 'saveimageprofiles') {
             return storage.saveImageProfiles(payload.obj , done);
-        } else if (action === 'listusers') {
-            return cognitoService.listUsers(payload.maxResults, payload.nextToken, done);
-        } else if (action === 'getcognitouser') {
-            return cognitoService.getCognitoUser(payload.id, done);
         } else if (action === 'deleteitembyid') {
             return storage.deleteItemByID(payload.id, done);
         } else if (action === 'bulkdeleteitem') {
@@ -91,25 +86,6 @@ exports.handler = function(event, context, callback) {
                 return storage.saveBlock(payload.obj, done);
             } else if (action === 'savemicrotemplate') {
                 return storage.saveMicroTemplate(payload.obj, done);
-            }
-        }
-
-        // Restricted to useradmin
-        if (isUserAdmin || isAdmin) {
-            if (action === 'savecognitouser') {
-                return cognitoService.saveCognitoUser(payload.usr, done);
-            } else if (action === 'toggleCognitoUser') {
-                return cognitoService.toggleCognitoUser(payload.id, payload.enable, done);
-            } else if (action === 'deletecognitouser') {
-                return cognitoService.deleteCognitoUser(payload.id, done);
-            } else if (action === 'createcognitouser') {
-                return cognitoService.createCognitoUser(payload.usr, done);
-            } else if (action === 'cognitolistgroups') {
-                return cognitoService.listAllGroups(done);
-            } else if (action === 'cognitoaddusertogroup') {
-                return cognitoService.addUserToGroup(payload.id, payload.groupname, done);
-            } else if (action === 'cognitoremoveuserfromgroup') {
-                return cognitoService.removeUserFromGroup(payload.id, payload.groupname, done);
             }
         }
 
