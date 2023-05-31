@@ -29,8 +29,7 @@ import { BackendService } from 'src/app/services/backend.service';
 .fileExplorer .clickable { cursor: pointer; }
 .fileExplorer a { text-decoration: none; color: black; }
 .fileExplorer a:hover { text-decoration: underline; }
-.folderActions button { margin-right: 6px; }
-.hdr-row { width: 100%;}`]
+.folderActions button { margin-right: 6px; }`]
 })
 
 export class FileSelectionDialogComponent implements OnInit {
@@ -97,36 +96,39 @@ export class FileSelectionDialogComponent implements OnInit {
     getBucketNameByLabel(label) {
         // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this.config.buckets.length; i++) {
-            if (this.config.buckets[i].label === label) { return  this.config.buckets[i].bucketname; }
+            if (this.config.buckets[i].label === label) { return this.config.buckets[i].bucketname; }
         }
     }
     listFiles(strPath: string) {
-        const that = this;
         this.loading = true;
-        that.errorMessage = '';
+        this.errorMessage = '';
         this.showListing = false;
         const bucketConfig = this.getBucketConfig(this.selectedBucket);
         const bucketURL: string = (bucketConfig ? bucketConfig.webURL || '' : '');
         this.cdnURL = (bucketConfig ? bucketConfig.cdnURL || '' : '');
-        this.fileSVC.listFiles(this.selectedBucket, bucketURL, strPath).then(
+        this.fileSVC.fileAdminAction('listFiles', { bucketName: this.selectedBucket, bucketURL, path: strPath }).then(
             (data: any) => {
-                const filteredList = [];
-                data.lstFiles.forEach(element => {
-                    if (element.otype && element.otype === 'Folder') {
-                        filteredList.push(element);
-                    } else {
-                        if (that.isAllowedFileExt(element.Key)) { filteredList.push(element); }
-                    }
-                });
-                that.viewList = filteredList;
-                that.currentKey = strPath;
-                that.showListing = true;
-                that.loading = false;
+                if (data.success) {
+                    const filteredList = [];
+                    data.lstFiles.forEach(element => {
+                        if (element.otype && element.otype === 'Folder') {
+                            filteredList.push(element);
+                        } else {
+                            if (this.isAllowedFileExt(element.Key)) { filteredList.push(element); }
+                        }
+                    });
+                    this.viewList = filteredList;
+                    this.currentKey = strPath;
+                    this.showListing = true;
+                } else {
+                    this.errorMessage = data.message || 'Error while loading files';
+                }
+                this.loading = false;
             },
             (err) => {
-                that.errorMessage = 'Error while loading files';
+                this.errorMessage = 'Error while loading files';
                 console.error(err);
-                that.loading = false;
+                this.loading = false;
             }
         );
     }

@@ -28,6 +28,7 @@ export class BackendService {
     CONTENT_RES = '/content-admin';
     PUBLISH_RES = '/content-publish';
     BACKUP_RES = '/content-backup';
+    COGNITO_RES = '/cognito-admin';
 
     NOTIFICATIONS_ENDPOINT = 'https://notifications.cloudee-cms.com/api';
     APP_VERSION_INFO = versioninfo;
@@ -314,62 +315,6 @@ export class BackendService {
                 return result.data || null;
             });
     }
-    public listCognitoUsers(maxEntries: number, nextToken: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            // tslint:disable-next-line: object-literal-shorthand
-            { action: 'listusers', maxResults: maxEntries, nextToken: nextToken }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getCognitoUser(thisID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getcognitouser', id: thisID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public saveCognitoUser(thisUsr: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'savecognitouser', usr: thisUsr }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public toggleCognitoUser(id: any, enable: boolean) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            // tslint:disable-next-line: object-literal-shorthand
-            { action: 'toggleCognitoUser', id: id, enable: enable }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public deleteCognitoUser(thisID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'deletecognitouser', id: thisID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public createCognitoUser(thisUsr: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'createcognitouser', usr: thisUsr }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public cognitoListGroups() {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'cognitolistgroups' }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public cognitoAddUserToGroup(userID: string, groupName: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'cognitoaddusertogroup', id: userID, groupname: groupName }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public cognitoRemoveUserFromGroup(userID: string, groupName: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'cognitoremoveuserfromgroup', id: userID, groupname: groupName }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
     public getAllMTIDsInUse() {
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
             { action: 'getallmtidsinuse' }).toPromise().then((result: any) => {
@@ -396,6 +341,13 @@ export class BackendService {
     public actionPublish(action: string, params: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES, { action, params }).toPromise().then((result: any) => {
             return result.data || null;
+        });
+    }
+    
+    // Cognito user admin API
+    public cognitoAction(action: string, params: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.COGNITO_RES, { action, params }).toPromise().then((result: any) => {
+            return result || null;
         });
     }
 }

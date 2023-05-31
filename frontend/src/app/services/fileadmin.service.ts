@@ -24,64 +24,17 @@ import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class FileAdminService {
 
-    constructor(
-        private http: HttpClient
-    ) { }
+    constructor( private http: HttpClient ) { }
 
     FILE_RES = '/file-admin';
     IMG_RES = '/img-resize';
 
     // Authentication token will be added by MyHttpInterceptor (see modules)
 
-    public listFiles(thisBucketName: string, thisBucketURL: string, strPath: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            {
-                action: 'listfiles', bucketName: thisBucketName,
-                bucketURL: thisBucketURL, path: strPath
-            }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public deleteFile(thisBucketName: string, thisKey: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'deletefile', bucketName: thisBucketName, key: thisKey }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public batchDeleteFile(thisBucketName: string, lstKeys: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'batchdeletefile', bucketName: thisBucketName, lstKeys }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public createFolder(thisBucketName: string, thisKey: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'createfolder', bucketName: thisBucketName, key: thisKey }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-
-    public getSignedUploadPolicy(thisBucketName: string, thisKeyPrefix: string): Promise<boolean> {
-        // This policy issued by lambda will allow us to upload straight to S3!
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'getsigneduploadpolicy', bucketName: thisBucketName, keyPrefix: thisKeyPrefix }).toPromise().then((result: any) => {
-                return result || null;
-            });
-    }
-
-    // for file editor -> get contents from S3 (via lambda, to get Content-Type as well)
-    public getFileByKey(bucketname: string, Key: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'getfile', bucketName: bucketname, key: Key }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    // for file editor -> might be changed to signedupload..
-    public saveFile(bucketname: string, fileinfo: any, filebody: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES,
-            { action: 'savefile', bucketName: bucketname, fileInfo: fileinfo, fileBody: filebody }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
+    public fileAdminAction(action: string, params: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.FILE_RES, { action, params }).toPromise().then((result: any) => {
+            return result || null;
+        });
     }
 
     public upload(files: Set<File>, s3uploadPath: string, s3policy: any, CCMaxAge: string): { [key: string]: Observable<number> } {
@@ -91,7 +44,6 @@ export class FileAdminService {
         files.forEach(file => {
             const formData: FormData = new FormData();
             formData.append('Content-Type', file.type);
-            // tslint:disable-next-line: forin
             for (const f in s3policy.fields) { formData.append(f, s3policy.fields[f]); } // inherit all fields from policy
             formData.append('ACL', 'public-read'); // must appear before file contents!
             formData.append('Cache-Control', 'max-age=' + maxAge);

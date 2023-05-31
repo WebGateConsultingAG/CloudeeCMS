@@ -65,16 +65,20 @@ export class PackageUploadDialogComponent implements OnInit {
 
     public startFileUpload(selectedFiles) {
         this.showUploader = true;
-        const that = this;
+        this.errorMessage = '';
         for (const key in selectedFiles) { if (!isNaN(parseInt(key, 10))) { this.files.add(selectedFiles[key]); } }
 
         // Get a presigned upload policy from lambda
-        this.fileSVC.getSignedUploadPolicy(this.bucket, this.uplPath).then(
+        this.fileSVC.fileAdminAction('getsigneduploadpolicy', { bucketName: this.bucket, keyPrefix: this.uplPath }).then(
             (reqdata: any) => {
-                that.processUploads(reqdata.data);
+                if (reqdata.success) {
+                    this.processUploads(reqdata.data);
+                } else {
+                    this.errorMessage = reqdata.message || 'Error while getting signed upload policy';
+                }
             },
             (err) => {
-                that.errorMessage = 'Error while getting signed upload policy';
+                this.errorMessage = 'Error while getting signed upload policy';
                 console.log('Error in getSignedUploadPolicy', err);
             }
         );
@@ -95,9 +99,9 @@ export class PackageUploadDialogComponent implements OnInit {
             const lst = [];
             // tslint:disable-next-line: forin
             for (const f in this.progress) {
-                lst.push( { nm: this.progress[f].nm, s3key: this.progress[f].s3key} );
+                lst.push({ nm: this.progress[f].nm, s3key: this.progress[f].s3key });
             }
-            this.processUploadedPackage( lst[0] );
+            this.processUploadedPackage(lst[0]);
         });
     }
     processUploadedPackage(pkg: any): void {
@@ -129,14 +133,18 @@ export class PackageUploadDialogComponent implements OnInit {
     }
     removePackage(key: string) {
         console.log('Removing package after import', key);
-        this.fileSVC.deleteFile(this.bucket, key).then(
+        this.fileSVC.fileAdminAction('deleteFile', { bucketName: this.bucket, key }).then(
             (data: any) => {
-              console.log('Package removed from temporary storage');
+                if (data.success) {
+                    console.log('Package removed from temporary storage');
+                } else {
+                    console.log(data.message || "Error while removing package from temporary storage.");
+                }
             },
             (err) => {
-              console.error(err);
+                console.error(err);
             }
-          );
+        );
     }
 }
 

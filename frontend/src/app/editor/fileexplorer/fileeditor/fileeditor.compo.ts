@@ -87,20 +87,18 @@ export class FileEditorComponent implements OnInit {
       }
     );
   }
-  loadFileByKey(bucket: string, key: string) {
-    this.fileSVC.getFileByKey(bucket, key).then(
+  loadFileByKey(bucketName: string, key: string) {
+    this.fileSVC.fileAdminAction('getFile', { bucketName, key }).then(
       (data: any) => {
-        if (data) {
-          if (data.success && data.fileObj) {
-            this.contentType = data.fileObj.ContentType;
-            this.lastModified = data.fileObj.LastModified;
-            this.fileBody = data.fileObj.Body.toString();
-            if (data.fileObj.CacheControl) { this.ccMaxAge = data.fileObj.CacheControl; }
-            this.tabsSVC.setTabTitle(this.tabid, this.fileName || 'Untitled File');
-            this.fileLoaded = true;
-          } else {
-            this.tabsSVC.printNotification('Error while loading file');
-          }
+        if (data.success) {
+          this.contentType = data.fileObj.ContentType;
+          this.lastModified = data.fileObj.LastModified;
+          this.fileBody = data.fileObj.Body.toString();
+          if (data.fileObj.CacheControl) { this.ccMaxAge = data.fileObj.CacheControl; }
+          this.tabsSVC.setTabTitle(this.tabid, this.fileName || 'Untitled File');
+          this.fileLoaded = true;
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading file');
         }
         this.setLoading(false);
       },
@@ -124,12 +122,16 @@ export class FileEditorComponent implements OnInit {
     };
 
     this.setLoading(true);
-    this.fileSVC.saveFile(this.bucketName, fileInfo, this.fileBody).then(
+    // Note: saveFile currently passes file contents from Lambda through API-GW. 
+    // This could be changed to S3 presigned POST.
+    this.fileSVC.fileAdminAction('saveFile', { bucketName: this.bucketName, fileInfo, fileBody: this.fileBody }).then(
       (data: any) => {
         this.setLoading(false);
         if (data.success) {
           this.tabsSVC.printNotification('File saved');
           this.setHasChanges(false);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while saving');
         }
       },
       (err) => {

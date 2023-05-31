@@ -49,19 +49,22 @@ export class ImportDialogComponent implements OnInit {
     }
 
     listFiles(strPath: string) {
-        const that = this;
         this.loading = true;
-        this.fileSVC.listFiles(this.bucket, '', strPath).then(
+        this.fileSVC.fileAdminAction('listFiles', { bucketName: this.bucket, bucketURL: '', path: strPath }).then(
             (data: any) => {
-                that.files = data.lstFiles || [];
-                that.showImportButton = that.files.length > 0;
-                that.loading = false;
+                if (data.success) {
+                    this.files = data.lstFiles || [];
+                    this.showImportButton = this.files.length > 0;
+                } else {
+                    this.errorMessage = data.message || 'Error while loading files';
+                }
+                this.loading = false;
             },
             (err) => {
-                that.errorMessage = 'Error while loading files';
+                this.errorMessage = 'Error while loading files';
                 console.error(err);
-                that.loading = false;
-                that.showImportButton = false;
+                this.loading = false;
+                this.showImportButton = false;
             }
         );
     }

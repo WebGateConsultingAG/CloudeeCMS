@@ -39,15 +39,14 @@ export class MyProfileComponent implements OnInit {
   userData: any;
 
   ngOnInit() {
-    const that = this;
     Auth.currentAuthenticatedUser().then(data => {
       console.log('user', data);
-      that.userData = data;
-      that.setLoading(false);
-      that.userLoaded = true;
+      this.userData = data;
+      this.setLoading(false);
+      this.userLoaded = true;
     }).catch(err => {
-      that.setLoading(false);
-      that.errorMessage = err.message || 'Error while loading user data';
+      this.setLoading(false);
+      this.errorMessage = err.message || 'Error while loading user data';
     });
   }
 

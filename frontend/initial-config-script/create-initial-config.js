@@ -44,7 +44,6 @@ async function createInitialConfig() {
             cdnURL: 'https://' + CFDIST_PROD_URL,
             label: 'Production',
             preventDelete: true,
-            // webURL: S3BUCKET_PROD_URL + '/' // http -> causes mixed-content error
             webURL: 'https://' + S3BUCKET_PROD + '.s3.' + REGION + '.amazonaws.com/'
         });
 
@@ -52,7 +51,6 @@ async function createInitialConfig() {
             bucketname: S3BUCKET_TEST,
             label: 'Test',
             preventDelete: true,
-            // webURL: S3BUCKET_TEST_URL + '/' // http -> causes mixed-content error
             webURL: 'https://' + S3BUCKET_TEST + '.s3.' + REGION + '.amazonaws.com/'
         });
 
