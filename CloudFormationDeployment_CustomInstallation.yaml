@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment Custom Installation (Online Update) 2023-05-12 08:45
+Description: CloudeeCMS Auto Deployment Custom Installation (Online Update) 2023-05-31 07:10
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -719,10 +719,25 @@ Resources:
         Type: "S3"
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       AttributeDefinitions:
         - AttributeName: "id"
           AttributeType: "S"
+        - AttributeName: "otype"
+          AttributeType: "S"
+        - AttributeName: "GSI1SK"
+          AttributeType: "S"
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1-index
+          KeySchema:
+            - AttributeName: otype
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: true
@@ -882,7 +897,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: Run this once to finalize setup of CloudeeCMS
-      Runtime: nodejs14.x
+      Runtime: nodejs16.x
       Role: !GetAtt CFDeployerRole.Arn
       Handler: index.handler
       Timeout: 40

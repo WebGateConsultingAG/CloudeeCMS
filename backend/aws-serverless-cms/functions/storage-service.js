@@ -13,309 +13,300 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-11-18 0636 - RSC
+ * File Version: 2023-05-31 0708
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
 const documentClient = new DynamoDB.DocumentClient({ convertEmptyValues: true });
 const tableName = process.env.DB_TABLE || '';
+const GSI1_NAME = 'GSI1-index';
 const storage = {};
 
-storage.getItemByID = async function(id, done) {
-    let doc = await documentClient.get({
-          TableName: tableName,
-          Key: { id:  id  }
-        }).promise();
+storage.getItemByID = async function (id, done) {
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: id } }).promise();
     done.done({ item: doc.Item });
 };
-storage.deleteItemByID = async function(id, done) {
-    await documentClient.delete({
-          TableName: tableName,
-          Key: { id:  id  }
-        }).promise();
-    done.done({ success: true});
+storage.deleteItemByID = async function (id, done) {
+    await documentClient.delete({ TableName: tableName, Key: { id: id } }).promise();
+    done.done({ success: true });
 };
-storage.batchDelete = async function(lstID, done) {
+storage.batchDelete = async function (lstID, done) {
     // max. 25 items per batchWrite request!
     const arrItems = [];
     let imax = lstID.length;
     if (imax > 25) imax = 25;
-    for (var i=0; i<imax; i++) {
-        arrItems.push({ DeleteRequest : { Key : { 'id' : lstID[i] }}});
+    for (var i = 0; i < imax; i++) {
+        arrItems.push({ DeleteRequest: { Key: { 'id': lstID[i] } } });
     }
-    const params = { RequestItems : {} };
+    const params = { RequestItems: {} };
     params.RequestItems[tableName] = arrItems;
     await documentClient.batchWrite(params).promise();
-    done.done({ success: true});
+    done.done({ success: true });
 };
-storage.getConfig = async function(userGroups, done) {
-    let doc = await documentClient.get({ TableName: tableName, Key: { id:  "config" }}).promise();
+storage.getConfig = async function (userGroups, done) {
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: "config" } }).promise();
     if (doc && doc.Item) {
-        done.done( { cfg: doc.Item, userGroups });
+        done.done({ cfg: doc.Item, userGroups });
     } else { // Create initial config
         let cfg = { "id": "config", "apptitle": "CloudeeCMS" };
         await documentClient.put({ TableName: tableName, Item: cfg }).promise();
-        done.done( { cfg: cfg, userGroups: userGroups });
+        done.done({ cfg: cfg, userGroups: userGroups });
     }
 };
-storage.saveConfig = async function(obj, done) {
+storage.saveConfig = async function (obj, done) {
     try {
         obj.id = "config";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true});
+        done.done({ success: true });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
-storage.getImageProfiles = async function(done) {
-    let doc = await documentClient.get({ TableName: tableName, Key: { id: "imageprofiles" }}).promise();
+storage.getImageProfiles = async function (done) {
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: "imageprofiles" } }).promise();
     if (doc && doc.Item) {
-        done.done( { imgprofiles: doc.Item });
+        done.done({ imgprofiles: doc.Item });
     } else { // Create initial profile
         let profile = { "id": "imageprofiles", "lstProfiles": [] };
         await documentClient.put({ TableName: tableName, Item: profile }).promise();
-        done.done( { imgprofiles: profile });
+        done.done({ imgprofiles: profile });
     }
 };
-storage.saveImageProfiles = async function(obj, done) {
+storage.saveImageProfiles = async function (obj, done) {
     try {
         obj.id = "imageprofiles";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true});
+        done.done({ success: true });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
-storage.duplicatePage = async function(id, done) {
+storage.duplicatePage = async function (id, done) {
     let newID = guid();
-    let doc = await documentClient.get({
-        TableName: tableName,
-        Key: { id:  id  }
-      }).promise();
-
+    let doc = await documentClient.get({ TableName: tableName, Key: { id: id } }).promise();
     if (!doc.Item) return done.done({ success: false, message: 'Page not found' });
-    
+
     doc.Item.id = newID;
     doc.Item.opath += '_1';
     doc.Item.ftindex = false;
     doc.Item.sitemap = false;
     doc.Item.categories = [];
     await documentClient.put({ TableName: tableName, Item: doc.Item }).promise();
-    
+
     done.done({ success: true, newPageID: newID });
-}
-storage.getPageByID = async function(id, done) {
-    var doc;
-    if (!id || id==="" || id==="NEW") {
+};
+storage.getPageByID = async function (id, done) {
+    let doc;
+    if (!id || id === "" || id === "NEW") {
         doc = { Item: { id: guid(), dt: new Date(), ftindex: true, sitemap: true } };
     } else {
-        doc = await documentClient.get({
-          TableName: tableName,
-          Key: { id:  id  }
-        }).promise();
+        doc = await documentClient.get({ TableName: tableName, Key: { id: id } }).promise();
     }
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Layout'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Layout' },
         ProjectionExpression: 'id, okey, title, custFields'
     };
-    
+    // TODO: use GSI query
     let lstLayouts = await DDBScan(params);
-    
+
     done.done({ item: doc.Item, layouts: lstLayouts });
 };
 
-storage.getAllBlocks = async function(done) {
+storage.getAllBlocks = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Block'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Block' },
         ProjectionExpression: 'id, okey, title, descr'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    done.done( lst );
+    done.done(lst);
 };
-storage.getAllMicroTemplates = async function(done) {
+storage.getAllMicroTemplates = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'MT'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'MT' },
         ProjectionExpression: 'id, custFields, otype, title, descr, fldPreview, icon'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    done.done( lst );
+    done.done(lst);
 };
-storage.getAllLayouts = async function(done) {
+storage.getAllLayouts = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Layout'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Layout' },
         ProjectionExpression: 'id, okey, title, descr'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    done.done( lst );
+    done.done(lst);
 };
-storage.getAllForms = async function(done) {
+storage.getAllForms = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Form'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Form' },
         ProjectionExpression: 'id, title, descr'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    done.done( lst );
+    done.done(lst);
 };
-storage.getAllSubmittedForms = async function(done) {
+storage.getAllSubmittedForms = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'SubmittedForm'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'SubmittedForm' },
         ProjectionExpression: 'id, title, dt, email'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    done.done( lst );
+    done.done(lst);
 };
-storage.getAllPages = async function(done) {
+storage.getAllPages = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Page'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
         ProjectionExpression: 'id, opath, title'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    
+
     // build a category tree
     var lstTree = flxTree.makeTree(lst);
-    
-    done.done( { lstPages: lst, tree: lstTree} );
+
+    done.done({ lstPages: lst, tree: lstTree });
 };
-storage.getPublicationQueue = async function(done) {
+storage.getPublicationQueue = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld AND queue = :needsupd',
-        ExpressionAttributeValues : {':fld' : 'Page', ':needsupd': true },
+        FilterExpression: 'otype = :fld AND queue = :needsupd',
+        ExpressionAttributeValues: { ':fld': 'Page', ':needsupd': true },
         ProjectionExpression: 'id, opath, title'
     };
-    
+    // TODO: use GSI query
     let lst = await DDBScan(params);
-    done.done( { lstPages: lst } );
+    done.done({ lstPages: lst });
 };
-
-storage.savePage = async function(obj, done) {
+storage.savePage = async function (obj, done) {
     try {
-        if (!obj.id || obj.id==="" || obj.id==="NEW") obj.id = "P-"+guid();
+        if (!obj.id || obj.id === "" || obj.id === "NEW") obj.id = "P-" + guid();
         obj.otype = "Page";
+        obj.GSI1SK = "/";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true, id: obj.id});
+        done.done({ success: true, id: obj.id });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
-storage.saveLayout = async function(obj, done) {
+storage.saveLayout = async function (obj, done) {
     try {
-        if (!obj.id || obj.id==="" || obj.id==="NEW") obj.id = "L-"+guid();
+        if (!obj.id || obj.id === "" || obj.id === "NEW") obj.id = "L-" + guid();
         obj.otype = "Layout";
         obj.ptype = "pugfile"; // this key is used in publish to build a list of all required pug files 
+        obj.GSI1SK = "/";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true, id: obj.id});
+        done.done({ success: true, id: obj.id });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
-storage.saveBlock = async function(obj, done) {
+storage.saveBlock = async function (obj, done) {
     try {
-        if (!obj.id || obj.id==="" || obj.id==="NEW") obj.id = "C-"+guid();
+        if (!obj.id || obj.id === "" || obj.id === "NEW") obj.id = "C-" + guid();
         obj.otype = "Block";
         obj.ptype = "pugfile"; // this key is used in publish to build a list of all required pug files 
+        obj.GSI1SK = "/";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true, id: obj.id});
+        done.done({ success: true, id: obj.id });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
-storage.saveMicroTemplate = async function(obj, done) {
+storage.saveMicroTemplate = async function (obj, done) {
     try {
-        if (!obj.id || obj.id==="" || obj.id==="NEW") obj.id = "MT-"+guid();
+        if (!obj.id || obj.id === "" || obj.id === "NEW") obj.id = "MT-" + guid();
         obj.otype = "MT";
-       // obj.ptype = "pugfile"; // this key is used in publish to build a list of all required pug files 
+        obj.GSI1SK = "/";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true, id: obj.id});
+        done.done({ success: true, id: obj.id });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
-storage.saveForm = async function(obj, done) {
+storage.saveForm = async function (obj, done) {
     try {
-        if (!obj.id || obj.id==="" || obj.id==="NEW") obj.id = "F-"+guid();
+        if (!obj.id || obj.id === "" || obj.id === "NEW") obj.id = "F-" + guid();
         obj.otype = "Form";
+        obj.GSI1SK = "/";
         await documentClient.put({ TableName: tableName, Item: obj }).promise();
-        done.done({ success: true, id: obj.id});
+        done.done({ success: true, id: obj.id });
     } catch (e) {
-        done.done({ success: false, error: e});
+        done.done({ success: false, error: e });
     }
 };
 
-storage.addAllToPublicationQueue = async function(done) {
+storage.addAllToPublicationQueue = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Page'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
         ProjectionExpression: 'id, opath, title, queue'
     };
     let lst = await DDBScan(params);
-    
-    lst.forEach(function(pg) {
-        if (pg.queue!==true) addPageToQueue(pg.id);
+
+    lst.forEach(function (pg) {
+        if (pg.queue !== true) addPageToQueue(pg.id);
     });
-    
-    done.done( { lstPages: lst } );
+
+    done.done({ lstPages: lst });
 };
 
-storage.getAllMTIDsInUse = async function(done) {
+storage.getAllMTIDsInUse = async function (done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Page'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
         ProjectionExpression: 'id, lstMTObj'
     };
     let lstPages = await DDBScan(params);
-
     let lstMTIDs = [];
-    for (var i=0; i<lstPages.length;i++) {
-        for (var f in lstPages[i].lstMTObj) {
+    for (let i = 0; i < lstPages.length; i++) {
+        for (let f in lstPages[i].lstMTObj) {
             if (lstPages[i].lstMTObj[f].lstObj) collectNestedMTIDs(lstPages[i].lstMTObj[f].lstObj, lstMTIDs);
         }
-     }
-     done.done( { lstMTIDs: lstMTIDs } );
+    }
+    done.done({ lstMTIDs: lstMTIDs });
 };
 
-storage.getAllPagesByMT = async function(mtid, done) {
+storage.getAllPagesByMT = async function (mtid, done) {
     let params = {
         TableName: tableName,
-        FilterExpression : 'otype = :fld',
-        ExpressionAttributeValues : {':fld' : 'Page'},
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
         ProjectionExpression: 'id, title, opath, lstMTObj'
     };
+    // TODO: use GSI query
     let lstPages = await DDBScan(params);
     let lstPagesInUse = [];
 
     // Search through all pages if MTID exists
-    lstPages.forEach(function(pg) {
-        var lstMTIDs = [];
+    lstPages.forEach(function (pg) {
+        let lstMTIDs = [];
         for (var f in pg.lstMTObj) {
             if (pg.lstMTObj[f].lstObj) collectNestedMTIDs(pg.lstMTObj[f].lstObj, lstMTIDs);
         }
-        if (lstMTIDs.indexOf(mtid)>=0) lstPagesInUse.push(pg);
+        if (lstMTIDs.indexOf(mtid) >= 0) lstPagesInUse.push(pg);
     });
-    
-    done.done( { lstPages: lstPagesInUse } );
+
+    done.done({ lstPages: lstPagesInUse });
 };
 
 // --- internals ---
@@ -341,20 +332,19 @@ async function addPageToQueue(id) {
         TableName: tableName,
         Key: { id: id },
         UpdateExpression: "set queue = :q",
-        ExpressionAttributeValues:{ ":q": true}
+        ExpressionAttributeValues: { ":q": true }
     };
-    await documentClient.update(params, function(err, data) {
-       if (err) console.log(err);
+    await documentClient.update(params, function (err, data) {
+        if (err) console.log(err);
     }).promise();
 }
-
 async function DDBScan(params) {
     // this will scan beyond 1MB limit
     let lstRC = [];
     let hasMore = true;
     while (hasMore) {
         var data = await documentClient.scan(params).promise();
-        data.Items.forEach(function(itemdata) {
+        data.Items.forEach(function (itemdata) {
             lstRC.push(itemdata);
         });
         if (typeof data.LastEvaluatedKey != "undefined") {
@@ -365,17 +355,35 @@ async function DDBScan(params) {
     }
     return lstRC;
 }
+async function DDBQuery(params) {
+    // this will query beyond 1MB limit
+    let lstRC = [];
+    let hasMore = true;
+    delete params.ExclusiveStartKey; // make sure there is no lastevaluated key from a previous run
+    while (hasMore) {
+        let data = await documentClient.query(params).promise();
+        data.Items.forEach((itemdata) => {
+            lstRC.push(itemdata);
+        });
+        if (typeof data.LastEvaluatedKey !== "undefined") {
+            params.ExclusiveStartKey = data.LastEvaluatedKey;
+        } else {
+            hasMore = false;
+        }
+    }
+    return lstRC;
+}
 
 var flxTree = {
-    makeTree: function(lstFlat) {
+    makeTree: function (lstFlat) {
         let tree = {};
         lstFlat.forEach(pgEntry => {
             let thisPath = pgEntry.opath || 'UNTITLED';
             let arrCats = thisPath.split('/');
             let thisBranch;
-            for (var c=0;c<arrCats.length;c++) {
+            for (var c = 0; c < arrCats.length; c++) {
                 thisBranch = this.getTreeBranch(tree, thisBranch, arrCats[c]);
-                if (c==arrCats.length-1) thisBranch.id = pgEntry.id; // page!
+                if (c == arrCats.length - 1) thisBranch.id = pgEntry.id; // page!
             }
         });
 
@@ -383,39 +391,49 @@ var flxTree = {
         let newtree = this.recursiveAdd(tree);
         return newtree;
     },
-    recursiveAdd: function(branch) {
+    recursiveAdd: function (branch) {
         let rc = [];
         for (let row in branch) {
             let thisRow = branch[row];
-            if (row!=="id") {
-                let addElem = { "label": row};
+            if (row !== "id") {
+                let addElem = { "label": row };
                 if (thisRow.id) {
-                    addElem.etype="Page";
+                    addElem.etype = "Page";
                     addElem.id = thisRow.id;
                 } else {
-                    addElem.etype="Folder";
+                    addElem.etype = "Folder";
                 }
                 var subs = this.recursiveAdd(thisRow);
-                if (subs.length>0) addElem.childs = subs;
+                if (subs.length > 0) addElem.childs = subs;
                 rc.push(addElem);
             }
         }
         return rc;
     },
-    getTreeBranch: function(treeObj, parentBranch, thisCat) {
+    getTreeBranch: function (treeObj, parentBranch, thisCat) {
         let theTree = parentBranch || treeObj;
-        if (typeof theTree[thisCat] =="undefined") theTree[thisCat] = {};
+        if (typeof theTree[thisCat] == "undefined") theTree[thisCat] = {};
         return theTree[thisCat];
     }
 };
 
-
-
 function guid() {
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
+    function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) }
     return s4() + s4() + s4();
 }
 
+const getFormattedDate = (strDT) => {
+    try {
+        if (!strDT || strDT === '') return '';
+        let dt = new Date(strDT);
+        dt.setMinutes(dt.getMinutes());
+        const newDT = dt.getFullYear() + '-';
+        const m = dt.getMonth() + 1;
+        const d = dt.getDate();
+        return newDT + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+    } catch (e) {
+        console.log(e);
+        return '';
+    }
+};
 module.exports.storage = storage;

@@ -31,43 +31,37 @@ const TASK_QUEUE_URL = process.env.TASK_QUEUE_URL;
 const sqs = new AWS.SQS();
 
 exports.handler = async function (event, context, callback) {
-//        console.log("event.Records", event.Records);
-//        console.log("event.Records.length", event.Records.length);
-        
-        let indexName="";
-        let FTindex=null;
-        
-        for (let m=0;m<event.Records.length;m++) {
-            var msg = event.Records[m];
-            var msgObj = JSON.parse(msg.body);
-            try {
-                if (indexName!==msgObj.indexName) {
-                    console.log("init index", msgObj.indexName);
-                    indexName = msgObj.indexName;
-                    FTindex = FTclient.initIndex(indexName);
-                }
-                if (msgObj.action==="add") {
-                    for (let i=0;i<msgObj.ids.length;i++) {
-                        console.log("Add", msgObj.ids[i], indexName);
-                        let doc = await documentClient.get({ TableName: msgObj.tableName, Key: {id: msgObj.ids[i]} }).promise();
-                        if (doc && doc.Item) {
-                            let putItem = doc.Item;
-                            putItem.objectID = putItem.id;
-                            await FTindex.saveObject(putItem);
-                        }
-                    }
-                } else if (msgObj.action==="remove") {
-                    for (let i=0;i<msgObj.ids.length;i++) {
-                        console.log("Remove", msgObj.ids[i], indexName);
-                        await FTindex.deleteObject(msgObj.ids[i]);
-                    }
-                }
-                console.log("Removing processed msg from SQS queue");
-                await sqs.deleteMessage({ ReceiptHandle: msg.receiptHandle, QueueUrl: TASK_QUEUE_URL }).promise();
-                
-            } catch (e) {
-                console.log(e);
-            }
-        }
 
+    let indexName = "";
+    let FTindex = null;
+
+    for (let m = 0; m < event.Records.length; m++) {
+        var msg = event.Records[m];
+        var msgObj = JSON.parse(msg.body);
+        try {
+            if (indexName !== msgObj.indexName) {
+                indexName = msgObj.indexName;
+                FTindex = FTclient.initIndex(indexName);
+            }
+            if (msgObj.action === "add") {
+                for (let i = 0; i < msgObj.ids.length; i++) {
+                    let doc = await documentClient.get({ TableName: msgObj.tableName, Key: { id: msgObj.ids[i] } }).promise();
+                    if (doc && doc.Item) {
+                        let putItem = doc.Item;
+                        putItem.objectID = putItem.id;
+                        await FTindex.saveObject(putItem);
+                    }
+                }
+            } else if (msgObj.action === "remove") {
+                for (let i = 0; i < msgObj.ids.length; i++) {
+                    console.log("Remove", msgObj.ids[i], indexName);
+                    await FTindex.deleteObject(msgObj.ids[i]);
+                }
+            }
+            await sqs.deleteMessage({ ReceiptHandle: msg.receiptHandle, QueueUrl: TASK_QUEUE_URL }).promise();
+
+        } catch (e) {
+            console.log(e);
+        }
+    }
 };

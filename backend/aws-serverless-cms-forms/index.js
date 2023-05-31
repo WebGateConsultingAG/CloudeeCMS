@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-03-27 14:00
+ * File Version: 2023-05-31 06:53
  */
 
 const DynamoDB = require('aws-sdk/clients/dynamodb');
@@ -77,6 +77,7 @@ exports.handler = async (event) => {
         userform.email = params['email'] || '';
         userform.frm = params;
         userform.captchaMode = captchaMode;
+        userform.GSI1SK = getFormattedDate(new Date()) + '/';
 
         await documentClient.put({ TableName: tableName, Item: userform }).promise();
         if (formdoc.redirectSuccess) redirectToSuccess = formdoc.redirectSuccess;
@@ -171,6 +172,20 @@ function guid() {
     function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) }
     return s4() + s4();
 }
+function getFormattedDate(strDT) {
+    try {
+        if (!strDT || strDT === '') return '';
+        let dt = new Date(strDT);
+        dt.setMinutes(dt.getMinutes());
+        const newDT = dt.getFullYear() + '-';
+        const m = dt.getMonth() + 1;
+        const d = dt.getDate();
+        return newDT + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+    } catch (e) {
+        console.log(e);
+        return '';
+    }
+};
 function getClientIP(evt) {
     try {
         return evt.requestContext.identity.sourceIp || evt.headers['X-Forwarded-For'] || '';
