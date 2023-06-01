@@ -89,7 +89,6 @@ export class PageEditComponent implements OnInit {
   };
 
   ngOnInit() {
-    const that = this;
     // if trumboeditor plugins are enabled, get auth token for uploader
     if (environment.trumbo_load_plugins) {
       // Note: this token will not be refreshed automatically.
@@ -97,7 +96,7 @@ export class PageEditComponent implements OnInit {
       Auth.currentSession()
         .then(data => {
           // TODO: move this to a window.pubfn in app.component.ts function to prevent token from expiring
-          that.trumbooptions.plugins.upload.headers.Authorization = data.getIdToken().getJwtToken();
+          this.trumbooptions.plugins.upload.headers.Authorization = data.getIdToken().getJwtToken();
           window.loadTrumboPlugins();
         })
         .catch(err => console.warn('Failed to aquire token for trumbo_uploader_plugin', err));
@@ -107,13 +106,12 @@ export class PageEditComponent implements OnInit {
     this.loadPageByID(this.docid);
   }
   loadConfig() {
-    const that = this;
     this.backendSVC.getConfig(false).then(
       (rc: any) => {
-        that.config = rc.cfg;
+        this.config = rc.cfg;
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading configuration');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading configuration');
       }
     );
   }
@@ -223,7 +221,6 @@ export class PageEditComponent implements OnInit {
   }
 
   savePage() {
-    const that = this;
     if (this.pathHint !== '') {
       alert(`Please correct the path field:\n${this.pathHint}`);
       return;
@@ -240,26 +237,28 @@ export class PageEditComponent implements OnInit {
     this.errorMessage = '';
     this.backendSVC.savePage(this.page).then(
       (data: any) => {
-        that.page.id = data.id;
-        that.setLoading(false);
         if (data.success) {
-          that.tabsSVC.printNotification('Document saved');
-          that.setHasChanges(false);
+          this.page.id = data.id;
+          this.tabsSVC.printNotification('Document saved');
+          this.setHasChanges(false);
+          this.tabsSVC.setTabTitle(this.tabid, this.page.title || 'untitled');
+          this.tabsSVC.setTabDataExpired('tab-pages', true);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while saving');
         }
-        that.tabsSVC.setTabTitle(that.tabid, that.page.title || 'untitled');
-        that.tabsSVC.setTabDataExpired('tab-pages', true);
+
+        this.setLoading(false);
       },
-      (err) => {
+      (err: any) => {
         console.error(err);
-        that.errorMessage = JSON.stringify(err);
-        that.tabsSVC.printNotification('Error while saving');
-        that.setLoading(false);
+        this.errorMessage = JSON.stringify(err);
+        this.tabsSVC.printNotification('Error while saving');
+        this.setLoading(false);
       }
     );
   }
 
   btnDlgPublish(): void {
-    const that = this;
     if (!this.page.opath || this.page.opath === '') {
       this.errorMessage = 'Path must be supplied!';
       return;
@@ -278,7 +277,7 @@ export class PageEditComponent implements OnInit {
       });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'openInvalidationDialog') {
-        that.btnOpenCFDialog(result.opaths);
+        this.btnOpenCFDialog(result.opaths);
       }
     });
   }
@@ -293,7 +292,6 @@ export class PageEditComponent implements OnInit {
     });
   }
   btnDlgSelectImage(fldName: string): void {
-    const that = this;
     const dialogRef = this.dialog.open(FileSelectionDialogComponent,
       {
         width: '650px', disableClose: false, data: {
@@ -303,13 +301,12 @@ export class PageEditComponent implements OnInit {
     );
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        that.page.doc[fldName] = result.fileurl;
+        this.page.doc[fldName] = result.fileurl;
       }
     });
     this.setHasChanges(true);
   }
   btnDlgSelectCoverImage(): void {
-    const that = this;
     const dialogRef = this.dialog.open(FileSelectionDialogComponent,
       {
         width: '650px', disableClose: false, data: {
@@ -319,19 +316,18 @@ export class PageEditComponent implements OnInit {
     );
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        that.page.img = result.fileurl;
+        this.page.img = result.fileurl;
       }
     });
     this.setHasChanges(true);
   }
   btnAddNewObj(fld: any) {
-    const that = this;
     const dialogRef = this.dialog.open(MTSelectDialogComponent, { width: '450px', disableClose: false, data: { fld } });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
         // tslint:disable-next-line: max-line-length
-        if (!that.page.lstMTObj[fld.fldName]) { that.page.lstMTObj[fld.fldName] = { fldTitle: fld.fldTitle, fldName: fld.fldName, lstObj: [] }; }
-        const selObj = that.page.lstMTObj[fld.fldName];
+        if (!this.page.lstMTObj[fld.fldName]) { this.page.lstMTObj[fld.fldName] = { fldTitle: fld.fldTitle, fldName: fld.fldName, lstObj: [] }; }
+        const selObj = this.page.lstMTObj[fld.fldName];
         selObj.lstObj.push(result.mt);
         this.btnEditObj(result.mt);
       }

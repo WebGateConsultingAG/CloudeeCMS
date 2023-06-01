@@ -5,7 +5,7 @@
             <input matInput placeholder="Filter this view.." type="text" [(ngModel)]="viewFilter">
             <mat-icon matSuffix *ngIf="viewFilter!=''" (click)="viewFilter=''" style="cursor: pointer;">highlight_off</mat-icon>
         </mat-form-field>
-        <button mat-button (click)="loadPages()" title="Click to refresh"> 
+        <button mat-button (click)="loadPages(true)" title="Click to refresh"> 
             <mat-icon>refresh</mat-icon>
         </button>&nbsp;
         <mat-slide-toggle [(ngModel)]="flatMode">{{flatMode?'Flat view':'Tree view'}} </mat-slide-toggle>&nbsp;
