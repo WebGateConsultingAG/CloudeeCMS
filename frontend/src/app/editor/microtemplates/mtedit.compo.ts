@@ -49,56 +49,57 @@ export class MTEditComponent implements OnInit {
   hasChanges = false;
 
   ngOnInit() {
-    const that = this;
     if (this.docid === 'NEW') {
       this.mt = new MicroTemplate();
-      that.tabsSVC.setTabTitle(that.tabid, 'New Microtemplate');
+      this.tabsSVC.setTabTitle(this.tabid, 'New Microtemplate');
       this.loading = false;
-      setTimeout(() => { that.setLoading(false); }, 1000); // delay to prevent error
+      setTimeout(() => { this.setLoading(false); }, 1000); // delay to prevent error
     } else {
       this.loadMTByID(this.docid);
     }
   }
 
   loadMTByID(id: string) {
-    const that = this;
-    this.backendSVC.getItemByID(id).then(
+    this.backendSVC.actionContent('getItemByID', { id }).then(
       (data: any) => {
-        if (data.item) {
-          that.mt = data.item;
-          that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled MT');
+        if (data.success) {
+          this.mt = data.item;
+          this.tabsSVC.setTabTitle(this.tabid, data.item.title || 'Untitled MT');
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
         }
-        that.setLoading(false);
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading');
+        this.setLoading(false);
       }
     );
   }
 
   saveDocument() {
-    const that = this;
     this.setLoading(true);
     this.backendSVC.saveMicroTemplate(this.mt).then(
       (data: any) => {
-        if (that.mt.id !== data.id) { // first save of NEW doc
-          that.tabsSVC.changeTabID(that.tabid, 'tab-mt-' + data.id, data.id);
-          that.tabid = 'tab-mt-' + data.id;
-          that.docid = data.id;
+        if (this.mt.id !== data.id) { // first save of NEW doc
+          this.tabsSVC.changeTabID(this.tabid, 'tab-mt-' + data.id, data.id);
+          this.tabid = 'tab-mt-' + data.id;
+          this.docid = data.id;
         }
-        that.mt.id = data.id;
-        that.setLoading(false);
-        that.tabsSVC.setTabTitle(that.tabid, that.mt.title);
-        that.tabsSVC.setTabDataExpired('tab-mtlist', true);
-        if (data.success) { 
-          that.tabsSVC.printNotification('Document saved');
-          that.setHasChanges(false);
+        this.mt.id = data.id;
+        this.setLoading(false);
+        this.tabsSVC.setTabTitle(this.tabid, this.mt.title);
+        this.tabsSVC.setTabDataExpired('tab-mtlist', true);
+        if (data.success) {
+          this.tabsSVC.printNotification('Document saved');
+          this.setHasChanges(false);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while saving');
         }
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while saving');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while saving');
+        this.setLoading(false);
       }
     );
   }
@@ -129,22 +130,23 @@ export class MTEditComponent implements OnInit {
   }
   btnDelete() {
     if (!confirm('Do you really want to delete this object?')) { return false; }
-    const that = this;
-    this.backendSVC.deleteItemByID(this.mt.id).then(
+    this.backendSVC.actionContent('deleteItemByID', { id: this.mt.id }).then(
       (data: any) => {
         if (data.success) {
-          that.tabsSVC.printNotification('Document deleted');
-          that.tabsSVC.setTabDataExpired('tab-mtlist', true);
-          that.tabsSVC.closeTabByID(that.tabid);
+          this.tabsSVC.printNotification('Document deleted');
+          this.tabsSVC.setTabDataExpired('tab-mtlist', true);
+          this.tabsSVC.closeTabByID(this.tabid);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while deleting');
         }
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while deleting');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while deleting');
+        this.setLoading(false);
       }
     );
   }
-  dropSortObj(lst, event: CdkDragDrop<string[]>) {
+  dropSortObj(lst: any, event: CdkDragDrop<string[]>) {
     moveItemInArray(lst, event.previousIndex, event.currentIndex);
     this.setHasChanges(true);
   }
@@ -156,34 +158,34 @@ export class MTEditComponent implements OnInit {
     this.tabsSVC.setLoading(on);
   }
   btnCheckUsage(): void {
-    const that = this;
     this.lstPagesInUse = [];
     this.showUsageBox = true;
     this.setLoading(true);
     // Get a list of pages that use this microtemplate
-    this.backendSVC.getAllPagesByMT(this.mt.id).then(
+    this.backendSVC.actionContent('getAllPagesByMT', { mtid: this.mt.id }).then(
       (data: any) => {
-        that.setLoading(false);
-        if (data.lstPages) {
-          that.lstPagesInUse = data.lstPages;
+        if (data.success) {
+          if (data.lstPages) this.lstPagesInUse = data.lstPages;
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while retrieving list of MicroTemplates in use.');
         }
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while retrieving list of MicroTemplates in use.');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while retrieving list of MicroTemplates in use.');
         console.log(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
   btnDlgSelectIcon(): void {
-    const that = this;
     const dialogRef = this.dialog.open(IconSelectDialogComponent,
       { width: '600px', disableClose: false, data: { selectionText: 'Select icon to display in Micro Template selection dialogs.' } }
     );
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'add') {
-        that.mt.icon = result.icon;
-        that.setHasChanges(true);
+        this.mt.icon = result.icon;
+        this.setHasChanges(true);
       }
     });
   }

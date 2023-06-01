@@ -41,30 +41,30 @@ export class PugBlockEditComponent implements OnInit {
   hasChanges = false;
 
   ngOnInit() {
-    const that = this;
     if (this.docid === 'NEW') {
       this.block = new PugBlock();
-      that.tabsSVC.setTabTitle(this.tabid, 'New Layout Block');
+      this.tabsSVC.setTabTitle(this.tabid, 'New Layout Block');
       this.loading = false;
-      setTimeout(() => { that.setLoading(false); }, 1000); // delay to prevent error
+      setTimeout(() => { this.setLoading(false); }, 1000); // delay to prevent error
     } else {
       this.loadBlockByID(this.docid);
     }
   }
 
   loadBlockByID(id: string) {
-    const that = this;
-    this.backendSVC.getItemByID(id).then(
+    this.backendSVC.actionContent('getItemByID', { id }).then(
       (data: any) => {
-        if (data.item) {
-          that.block = data.item;
-          that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled');
+        if (data.success) {
+          this.block = data.item;
+          this.tabsSVC.setTabTitle(this.tabid, data.item.title || 'Untitled');
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
         }
-        that.setLoading(false);
+        this.setLoading(false);
       },
       (err) => {
-        that.tabsSVC.printNotification('Error while loading');
-        that.setLoading(false);
+        this.tabsSVC.printNotification('Error while loading');
+        this.setLoading(false);
       }
     );
   }
@@ -74,44 +74,47 @@ export class PugBlockEditComponent implements OnInit {
       alert('Key name is required!');
       return;
     }
-    const that = this;
     this.setLoading(true);
     this.backendSVC.saveBlock(this.block).then(
       (data: any) => {
-        if (that.block.id !== data.id) { // first save of NEW doc
-          that.tabsSVC.changeTabID(that.tabid, 'tab-block-' + data.id, data.id);
-          that.tabid = 'tab-block-' + data.id;
-          that.docid = data.id;
-        }
-        that.block.id = data.id;
-        that.setLoading(false);
-        that.tabsSVC.setTabTitle(that.tabid, that.block.title);
-        that.tabsSVC.setTabDataExpired('tab-compos', true);
         if (data.success) {
-          that.tabsSVC.printNotification('Document saved');
-          that.setHasChanges(false);
+          if (this.block.id !== data.id) { // first save of NEW doc
+            this.tabsSVC.changeTabID(this.tabid, 'tab-block-' + data.id, data.id);
+            this.tabid = 'tab-block-' + data.id;
+            this.docid = data.id;
+          }
+          this.block.id = data.id;
+          this.tabsSVC.setTabTitle(this.tabid, this.block.title);
+          this.tabsSVC.setTabDataExpired('tab-compos', true);
+
+          this.tabsSVC.printNotification('Document saved');
+          this.setHasChanges(false);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while saving');
         }
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while saving');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while saving');
+        this.setLoading(false);
       }
     );
   }
   btnDelete() {
-    if (!confirm('Do you really want to delete this object?')) { return false; }
-    const that = this;
-    this.backendSVC.deleteItemByID(this.block.id).then(
+    if (!confirm('Do you really want to delete this object?')) return false;
+    this.backendSVC.actionContent('deleteItemByID', { id: this.block.id }).then(
       (data: any) => {
         if (data.success) {
-          that.tabsSVC.printNotification('Document deleted');
-          that.tabsSVC.setTabDataExpired('tab-compos', true);
-          that.tabsSVC.closeTabByID(that.tabid);
+          this.tabsSVC.printNotification('Document deleted');
+          this.tabsSVC.setTabDataExpired('tab-compos', true);
+          this.tabsSVC.closeTabByID(this.tabid);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while deleting');
         }
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while deleting');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while deleting');
+        this.setLoading(false);
       }
     );
   }

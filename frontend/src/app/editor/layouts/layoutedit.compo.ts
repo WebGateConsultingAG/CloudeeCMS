@@ -45,30 +45,30 @@ export class LayoutEditComponent implements OnInit {
   hasChanges = false;
 
   ngOnInit() {
-    const that = this;
     if (this.docid === 'NEW') {
       this.layout = new Layout();
-      that.tabsSVC.setTabTitle(this.tabid, 'New Layout');
+      this.tabsSVC.setTabTitle(this.tabid, 'New Layout');
       this.loading = false;
-      setTimeout(() => { that.setLoading(false); }, 1000); // delay to prevent error
+      setTimeout(() => { this.setLoading(false); }, 1000); // delay to prevent error
     } else {
       this.loadLayoutByID(this.docid);
     }
   }
 
   loadLayoutByID(id: string) {
-    const that = this;
-    this.backendSVC.getItemByID(id).then(
+    this.backendSVC.actionContent('getItemByID', { id }).then(
       (data: any) => {
-        if (data.item) {
-          that.layout = data.item;
-          that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled Layout');
+        if (data.success) {
+          this.layout = data.item;
+          this.tabsSVC.setTabTitle(this.tabid, data.item.title || 'Untitled Layout');
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
         }
-        that.setLoading(false);
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading layout');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading layout');
+        this.setLoading(false);
       }
     );
   }
@@ -78,41 +78,41 @@ export class LayoutEditComponent implements OnInit {
       alert('Key name is required!');
       return;
     }
-    const that = this;
     this.setLoading(true);
     this.backendSVC.saveLayout(this.layout).then(
       (data: any) => {
-        if (that.layout.id !== data.id) { // first save of NEW doc
-          that.tabsSVC.changeTabID(that.tabid, 'tab-layout-' + data.id, data.id);
-          that.tabid = 'tab-layout-' + data.id;
-          that.docid = data.id;
+        if (this.layout.id !== data.id) { // first save of NEW doc
+          this.tabsSVC.changeTabID(this.tabid, 'tab-layout-' + data.id, data.id);
+          this.tabid = 'tab-layout-' + data.id;
+          this.docid = data.id;
         }
-        that.layout.id = data.id;
-        that.setLoading(false);
-        that.tabsSVC.setTabTitle(that.tabid, that.layout.title);
-        that.tabsSVC.setTabDataExpired('tab-layouts', true);
+        this.layout.id = data.id;
+        this.setLoading(false);
+        this.tabsSVC.setTabTitle(this.tabid, this.layout.title);
+        this.tabsSVC.setTabDataExpired('tab-layouts', true);
         if (data.success) {
-          that.tabsSVC.printNotification('Document saved');
-          that.setHasChanges(false);
+          this.tabsSVC.printNotification('Document saved');
+          this.setHasChanges(false);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while saving');
         }
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while saving layout');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while saving layout');
+        this.setLoading(false);
       }
     );
   }
   btnAddNewField() {
-    const that = this;
     const dialogRef = this.dialog.open(LayoutFieldDialogComponent,
       { width: '800px', disableClose: false, data: { isNew: true, accept: this.lstAcceptFieldTypes } }
     );
     dialogRef.afterClosed().subscribe(result => {
-      if (result && result.action === 'addnew') { that.layout.custFields.push(result.fld); }
+      if (result && result.action === 'addnew') { this.layout.custFields.push(result.fld); }
     });
     this.setHasChanges(true);
   }
-  btnEditField(fld) {
+  btnEditField(fld: any) {
     this.dialog.open(LayoutFieldDialogComponent, { width: '800px', disableClose: false, data: { fld, accept: this.lstAcceptFieldTypes } });
     this.setHasChanges(true);
   }
@@ -130,20 +130,21 @@ export class LayoutEditComponent implements OnInit {
     moveItemInArray(lst, event.previousIndex, event.currentIndex);
     this.setHasChanges(true);
   }
-  btnDelete() {
-    if (!confirm('Do you really want to delete this object?')) { return false; }
-    const that = this;
-    this.backendSVC.deleteItemByID(this.layout.id).then(
+  btnDelete(): void {
+    if (!confirm('Do you really want to delete this object?')) return;
+    this.backendSVC.actionContent('deleteItemByID', { id: this.layout.id }).then(
       (data: any) => {
         if (data.success) {
-          that.tabsSVC.printNotification('Document deleted');
-          that.tabsSVC.setTabDataExpired('tab-layouts', true);
-          that.tabsSVC.closeTabByID(that.tabid);
+          this.tabsSVC.printNotification('Document deleted');
+          this.tabsSVC.setTabDataExpired('tab-layouts', true);
+          this.tabsSVC.closeTabByID(this.tabid);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while deleting');
         }
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while deleting');
-        that.setLoading(false);
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while deleting');
+        this.setLoading(false);
       }
     );
   }

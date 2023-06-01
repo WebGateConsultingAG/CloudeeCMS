@@ -40,26 +40,28 @@ export class PagesComponent implements OnInit {
   tabID = 'tab-pages';
 
   ngOnInit() {
-    const that = this;
     this.tabsSVC.addTabEvent(this.tabID, 'onTabFocus', () => {
-      if (that.tabsSVC.isTabDataExpired(that.tabID)) { that.loadPages(); }
+      if (this.tabsSVC.isTabDataExpired(this.tabID)) this.loadPages(true);
     });
-    this.loadPages();
+    this.loadPages(false);
   }
 
-  loadPages() {
-    const that = this;
-    this.backendSVC.getAllPages(true).then(
+  loadPages(forceUpdate: boolean) {
+    this.backendSVC.getAllPages(forceUpdate).then(
       (data: any) => {
-        that.viewList = data.lstPages;
-        that.catTree = data.tree;
-        that.setLoading(false);
-        that.tabsSVC.setTabDataExpired(that.tabID, false); // mark data of tab as up to date
+        if (data.success) {
+          this.viewList = data.lstPages;
+          this.catTree = data.tree;
+          this.tabsSVC.setTabDataExpired(this.tabID, false); // mark data of tab as up to date
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
+        }
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading');
         console.log(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }

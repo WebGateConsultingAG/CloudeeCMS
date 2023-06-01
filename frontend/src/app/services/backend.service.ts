@@ -29,6 +29,7 @@ export class BackendService {
     PUBLISH_RES = '/content-publish';
     BACKUP_RES = '/content-backup';
     COGNITO_RES = '/cognito-admin';
+    CF_RES = '/cf-admin';
 
     NOTIFICATIONS_ENDPOINT = 'https://notifications.cloudee-cms.com/api';
     APP_VERSION_INFO = versioninfo;
@@ -40,7 +41,7 @@ export class BackendService {
     lstBlocks = null;
     lstSubmittedForms = null;
     lstForms = null;
-    lstPages = null;
+    pageData = null;
     imageProfiles = null;
     userGroups = [];
 
@@ -50,151 +51,8 @@ export class BackendService {
     public isUserAdmin = false;
     public isLayoutEditor = false;
 
-    public getItemByID(theID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getitembyid', id: theID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public deleteItemByID(theID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'deleteitembyid', id: theID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public bulkDeleteByID(lstIDs: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            // tslint:disable-next-line: max-line-length object-literal-shorthand
-            { action: 'bulkdeleteitem', lstIDs: lstIDs }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public duplicatePage(theID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'duplicatepage', id: theID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getPageByID(theID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getpagebyid', id: theID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public savePage(page: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'savepage', obj: page }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getBlockByID(theID: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getblockbyid', id: theID }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public saveBlock(block: any) {
-        this.lstBlocks = null; // invalidate cache
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'saveblock', obj: block }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public saveForm(frm: any) {
-        this.lstForms = null; // invalidate cache
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'saveform', obj: frm }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public saveMicroTemplate(mt: any) {
-        this.lstMicroTemplates = null; // invalidate cache
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'savemicrotemplate', obj: mt }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public saveLayout(layout: any) {
-        this.lstLayouts = null; // invalidate cache
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'savelayout', obj: layout }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getAllBlocks(forceUpdate: boolean) {
-        if (forceUpdate || !this.lstBlocks) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getallblocks' }).toPromise().then((result: any) => {
-                    this.lstBlocks = result.data || null;
-                    return this.lstBlocks;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.lstBlocks); });
-        }
-    }
-    public getAllMicroTemplates(forceUpdate) {
-        if (forceUpdate || !this.lstMicroTemplates) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getallmt' }).toPromise().then((result: any) => {
-                    this.lstMicroTemplates = result.data || null;
-                    return this.lstMicroTemplates;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.lstMicroTemplates); });
-        }
-    }
-    public getAllPages(forceUpdate) {
-        if (forceUpdate || !this.lstPages) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getallpages' }).toPromise().then((result: any) => {
-                    this.lstPages = result.data || null;
-                    return this.lstPages;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.lstPages); });
-        }
-    }
-    public getPublicationQueue() { // Non-cached call
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getpublicationqueue' }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public addAllToPublicationQueue() {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'addalltopublicationqueue' }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getAllLayouts(forceUpdate: boolean) {
-        if (forceUpdate || !this.lstLayouts) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getalllayouts' }).toPromise().then((result: any) => {
-                    this.lstLayouts = result.data || null;
-                    return this.lstLayouts;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.lstLayouts); });
-        }
-    }
-    public getAllForms(forceUpdate: boolean) {
-        if (forceUpdate || !this.lstForms) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getallforms' }).toPromise().then((result: any) => {
-                    this.lstForms = result.data || null;
-                    return this.lstForms;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.lstForms); });
-        }
-    }
-    public getAllSubmittedForms(forceUpdate: boolean) {
-        // never cached
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getallsubmittedforms' }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
+    // --- Publish functions (TODO: move to actionPublish)
+
     public publishPage(targetEnv: string, thisID: string, thisPage: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
             { action: 'publishpage', id: thisID, page: thisPage, targetenv: targetEnv }).toPromise().then((result: any) => {
@@ -203,7 +61,6 @@ export class BackendService {
     }
     public bulkPublishPage(targetEnv: string, pubtype: string, lstPageIDs: any, removeFromQueue: boolean) {
         return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
-            // tslint:disable-next-line: max-line-length object-literal-shorthand
             { action: 'bulkpublishpage', pubtype: pubtype, lstPageIDs: lstPageIDs, targetenv: targetEnv, removeFromQueue: removeFromQueue }).toPromise().then((result: any) => {
                 return result.data || null;
             });
@@ -220,6 +77,9 @@ export class BackendService {
                 return result.data || null;
             });
     }
+
+    // --- Backup functions (TODO: move to actionBkup)
+
     public createDBBackup(targetEnv: string) {
         return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES,
             { action: 'createBackup', targetenv: targetEnv }).toPromise().then((result: any) => {
@@ -232,50 +92,9 @@ export class BackendService {
                 return result.data || null;
             });
     }
-    public invalidateCF(targetCF: string, lstPaths: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            // tslint:disable-next-line: max-line-length object-literal-shorthand
-            { action: 'invalidateCF', targetCF: targetCF, lstPaths: lstPaths }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getConfig(forceUpdate: boolean) {
-        if (forceUpdate || !this.configDoc) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getconfig' }).toPromise().then((result: any) => {
-                    this.configDoc = result.data || null;
-                    this.configLoaded = true;
-                    return this.configDoc;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.configDoc); });
-        }
-    }
-    public saveConfig(conf: any) {
-        this.configDoc = null; // invalidate cache
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'saveconfig', obj: conf }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public getImageProfiles(forceUpdate: boolean) {
-        if (forceUpdate || !this.imageProfiles) {
-            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-                { action: 'getimageprofiles' }).toPromise().then((result: any) => {
-                    this.imageProfiles = result.data || null;
-                    return this.imageProfiles;
-                });
-        } else {
-            return new Promise<any>((resolve, reject) => { resolve(this.imageProfiles); });
-        }
-    }
-    public saveImageProfiles(imageProfiles: any) {
-        this.imageProfiles = null; // invalidate cache
-        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'saveimageprofiles', obj: imageProfiles }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
+
+    // --- Updater and notifications
+
     public getNotifications() {
         const updatesDisabled = environment.enableOnlineUpdates !== true;
         const payload = {
@@ -315,22 +134,152 @@ export class BackendService {
                 return result.data || null;
             });
     }
-    public getAllMTIDsInUse() {
+
+    // --- Configuration
+
+    public getConfig(forceUpdate: boolean) {
+        if (forceUpdate || !this.configDoc) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getConfig' }).toPromise().then((result: any) => {
+                    this.configDoc = result || null;
+                    this.configLoaded = true;
+                    return this.configDoc;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.configDoc); });
+        }
+    }
+    public saveConfig(conf: any) {
+        this.configDoc = null; // reset cache
+        this.imageProfiles = null; // reset cache
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getallmtidsinuse' }).toPromise().then((result: any) => {
-                return result.data || null;
+            { action: 'saveConfig', params: { obj: conf } }).toPromise().then((result: any) => {
+                return result || null;
             });
     }
-    public getAllPagesByMT(mtid: string) {
+    public getImageProfiles(forceUpdate: boolean) {
+        if (forceUpdate || !this.imageProfiles) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getImageProfiles' }).toPromise().then((result: any) => {
+                    this.imageProfiles = result || null;
+                    return this.imageProfiles;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.imageProfiles); });
+        }
+    }
+    public saveImageProfiles(imageProfiles: any) {
+        this.imageProfiles = null; // invalidate cache
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
-            { action: 'getallpagesbymt', mtid }).toPromise().then((result: any) => {
-                return result.data || null;
+            { action: 'saveImageProfiles', params: { obj: imageProfiles } }).toPromise().then((result: any) => {
+                return result || null;
             });
     }
-    // Generic actions
+
+    // --- Pages
+
+    public savePage(page: any) {
+        this.pageData = null; // clear page list cache
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'savePage', params: { obj: page } }).toPromise().then((result: any) => {
+                return result || null;
+            });
+    }
+    public getAllPages(forceUpdate: boolean) {
+        if (forceUpdate || !this.pageData) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getAllPages' }).toPromise().then((result: any) => {
+                    this.pageData = result || null;
+                    return this.pageData;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.pageData); });
+        }
+    }
+
+    // --- Layouts and microtemplates
+
+    public getAllLayouts(forceUpdate: boolean) {
+        if (forceUpdate || !this.lstLayouts) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getAllLayouts' }).toPromise().then((result: any) => {
+                    this.lstLayouts = result || null;
+                    return this.lstLayouts;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.lstLayouts); });
+        }
+    }
+    public saveLayout(layout: any) {
+        this.lstLayouts = null; // invalidate cache
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'saveLayout', params: { obj: layout } }).toPromise().then((result: any) => {
+                return result || null;
+            });
+    }
+    public getAllBlocks(forceUpdate: boolean) {
+        if (forceUpdate || !this.lstBlocks) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getAllBlocks' }).toPromise().then((result: any) => {
+                    this.lstBlocks = result || null;
+                    return this.lstBlocks;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.lstBlocks); });
+        }
+    }
+    public saveBlock(block: any) {
+        this.lstBlocks = null; // invalidate cache
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'saveBlock', params: { obj: block } }).toPromise().then((result: any) => {
+                return result || null;
+            });
+    }
+    public getAllMicroTemplates(forceUpdate: boolean) {
+        if (forceUpdate || !this.lstMicroTemplates) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getAllMT' }).toPromise().then((result: any) => {
+                    this.lstMicroTemplates = result || null;
+                    return this.lstMicroTemplates;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.lstMicroTemplates); });
+        }
+    }
+    public saveMicroTemplate(mt: any) {
+        this.lstMicroTemplates = null; // invalidate cache
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'saveMT', params: { obj: mt } }).toPromise().then((result: any) => {
+                return result || null;
+            });
+    }
+
+    // --- Forms
+
+    public getAllForms(forceUpdate: boolean) {
+        if (forceUpdate || !this.lstForms) {
+            return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+                { action: 'getAllForms' }).toPromise().then((result: any) => {
+                    this.lstForms = result || null;
+                    return this.lstForms;
+                });
+        } else {
+            return new Promise<any>((resolve, reject) => { resolve(this.lstForms); });
+        }
+    }
+    public saveForm(frm: any) {
+        this.lstForms = null; // invalidate cache
+        return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
+            { action: 'saveForm', params: { obj: frm } }).toPromise().then((result: any) => {
+                return result || null;
+            });
+    }
+
+    // --- Generic actions
+
     public actionContent(action: string, params: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES, { action, params }).toPromise().then((result: any) => {
-            return result.data || null;
+            return result || null;
         });
     }
     public actionBkup(action: string, params: any) {
@@ -340,10 +289,15 @@ export class BackendService {
     }
     public actionPublish(action: string, params: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES, { action, params }).toPromise().then((result: any) => {
-            return result.data || null;
+            return result || null;
         });
     }
-    
+    // CloudFront API
+    public actionCF(action: string, params: any) {
+        return this.http.post(environment.API_Gateway_Endpoint + this.CF_RES, { action, params }).toPromise().then((result: any) => {
+            return result || null;
+        });
+    }
     // Cognito user admin API
     public cognitoAction(action: string, params: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.COGNITO_RES, { action, params }).toPromise().then((result: any) => {
