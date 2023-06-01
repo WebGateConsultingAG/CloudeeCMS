@@ -1,54 +1,53 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
 Description: CloudeeCMS Backend Auto Deployment 2023-05-22
 Parameters:
   AdminBucket:
     Type: String
-    Default: ''
+    Default: ""
   TestBucket:
     Type: String
-    Default: ''
+    Default: ""
   ProdBucket:
     Type: String
-    Default: ''
+    Default: ""
   CDNBucket:
     Type: String
     Description: CDN S3 Bucket
-    Default: ''
+    Default: ""
   CloudFrontCDNDistId:
     Type: String
     Description: CND CloudFront Distribution ID
-    Default: ''
+    Default: ""
   CloudFrontProdDistId:
     Type: String
     Description: Production CloudFront Distribution ID
-    Default: ''
+    Default: ""
   CognitoUserPoolID:
     Type: String
     Description: Cognito User Pool ID
-    Default: ''
+    Default: ""
   CognitoUserPoolARN:
     Type: String
     Description: Cognito User Pool ARN
-    Default: ''
+    Default: ""
   CognitoClientID:
     Type: String
     Description: Cognito App Client ID
-    Default: ''
+    Default: ""
   DBTableName:
     Type: String
     Description: Lambda database table name
-    Default: ''
+    Default: ""
   PipelineName:
     Type: String
     Description: Name of the CodePipeline
-    Default: ''
+    Default: ""
   PipelineBucket:
     Type: String
     Description: Name of the Sourcecode Bucket of CodePipeline for updates
-    Default: ''
+    Default: ""
 Resources:
-
   SCMSLambdaPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -59,110 +58,104 @@ Resources:
         Statement:
           - Sid: s3
             Effect: Allow
-            Action: [
-              "s3:GetObject",
-              "s3:ListBucket",
-              "s3:GetBucketLocation",
-              "s3:GetObjectVersion",
-              "s3:PutObject",
-              "s3:PutObjectAcl",
-              "s3:GetLifecycleConfiguration",
-              "s3:PutLifecycleConfiguration",
-              "s3:DeleteObject"
-            ]
-            Resource: [
-              !Sub 'arn:aws:s3:::${AdminBucket}',
-              !Sub 'arn:aws:s3:::${AdminBucket}/*',
-              !Sub 'arn:aws:s3:::${TestBucket}',
-              !Sub 'arn:aws:s3:::${TestBucket}/*',
-              !Sub 'arn:aws:s3:::${ProdBucket}',
-              !Sub 'arn:aws:s3:::${ProdBucket}/*',
-              !Sub 'arn:aws:s3:::${CDNBucket}',
-              !Sub 'arn:aws:s3:::${CDNBucket}/*',
-              !Sub 'arn:aws:s3:::${PipelineBucket}',
-              !Sub 'arn:aws:s3:::${PipelineBucket}/*'
-            ]
+            Action:
+              [
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:GetBucketLocation",
+                "s3:GetObjectVersion",
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "s3:GetLifecycleConfiguration",
+                "s3:PutLifecycleConfiguration",
+                "s3:DeleteObject",
+              ]
+            Resource:
+              [
+                !Sub "arn:aws:s3:::${AdminBucket}",
+                !Sub "arn:aws:s3:::${AdminBucket}/*",
+                !Sub "arn:aws:s3:::${TestBucket}",
+                !Sub "arn:aws:s3:::${TestBucket}/*",
+                !Sub "arn:aws:s3:::${ProdBucket}",
+                !Sub "arn:aws:s3:::${ProdBucket}/*",
+                !Sub "arn:aws:s3:::${CDNBucket}",
+                !Sub "arn:aws:s3:::${CDNBucket}/*",
+                !Sub "arn:aws:s3:::${PipelineBucket}",
+                !Sub "arn:aws:s3:::${PipelineBucket}/*",
+              ]
           - Sid: cloudwatch
             Effect: Allow
-            Action: [
-              "logs:CreateLogStream",
-              "logs:PutLogEvents",
-              "logs:CreateLogGroup"
-            ]
-            Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*'
+            Action:
+              [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup",
+              ]
+            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*"
           - Sid: cloudfront
             Effect: Allow
-            Action: [
-              "cloudfront:CreateInvalidation"
-            ]
-            Resource: [
-              !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontProdDistId}',
-              !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontCDNDistId}'
-            ]
+            Action: ["cloudfront:CreateInvalidation"]
+            Resource:
+              [
+                !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontProdDistId}",
+                !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontCDNDistId}",
+              ]
           - Sid: cognito
             Effect: Allow
-            Action: [
-              "cognito-idp:*"            ]
-            Resource: !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPoolID}'
+            Action: ["cognito-idp:*"]
+            Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${CognitoUserPoolID}"
           - Sid: sqs
             Effect: Allow
-            Action: [
-              "sqs:*"
-            ]
-            Resource: !Sub '*'
+            Action: ["sqs:*"]
+            Resource: !Sub "*"
           - Sid: sns
             Effect: Allow
-            Action: [
-              "sns:*"
-            ]
-            Resource: !Sub '*'
+            Action: ["sns:*"]
+            Resource: !Sub "*"
           - Sid: dynamo
             Effect: Allow
-            Action: [
-              "dynamodb:GetItem",
-              "dynamodb:DeleteItem",
-              "dynamodb:PutItem",
-              "dynamodb:Scan",
-              "dynamodb:Query",
-              "dynamodb:UpdateItem",
-              "dynamodb:BatchWriteItem",
-              "dynamodb:BatchGetItem",
-              "dynamodb:DescribeTable",
-              "dynamodb:ConditionCheckItem"
-            ]
-            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}'
+            Action:
+              [
+                "dynamodb:GetItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:PutItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:BatchGetItem",
+                "dynamodb:DescribeTable",
+                "dynamodb:ConditionCheckItem",
+              ]
+            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}"
           - Sid: codepipeline
             Effect: Allow
-            Action: [
-              "codepipeline:GetPipelineState",
-              "codepipeline:StartPipelineExecution",
-              "codepipeline:StopPipelineExecution"
-            ]
-            Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineName}'
+            Action:
+              [
+                "codepipeline:GetPipelineState",
+                "codepipeline:StartPipelineExecution",
+                "codepipeline:StopPipelineExecution",
+              ]
+            Resource: !Sub "arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${PipelineName}"
           - Sid: codebuild
             Effect: Allow
-            Action: [
-              "codebuild:BatchGetProjects"
-            ]
-            Resource: !Sub 'arn:${AWS::Partition}:codebuild:${AWS::Region}:${AWS::AccountId}:project/*'
+            Action: ["codebuild:BatchGetProjects"]
+            Resource: !Sub "arn:${AWS::Partition}:codebuild:${AWS::Region}:${AWS::AccountId}:project/*"
 
   SCMSLambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      ManagedPolicyArns: [
-        !Ref SCMSLambdaPolicy
-      ]
+      ManagedPolicyArns: [!Ref SCMSLambdaPolicy]
 
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          -
-            Effect: Allow
+          - Effect: Allow
             Principal:
               Service:
-                - 'lambda.amazonaws.com'
+                - "lambda.amazonaws.com"
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
 
   WebGateSCMSAPI:
     Type: AWS::Serverless::Api
@@ -180,13 +173,13 @@ Resources:
             UserPoolArn: !Ref CognitoUserPoolARN
 
   scmsapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: ./backend/aws-serverless-cms
       Description: CloudeeCMS API for content admin interface
-      MemorySize: 256
+      MemorySize: 512
       Timeout: 30
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:
@@ -204,8 +197,29 @@ Resources:
             RestApiId:
               Ref: WebGateSCMSAPI
 
+  scmscfapi:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs18.x
+      CodeUri: ./backend/aws-serverless-cms-cf
+      Description: CloudeeCMS API for CloudFront
+      MemorySize: 256
+      Timeout: 10
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /cf-admin
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
   scmscognitoapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs18.x
@@ -229,7 +243,7 @@ Resources:
               Ref: WebGateSCMSAPI
 
   scmspublishapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
@@ -253,7 +267,7 @@ Resources:
               Ref: WebGateSCMSAPI
 
   scmsfileapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs18.x
@@ -274,7 +288,7 @@ Resources:
               Ref: WebGateSCMSAPI
 
   scmsimgapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
@@ -295,7 +309,7 @@ Resources:
               Ref: WebGateSCMSAPI
 
   scmsfileuploadapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
@@ -319,7 +333,7 @@ Resources:
               Ref: WebGateSCMSAPI
 
   scmsbackupapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
@@ -344,7 +358,7 @@ Resources:
             RestApiId:
               Ref: WebGateSCMSAPI
   scmsformsapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
@@ -365,7 +379,7 @@ Resources:
             RestApiId:
               Ref: WebGateSCMSAPI
   scmsnewsapi:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
       Runtime: nodejs16.x
@@ -387,10 +401,8 @@ Resources:
               Ref: WebGateSCMSAPI
 
 Outputs:
-
   APIGWURL:
     Description: "API Gateway endpoint URL"
     Value: !Sub "https://${WebGateSCMSAPI}.execute-api.${AWS::Region}.amazonaws.com/prod"
-    Export: 
+    Export:
       Name: !Sub "${AWS::StackName}-APIGWURL"
-

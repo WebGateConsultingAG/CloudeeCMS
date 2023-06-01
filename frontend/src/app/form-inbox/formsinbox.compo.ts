@@ -38,27 +38,29 @@ export class FormsInboxComponent implements OnInit {
   selectAll: boolean;
 
   ngOnInit() {
-    const that = this;
     this.tabsSVC.addTabEvent(this.tabID, 'onTabFocus', () => {
-      if (that.tabsSVC.isTabDataExpired(that.tabID)) { that.loadView(true); }
+      if (this.tabsSVC.isTabDataExpired(this.tabID)) this.loadView(true);
     });
     this.loadView(false);
   }
 
   loadView(forceUpdate: boolean): void {
-    const that = this;
-    that.setLoading(true);
-    this.backendSVC.getAllSubmittedForms(forceUpdate).then(
+    this.setLoading(true);
+    this.backendSVC.actionContent('getAllSubmittedForms', {}).then(
       (data: any) => {
-        that.viewList = data;
-        that.setLoading(false);
-        that.selectAll = false;
-        that.setSelectAll();
+        if (data.success) {
+          this.viewList = data.lst;
+          this.selectAll = false;
+          this.setSelectAll();
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
+        }
+        this.setLoading(false);
       },
-      (err) => {
+      (err: any) => {
         console.error(err);
-        that.tabsSVC.printNotification('Error while loading');
-        that.setLoading(false);
+        this.tabsSVC.printNotification('Error while loading');
+        this.setLoading(false);
       }
     );
   }
@@ -71,32 +73,31 @@ export class FormsInboxComponent implements OnInit {
     this.tabsSVC.setLoading(on);
   }
   setSelectAll() {
-    const that = this;
-    if (!this.viewList || this.viewList.length < 1) { return; }
-    this.viewList.forEach( pg => {
-      pg.sel = that.selectAll;
+    if (!this.viewList || this.viewList.length < 1) return;
+    this.viewList.forEach(pg => {
+      pg.sel = this.selectAll;
     });
   }
   btnDelete() {
-    const lstItems = [];
+    const lstIDs = [];
     this.viewList.forEach(pg => {
-      if (pg.sel) { lstItems.push(pg.id); }
+      if (pg.sel) { lstIDs.push(pg.id); }
     });
-    if (lstItems.length < 1) { return; }
-    // tslint:disable-next-line: max-line-length
-    if (!confirm('Are you sure you want to delete all selected entries?')) { return; }
-    const that = this;
-    if (lstItems.length > 25 ) {
-      that.tabsSVC.printNotification('Note: You can delete only 25 items at once');
-    }
-    this.backendSVC.bulkDeleteByID(lstItems).then(
+    if (lstIDs.length < 1) return;
+    if (!confirm('Are you sure you want to delete all selected entries?')) return;
+    if (lstIDs.length > 25) this.tabsSVC.printNotification('Note: You can delete only 25 items at once');    
+    this.backendSVC.actionContent('bulkDeleteItem', { lstIDs }).then(
       (data: any) => {
-        that.loadView(true);
+        if (data.success) {
+          this.loadView(true);
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while deleting');
+        }
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while deleting');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while deleting');
         console.log(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }

@@ -71,34 +71,35 @@ export class FormEditComponent implements OnInit {
         /*plugins: environment.trumbooptions.plugins*/
     };
     ngOnInit() {
-        const that = this;
         this.formAPIURL = environment.API_Gateway_Endpoint + '/user-forms';
         if (this.docid === 'NEW') {
             this.frm = new Form();
-            this.frm.staticcaptcha = that.tabsSVC.getGUID();
+            this.frm.staticcaptcha = this.tabsSVC.getGUID();
             this.tabsSVC.setTabTitle(this.tabid, 'New Form');
             this.loading = false;
-            setTimeout(() => { that.setLoading(false); }, 1000); // delay to prevent error
+            setTimeout(() => { this.setLoading(false); }, 1000); // delay to prevent error
             // enable trumbowyg editor onchange tracking
-            setTimeout(() => { that.editorTrackChanges = true; }, 2000);
+            setTimeout(() => { this.editorTrackChanges = true; }, 2000);
         } else {
             this.loadByID(this.docid);
         }
     }
 
     loadByID(id: string) {
-        this.backendSVC.getItemByID(id).then(
+        this.backendSVC.actionContent('getItemByID', { id }).then(
             (data: any) => {
-                if (data.item) {
+                if (data.success) {
                     this.frm = data.item;
-                    if (!this.frm.captchaMethod || this.frm.captchaMethod ==='' ) this.frm.captchaMethod = 'static'; // backwards compatibility
+                    if (!this.frm.captchaMethod || this.frm.captchaMethod === '') this.frm.captchaMethod = 'static'; // backwards compatibility
                     this.tabsSVC.setTabTitle(this.tabid, data.item.title || 'Untitled Form');
+                } else {
+                    this.tabsSVC.printNotification(data.message || 'Error while loading form');
                 }
                 this.setLoading(false);
                 // enable trumbowyg editor onchange tracking
                 setTimeout(() => { this.editorTrackChanges = true; }, 2000);
             },
-            (err) => {
+            (err: any) => {
                 this.tabsSVC.printNotification('Error while loading form');
                 this.setLoading(false);
             }
@@ -108,35 +109,36 @@ export class FormEditComponent implements OnInit {
         this.setHasChanges(true);
         this.redirectSuccessHint = "";
         let path = this.frm.redirectSuccess || '';
-        if (path !== '' && !path.startsWith('https://'))  this.redirectSuccessHint = 'Warning! Redirection URL must start with https://';
+        if (path !== '' && !path.startsWith('https://')) this.redirectSuccessHint = 'Warning! Redirection URL must start with https://';
     }
     checkRedirectFailure(): void {
         this.setHasChanges(true);
         this.redirectFailureHint = "";
         let path = this.frm.redirectFailure || '';
-        if (path !== '' && !path.startsWith('https://'))  this.redirectFailureHint = 'Warning! Redirection URL must start with https://';
+        if (path !== '' && !path.startsWith('https://')) this.redirectFailureHint = 'Warning! Redirection URL must start with https://';
     }
     saveDocument() {
-        const that = this;
         this.setLoading(true);
-        this.backendSVC.saveForm(this.frm).then(
+        this.backendSVC.actionContent('saveForm', { obj: this.frm }).then(
             (data: any) => {
-                if (that.frm.id !== data.id) { // first save of NEW doc
-                    that.tabsSVC.changeTabID(that.tabid, 'tab-form-' + data.id, data.id);
-                    that.tabid = 'tab-form-' + data.id;
-                    that.docid = data.id;
-                }
-                that.frm.id = data.id;
-                that.setLoading(false);
-                that.tabsSVC.setTabDataExpired('tab-forms', true);
                 if (data.success) {
-                    that.tabsSVC.printNotification('Document saved');
-                    that.setHasChanges(false);
+                    if (this.frm.id !== data.id) { // first save of NEW doc
+                        this.tabsSVC.changeTabID(this.tabid, 'tab-form-' + data.id, data.id);
+                        this.tabid = 'tab-form-' + data.id;
+                        this.docid = data.id;
+                    }
+                    this.frm.id = data.id;
+                    this.tabsSVC.setTabDataExpired('tab-forms', true);
+                    this.tabsSVC.printNotification('Document saved');
+                    this.setHasChanges(false);
+                } else {
+                    this.tabsSVC.printNotification(data.message || 'Error while saving');
                 }
+                this.setLoading(false);
             },
-            (err) => {
-                that.tabsSVC.printNotification('Error while saving layout');
-                that.setLoading(false);
+            (err: any) => {
+                this.tabsSVC.printNotification('Error while saving layout');
+                this.setLoading(false);
             }
         );
     }
@@ -146,23 +148,24 @@ export class FormEditComponent implements OnInit {
     }
 
     btnDelete() {
-        if (!confirm('Do you really want to delete this object?')) { return false; }
-        const that = this;
-        this.backendSVC.deleteItemByID(this.frm.id).then(
+        if (!confirm('Do you really want to delete this object?')) return false;
+        this.backendSVC.actionContent('deleteItemByID', { id: this.frm.id }).then(
             (data: any) => {
                 if (data.success) {
-                    that.tabsSVC.printNotification('Document deleted');
-                    that.tabsSVC.setTabDataExpired('tab-forms', true);
-                    that.tabsSVC.closeTabByID(that.tabid);
+                    this.tabsSVC.printNotification('Document deleted');
+                    this.tabsSVC.setTabDataExpired('tab-forms', true);
+                    this.tabsSVC.closeTabByID(this.tabid);
+                } else {
+                    this.tabsSVC.printNotification(data.message || 'Error while deleting');
                 }
             },
-            (err) => {
-                that.tabsSVC.printNotification('Error while deleting');
-                that.setLoading(false);
+            (err: any) => {
+                this.tabsSVC.printNotification('Error while deleting');
+                this.setLoading(false);
             }
         );
     }
-    btnAddEmail() {
+    btnAddEmail(): void {
         if (this.tmpAddEmail !== '') {
             if (!this.frm.lstEmail) { this.frm.lstEmail = []; }
             this.frm.lstEmail.push(this.tmpAddEmail);
@@ -170,7 +173,7 @@ export class FormEditComponent implements OnInit {
         }
         this.setHasChanges(true);
     }
-    btnRemoveEmail(delItem: string) {
+    btnRemoveEmail(delItem: string): void {
         for (let i = 0; i < this.frm.lstEmail.length; i++) {
             if (this.frm.lstEmail[i] === delItem) {
                 this.frm.lstEmail.splice(i, 1);
@@ -179,7 +182,7 @@ export class FormEditComponent implements OnInit {
         }
         this.setHasChanges(true);
     }
-    setHasChanges(hasChanges): void {
+    setHasChanges(hasChanges: boolean): void {
         if (this.hasChanges !== hasChanges) {
             this.tabsSVC.setTabHasChanges(this.tabid, hasChanges);
             this.hasChanges = hasChanges;
@@ -195,7 +198,7 @@ export class FormEditComponent implements OnInit {
             }
         }
     }
-    setLoading(on: boolean) {
+    setLoading(on: boolean): void {
         this.loading = on;
         this.tabsSVC.setLoading(on);
     }

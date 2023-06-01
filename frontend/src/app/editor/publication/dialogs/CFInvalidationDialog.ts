@@ -20,7 +20,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BackendService } from 'src/app/services/backend.service';
 
 @Component({
-    selector: 'app-cf-invalidation-dialog',
     templateUrl: 'CFInvalidationDialog.html'
 })
 
@@ -47,22 +46,21 @@ export class CFInvalidationDialogComponent implements OnInit {
     }
 
     btnSubmit(): void {
-        if (!this.selectedTargetCF || this.selectedTargetCF === '') { return; }
-        const that = this;
+        if (!this.selectedTargetCF || this.selectedTargetCF === '') return;
         this.errorMessage = '';
         this.success = false;
         this.loading = true;
-        const lst = this.paths.split('\n');
-        this.backendSVC.invalidateCF(this.selectedTargetCF, lst).then(
+        const lstPaths = this.paths.split('\n');
+        this.backendSVC.actionCF('invalidateCF', { targetCF: this.selectedTargetCF, lstPaths }).then(
             (data: any) => {
-                that.success = data.success;
-                if (data.errorMessage) { that.errorMessage = data.errorMessage; }
-                that.loading = false;
+                this.success = data.success;
+                if (data.message) { this.errorMessage = data.message; }
+                this.loading = false;
             },
-            (err) => {
+            (err: any) => {
                 console.error(err);
-                that.errorMessage = err.message || 'Error while submitting request';
-                that.loading = false;
+                this.errorMessage = err.message || 'Error while submitting request';
+                this.loading = false;
             }
         );
     }

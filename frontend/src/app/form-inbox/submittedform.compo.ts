@@ -42,18 +42,19 @@ export class SubmittedFormComponent implements OnInit {
     }
 
     loadByID(id: string) {
-        const that = this;
-        this.backendSVC.getItemByID(id).then(
+        this.backendSVC.actionContent('getItemByID', { id }).then(
             (data: any) => {
-                if (data.item) {
-                    that.frm = data.item;
-                    that.tabsSVC.setTabTitle(that.tabid, data.item.title || 'Untitled Form');
+                if (data.success) {
+                    this.frm = data.item;
+                    this.tabsSVC.setTabTitle(this.tabid, data.item.title || 'Untitled Form');
+                } else {
+                    this.tabsSVC.printNotification(data.message || 'Error while loading form');
                 }
-                that.setLoading(false);
+                this.setLoading(false);
             },
-            (err) => {
-                that.tabsSVC.printNotification('Error while loading form');
-                that.setLoading(false);
+            (err: any) => {
+                this.tabsSVC.printNotification('Error while loading form');
+                this.setLoading(false);
             }
         );
     }
@@ -63,19 +64,20 @@ export class SubmittedFormComponent implements OnInit {
     }
 
     btnDelete() {
-        if (!confirm('Do you really want to delete this object?')) { return false; }
-        const that = this;
-        this.backendSVC.deleteItemByID(this.frm.id).then(
+        if (!confirm('Do you really want to delete this object?')) return false;
+        this.backendSVC.actionContent('deleteItemByID', { id: this.frm.id }).then(
             (data: any) => {
                 if (data.success) {
-                    that.tabsSVC.setTabDataExpired('tab-formsinbox', true);
-                    that.tabsSVC.printNotification('Document deleted');
-                    that.tabsSVC.closeTabByID(that.tabid);
+                    this.tabsSVC.setTabDataExpired('tab-formsinbox', true);
+                    this.tabsSVC.printNotification('Document deleted');
+                    this.tabsSVC.closeTabByID(this.tabid);
+                } else {
+                    this.tabsSVC.printNotification(data.message || 'Error while deleting');
                 }
             },
-            (err) => {
-                that.tabsSVC.printNotification('Error while deleting');
-                that.setLoading(false);
+            (err: any) => {
+                this.tabsSVC.printNotification('Error while deleting');
+                this.setLoading(false);
             }
         );
     }

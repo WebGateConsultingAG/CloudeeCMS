@@ -56,31 +56,33 @@ export class PubQueueComponent implements OnInit {
     this.loadView(false);
   }
   loadConfig() {
-    const that = this;
     this.backendSVC.getConfig(false).then(
       (rc: any) => {
-        that.config = rc.cfg;
+        this.config = rc.cfg;
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading configuration');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading configuration');
       }
     );
   }
   loadView(showLoader: boolean) {
-    const that = this;
-    if (showLoader) { that.setLoading(true); }
-    this.backendSVC.getPublicationQueue().then(
+    if (showLoader) this.setLoading(true);
+    this.backendSVC.actionContent('getPublicationQueue', {}).then(
       (data: any) => {
-        that.queueList = data.lstPages;
-        that.renderView(0);
-        that.setLoading(false);
-        that.selectAll = false;
-        that.setSelectAll();
+        if (data.success) {
+          this.queueList = data.lst || [];
+          this.renderView(0);
+          this.selectAll = false;
+          this.setSelectAll();
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
+        }
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading');
         console.log(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
@@ -108,26 +110,28 @@ export class PubQueueComponent implements OnInit {
     this.allowScrollFwd = false;
   }
   btnAddAllToPubQueue() {
-    if (!confirm('This will add all pages to the publication queue.\nContinue?')) { return; }
-    const that = this;
-    that.setLoading(true);
-    this.backendSVC.addAllToPublicationQueue().then(
+    if (!confirm('This will add all pages to the publication queue.\nContinue?')) return;
+    this.setLoading(true);
+    this.backendSVC.actionContent('addAllToPublicationQueue', {}).then(
       (data: any) => {
-        that.queueList = data.lstPages;
-        that.renderView(0);
-        that.setLoading(false);
-        that.selectAll = false;
-        that.setSelectAll();
+        if (data.success) {
+          this.queueList = data.lstPages;
+          this.renderView(0);
+          this.selectAll = false;
+          this.setSelectAll();
+        } else {
+          this.tabsSVC.printNotification(data.message || 'Error while loading');
+        }
+        this.setLoading(false);
       },
-      (err) => {
-        that.tabsSVC.printNotification('Error while loading');
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while loading');
         console.log(err);
-        that.setLoading(false);
+        this.setLoading(false);
       }
     );
   }
   btnPublish(pubType: string) {
-    const that = this;
     const lstPages = [];
     if (pubType === 'selected') {
       if (!this.viewList || this.viewList.length < 1) { return; }
@@ -140,14 +144,13 @@ export class PubQueueComponent implements OnInit {
       { width: '650px', disableClose: false, data: { pubtype: pubType, lstPageIDs: lstPages, config: this.config } }
     );
     dialogRef.afterClosed().subscribe(result => {
-      that.loadView(true); // reload queue
+      this.loadView(true); // reload queue
     });
   }
   setSelectAll() {
-    const that = this;
     if (!this.viewList || this.viewList.length < 1) { return; }
     this.viewList.forEach(pg => {
-      pg.sel = that.selectAll;
+      pg.sel = this.selectAll;
     });
   }
   btnNavigateTo(npath: string): void {
@@ -165,8 +168,9 @@ export class PubQueueComponent implements OnInit {
       return;
     }
     this.dialog.open(CFInvalidationDialogComponent,
-      { width: '450px', disableClose: false, data: { cfdists: this.config.cfdists, opaths }
-    });
+      {
+        width: '450px', disableClose: false, data: { cfdists: this.config.cfdists, opaths }
+      });
   }
   btnFeedDialog() {
     if (!this.config.feeds || this.config.feeds.length < 1) {
@@ -182,7 +186,8 @@ export class PubQueueComponent implements OnInit {
       return;
     }
     this.dialog.open(FeedPublishDialogComponent,
-      { width: '450px', disableClose: false, data: { config: this.config }
-    });
+      {
+        width: '450px', disableClose: false, data: { config: this.config }
+      });
   }
 }

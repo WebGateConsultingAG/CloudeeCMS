@@ -58,7 +58,6 @@ export class ImgUploadDialogComponent implements OnInit {
     public files: Set<File> = new Set();
 
     ngOnInit(): void {
-        const that = this;
         this.filelist = this.data.filelist;
         this.uplPath = this.data.uplPath;
         this.targetEnv = this.data.targetEnv;
@@ -71,36 +70,33 @@ export class ImgUploadDialogComponent implements OnInit {
 
         if (this.data.accept) { this.accept = this.data.accept; }
         // Load image profiles
-        this.backendSVC.getImageProfiles(true).then(
+        this.backendSVC.getImageProfiles(false).then(
             (rc: any) => {
-                that.lstImgProfiles = rc.imgprofiles.lstProfiles;
-                that.loadingProfiles = false;
-                if (that.lstImgProfiles.length < 1) {
-                    that.errormsg = 'No image upload profiles found. Go to Settings to configure upload and resize options first.';
-                    that.hasError = true;
+                this.lstImgProfiles = rc.imgprofiles.lstProfiles;
+                this.loadingProfiles = false;
+                if (this.lstImgProfiles.length < 1) {
+                    this.errormsg = 'No image upload profiles found. Go to Settings to configure upload and resize options first.';
+                    this.hasError = true;
                 } else {
-                    that.showProfileSelection = true;
+                    this.showProfileSelection = true;
                 }
             },
-            (err) => {
-                that.loadingProfiles = false;
-                that.errormsg = 'Error while loading imageprofiles';
+            (err: any) => {
+                this.loadingProfiles = false;
+                this.errormsg = 'Error while loading imageprofiles';
                 console.error(err);
             }
         );
     }
     loadConfig() {
-        const that = this;
         this.backendSVC.getConfig(false).then(
             (rc: any) => {
-                that.config = rc.cfg;
+                this.config = rc.cfg;
                 // open default CDN bucket
-                const cdnBucket = that.getBucketByLabel('CDN');
-                if (cdnBucket) {
-                    that.targetEnv = cdnBucket.bucketname;
-                }
+                const cdnBucket = this.getBucketByLabel('CDN');
+                if (cdnBucket) this.targetEnv = cdnBucket.bucketname;
             },
-            (err) => {
+            (err: any) => {
                 console.log('Error while loading configuration', err);
             }
         );
