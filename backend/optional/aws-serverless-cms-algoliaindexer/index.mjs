@@ -13,31 +13,30 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2020-04-15 0607 - RSC
+ * File Version: 2023-06-05 1315 - RSC
  */
 
 // Algolia search indexer
 // This function listens on SQS queue for indexing requests by the publish function
 // Sample message: { "action": "add", "tableName": "", "indexName":"", "bucketName": "", ids": [] };
 
+// ES6 | nodejs18+ | AWS SDK v3
 
-const AWS = require('aws-sdk');
-const documentClient = new AWS.DynamoDB.DocumentClient({ convertEmptyValues: true });
+import { SQSClient, DeleteMessageCommand } from "@aws-sdk/client-sqs";
+import { DDBGet } from './functions/lambda-utils.mjs';
+import algoliasearch from 'algoliasearch';
 
-const algoliasearch = require('algoliasearch');
 const FTclient = algoliasearch(process.env.ALGOLIA_APPID, process.env.ALGOLIA_APIKEY);
-
 const TASK_QUEUE_URL = process.env.TASK_QUEUE_URL;
-const sqs = new AWS.SQS();
+const sqsclient = new SQSClient({});
 
-exports.handler = async function (event, context, callback) {
-
+export const handler = async (event, context, callback) => {
     let indexName = "";
     let FTindex = null;
 
     for (let m = 0; m < event.Records.length; m++) {
-        var msg = event.Records[m];
-        var msgObj = JSON.parse(msg.body);
+        let msg = event.Records[m];
+        let msgObj = JSON.parse(msg.body);
         try {
             if (indexName !== msgObj.indexName) {
                 indexName = msgObj.indexName;
@@ -45,9 +44,8 @@ exports.handler = async function (event, context, callback) {
             }
             if (msgObj.action === "add") {
                 for (let i = 0; i < msgObj.ids.length; i++) {
-                    let doc = await documentClient.get({ TableName: msgObj.tableName, Key: { id: msgObj.ids[i] } }).promise();
-                    if (doc && doc.Item) {
-                        let putItem = doc.Item;
+                    let putItem = await DDBGet({ TableName: msgObj.tableName, Key: { id: msgObj.ids[i] } });
+                    if (putItem) {
                         putItem.objectID = putItem.id;
                         await FTindex.saveObject(putItem);
                     }
@@ -58,7 +56,9 @@ exports.handler = async function (event, context, callback) {
                     await FTindex.deleteObject(msgObj.ids[i]);
                 }
             }
-            await sqs.deleteMessage({ ReceiptHandle: msg.receiptHandle, QueueUrl: TASK_QUEUE_URL }).promise();
+
+            let command = new DeleteMessageCommand({ ReceiptHandle: msg.receiptHandle, QueueUrl: TASK_QUEUE_URL });
+            await sqsclient.send(command);
 
         } catch (e) {
             console.log(e);
