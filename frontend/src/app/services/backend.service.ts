@@ -51,35 +51,8 @@ export class BackendService {
     public isUserAdmin = false;
     public isLayoutEditor = false;
 
-    // --- Publish functions (TODO: move to actionPublish)
-
-    public publishPage(targetEnv: string, thisID: string, thisPage: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
-            { action: 'publishpage', id: thisID, page: thisPage, targetenv: targetEnv }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public bulkPublishPage(targetEnv: string, pubtype: string, lstPageIDs: any, removeFromQueue: boolean) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
-            { action: 'bulkpublishpage', pubtype: pubtype, lstPageIDs: lstPageIDs, targetenv: targetEnv, removeFromQueue: removeFromQueue }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public unpublishPage(targetEnv: string, thisID: string, thisopath: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
-            { action: 'unpublishpage', id: thisID, opath: thisopath, targetenv: targetEnv }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public publishFeeds(targetEnv: string, lstFeeds: any) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.PUBLISH_RES,
-            { action: 'publishfeeds', lstFeeds, targetenv: targetEnv }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-
     // --- Backup functions (TODO: move to actionBkup)
-
+    
     public createDBBackup(targetEnv: string) {
         return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES,
             { action: 'createBackup', targetenv: targetEnv }).toPromise().then((result: any) => {

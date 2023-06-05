@@ -9,8 +9,8 @@
   "author": "WebGate RSC",
   "license": "Apache-2.0",
   "dependencies": {
-    "feed": "^4.2.1",
-    "pug": "^3.0.1",
-    "sitemap": "^6.3.2"
+    "feed": "^4.2.2",
+    "pug": "^3.0.2",
+    "sitemap": "^7.1.1"
   }
 }
