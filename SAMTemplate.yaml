@@ -312,7 +312,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: ./backend/aws-serverless-cms-fileupload
       Description: CloudeeCMS Upload images pasted in trumbowyg editor
       MemorySize: 256
