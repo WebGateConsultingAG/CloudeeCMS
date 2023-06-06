@@ -16,10 +16,10 @@
  * File Version: 2023-03-27 14:00 RSC
  */
 
-const https = require('https');
-const querystring = require('querystring');
+import https from 'https';
+import querystring from 'querystring';
 
-let reCAPTCHAv3 = {};
+const reCAPTCHAv3 = {};
 
 reCAPTCHAv3.verifyResponse = async function (secret, reCAPTCHAResponse, clientIP) {
     try {
@@ -57,4 +57,4 @@ function queryReCAPTCHA(secret, reCAPTCHAResponse, clientIP) {
         req.end();
     });
 }
-module.exports = reCAPTCHAv3;
+export { reCAPTCHAv3 };

@@ -40,12 +40,13 @@ export class BuildprojectDialogComponent implements OnInit {
     this.loading = true;
     this.backendSVC.actionBkup('getbuildprojectinfo', {}).then(
       (rc: any) => {
-        if (rc.success) {
-          this.buildinfo = rc.buildinfo || {};
+        let data = rc.data; // for backwards compatibility
+        if (data.success) {
+          this.buildinfo = data.buildinfo || {};
           this.loading = false;
         } else {
-          console.log("Error while retrieving buildproject info:", rc.message);
-          this.errorMessage = "Error while retrieving buildproject info: " + (rc.message || '');
+          console.log("Error while retrieving buildproject info:", data.message);
+          this.errorMessage = "Error while retrieving buildproject info: " + (data.message || '');
           this.loading = false;
         }
       },
