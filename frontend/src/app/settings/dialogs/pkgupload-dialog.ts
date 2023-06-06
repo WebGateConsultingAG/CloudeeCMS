@@ -106,28 +106,30 @@ export class PackageUploadDialogComponent implements OnInit {
     }
     processUploadedPackage(pkg: any): void {
         console.log('processUploadedPackage', pkg);
-        const that = this;
+        this.errorMessage = '';
         this.showImporterLoading = true;
         this.installMsg = 'Installing ' + pkg.nm;
         this.installing = true;
         this.installLog = [];
         const pkgKey = pkg.s3key;
-        this.backendSVC.importPackage(this.bucket, pkg.s3key).then(
+        this.backendSVC.actionBkup('importPackage', { targetenv: this.bucket, s3key: pkg.s3key }).then(
             (data: any) => {
-                that.installing = false;
-                if (data.log) { that.installLog = data.log; }
+                this.installing = false;
+                if (data.log) { this.installLog = data.log; }
                 if (data.success) {
-                    that.installMsg = 'Package imported';
-                    that.requireRestart = true;
+                    this.installMsg = 'Package imported';
+                    this.requireRestart = true;
+                } else {
+                    this.errorMessage = data.message || 'Error while processing package';
                 }
-                that.removePackage(pkgKey);
+                this.removePackage(pkgKey);
             },
-            (err) => {
+            (err: any) => {
                 console.error(err);
-                that.installing = false;
-                that.installLog.push(err.status + ': ' + err.message);
-                that.errorMessage = 'Error while processing package';
-                that.removePackage(pkgKey);
+                this.installing = false;
+                this.installLog.push(err.status + ': ' + err.message);
+                this.errorMessage = 'Error while processing package';
+                this.removePackage(pkgKey);
             }
         );
     }

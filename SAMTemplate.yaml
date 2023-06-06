@@ -336,10 +336,10 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: ./backend/aws-serverless-cms-backup
       Description: CloudeeCMS API for backup and restore
-      MemorySize: 512
+      MemorySize: 768
       Timeout: 120
       Role: !GetAtt SCMSLambdaRole.Arn
       Environment:

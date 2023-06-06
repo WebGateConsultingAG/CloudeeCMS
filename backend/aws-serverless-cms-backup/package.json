@@ -2,14 +2,14 @@
   "name": "aws-serverless-cms-backup",
   "version": "1.0.0",
   "description": "AWS Lambda backend backup and restore DB table",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "WebGate RSC",
   "license": "Apache-2.0",
   "dependencies": {
-    "adm-zip": "^0.4.14",
-    "mime": "^2.4.5"
+    "adm-zip": "^0.5.10",
+    "mime": "^3.0.0"
   }
 }

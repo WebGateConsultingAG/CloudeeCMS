@@ -51,21 +51,6 @@ export class BackendService {
     public isUserAdmin = false;
     public isLayoutEditor = false;
 
-    // --- Backup functions (TODO: move to actionBkup)
-    
-    public createDBBackup(targetEnv: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES,
-            { action: 'createBackup', targetenv: targetEnv }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-    public importPackage(targetEnv: string, S3key: string) {
-        return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES,
-            { action: 'importPackage', targetenv: targetEnv, s3key: S3key }).toPromise().then((result: any) => {
-                return result.data || null;
-            });
-    }
-
     // --- Updater and notifications
 
     public getNotifications() {
@@ -98,7 +83,7 @@ export class BackendService {
         const payload = { action: 'startUpdate', versioninfo: this.APP_VERSION_INFO, repobranch: 'master' };
         if (this.configDoc && this.configDoc.cfg) { payload.repobranch = this.configDoc.cfg.repobranch || 'master'; }
         return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES, payload).toPromise().then((result: any) => {
-            return result.data || null;
+            return result || null;
         });
     }
     public getPipelineStatus() {

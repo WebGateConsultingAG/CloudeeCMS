@@ -70,28 +70,29 @@ export class ImportDialogComponent implements OnInit {
     }
 
     btnImport(): void {
-        if (!confirm('Do you really want to import this package?')) { return; }
-        const that = this;
+        if (!confirm('Do you really want to import this package?')) return;
         this.errorMessage = '';
         this.message = '';
         this.backupLog = [];
         this.loading = true;
-        this.backendSVC.importPackage(this.bucket, this.s3key).then(
+        this.backendSVC.actionBkup('importPackage', { targetenv: this.bucket, s3key: this.s3key }).then(
             (data: any) => {
-                that.loading = false;
-                if (data.log) { that.backupLog = data.log; }
+                this.loading = false;
+                if (data.log) { this.backupLog = data.log; }
                 if (data.success) {
-                    that.message = 'Package imported';
-                    that.showImportButton = false;
-                    that.requireRestart = true;
+                    this.message = 'Package imported';
+                    this.showImportButton = false;
+                    this.requireRestart = true;
+                } else {
+                    this.errorMessage = data.message || 'Error while processing package';
                 }
             },
-            (err) => {
+            (err: any) => {
                 console.error(err);
-                that.backupLog.push(err.status + ': ' + err.message);
-                that.errorMessage = 'Error while processing';
-                that.showImportButton = false;
-                that.loading = false;
+                this.backupLog.push(err.status + ': ' + err.message);
+                this.errorMessage = 'Error while processing';
+                this.showImportButton = false;
+                this.loading = false;
             }
         );
     }
