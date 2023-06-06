@@ -83,7 +83,7 @@ export class BackendService {
         const payload = { action: 'startUpdate', versioninfo: this.APP_VERSION_INFO, repobranch: 'master' };
         if (this.configDoc && this.configDoc.cfg) { payload.repobranch = this.configDoc.cfg.repobranch || 'master'; }
         return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES, payload).toPromise().then((result: any) => {
-            return result || null;
+            return result.data || null;
         });
     }
     public getPipelineStatus() {
@@ -242,7 +242,7 @@ export class BackendService {
     }
     public actionBkup(action: string, params: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.BACKUP_RES, { action, params }).toPromise().then((result: any) => {
-            return result.data || null;
+            return result || null;
         });
     }
     public actionPublish(action: string, params: any) {

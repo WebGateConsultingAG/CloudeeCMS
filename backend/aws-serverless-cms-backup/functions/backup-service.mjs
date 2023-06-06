@@ -13,13 +13,12 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-06-06 07:10 - RSC
+ * File Version: 2023-06-06 13:01 - RSC
  */
 
 import { documentClient, DDBGet, DDBScan, getNewGUID, getFormattedDate } from './lambda-utils.mjs';
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import fs from 'fs';
-import { createWriteStream } from "node:fs";
 import admZIP from 'adm-zip';
 import mime from 'mime';
 const tableName = process.env.DB_TABLE;
@@ -123,6 +122,8 @@ backupSVC.importPackage = async function (s3BucketName, s3key) {
         lstLog.push("Downloading " + s3key + " from bucket " + s3BucketName + " to " + zipfile);
         let s3rc = await downloadS3({ Bucket: s3BucketName, Key: s3key }, zipfile);
         if (!s3rc) return { success: false, message: 'Failed to download package from S3', log: lstLog };
+        
+        console.log("Downloaded file: ", zipfile, fs.statSync(zipfile));
         lstLog.push('Decompressing: ' + zipfile);
         const xDir = sDir + 'unpack/';
         const zip = new admZIP(zipfile);
@@ -293,14 +294,19 @@ async function downloadS3(s3params, destFile) {
     try {
         const command = new GetObjectCommand(s3params);
         const data = await s3client.send(command);
-        data.Body.pipe(createWriteStream(destFile));
-        /*
-        import { Readable } from 'stream';
-        const readStream = item.Body as Readable
-        */
-        return true;
+        if (!data.Body) {
+            console.log("S3 object body is undefined");
+            return false;
+        }
+        let rc = await new Promise((resolve, reject) => {
+          data.Body.pipe(fs.createWriteStream(destFile))
+            .on('error', err => reject(err))
+            .on('close', () => resolve(true));
+        });
+        console.log("Finished downloading", rc);
+        return rc;
     } catch (e) {
-        console.log(e);
+        console.log("downloadS3()", destFile, e);
         return false;
     }
 }

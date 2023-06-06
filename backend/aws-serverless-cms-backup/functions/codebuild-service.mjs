@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-06-06 07:10 - RSC
+ * File Version: 2023-06-06 12:10 - RSC
  */
 
 import { getNewGUID } from './lambda-utils.mjs';
@@ -90,7 +90,7 @@ codebuildSVC.startUpdate = async function (payload) {
     pStatus = await cpclient.send(cpcommand);
     console.log('pStatus', JSON.stringify(pStatus));
     if (hasCodePipelineStatus(pStatus, 'InProgress')) {
-      return { success: false, message: 'Update is already in progress', pStatus: pStatus };
+      return { data: { success: false, message: 'Update is already in progress', pStatus: pStatus } };
     }
     // Get updater info
     const updOpts = {
@@ -103,13 +103,13 @@ codebuildSVC.startUpdate = async function (payload) {
       (jsonData) => { updDLOpts = jsonData.data || {}; },
       (err) => {
         console.log(err);
-        return { success: false, message: 'Failed to download update information', pStatus: pStatus || {} };
+        return { data: { success: false, message: 'Failed to download update information', pStatus: pStatus || {} } };
       }
     );
 
     if (updDLOpts === null || !updDLOpts.updateURL || updDLOpts.updateURL === '') {
       console.log('Something is wrong with updDLOpts', updDLOpts);
-      return { success: false, message: 'Failed to process update information', pStatus: pStatus || {} };
+      return { data: { success: false, message: 'Failed to process update information', pStatus: pStatus || {} } };
     }
 
     const updateSourceFilename = '/tmp/update_' + getNewGUID() + '_src.zip';
@@ -122,7 +122,7 @@ codebuildSVC.startUpdate = async function (payload) {
 
     // Check if file exists
     if (!fs.existsSync(updateSourceFilename)) {
-      return { success: false, message: 'Failed to download update', pStatus: pStatus || {} };
+      return { data: { success: false, message: 'Failed to download update', pStatus: pStatus || {} } };
     }
     console.log(updateSourceFilename, fs.statSync(updateSourceFilename));
 
@@ -142,10 +142,10 @@ codebuildSVC.startUpdate = async function (payload) {
     console.log('Start CodePipeline build', pipelineName);
     const command = new StartPipelineExecutionCommand({ name: pipelineName });
     const pExec = await cpclient.send(command);
-    return { success: true, message: 'Update started', pStatus, pExec };
+    return { data: { success: true, message: 'Update started', pStatus, pExec } };
   } catch (e) {
     console.log(e);
-    return { success: false, message: e.message || 'Error', pStatus: pStatus || {} };
+    return { data: { success: false, message: e.message || 'Error', pStatus: pStatus || {} } };
   }
 };
 
