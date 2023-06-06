@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-06-06 07:02 - RSC
+ * File Version: 2023-06-06 12:02 - RSC
  */
 
 // ES6 | nodejs18+ | AWS SDK v3
@@ -25,7 +25,6 @@ import { lambdaCB } from './functions/lambda-utils.mjs';
 export const handler = async (event, context, callback) => {
     const cbHandler = lambdaCB(callback);
     const method = event.httpMethod;
-
     const cognitoGroups = event.requestContext.authorizer.claims['cognito:groups'] || '';
     const userGroups = cognitoGroups.split(',');
     const isAdmin = userGroups.indexOf('CloudeeCMS-Admin') >= 0;
@@ -39,7 +38,7 @@ export const handler = async (event, context, callback) => {
             } else if (action === 'createBackup') {
                 return cbHandler.success(await backupSVC.createBackup(payload.params.targetenv));
             } else if (action === 'startUpdate') {
-                return cbHandler.success(await codebuildSVC.startUpdate(payload.params));
+                return cbHandler.success(await codebuildSVC.startUpdate(payload));
             }
         }
 
