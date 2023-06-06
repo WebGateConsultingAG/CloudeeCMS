@@ -24,7 +24,7 @@ import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class FileAdminService {
 
-    constructor( private http: HttpClient ) { }
+    constructor(private http: HttpClient) { }
 
     FILE_RES = '/file-admin';
     IMG_RES = '/img-resize';
@@ -78,7 +78,7 @@ export class FileAdminService {
     public resizeImages(thisBucketName: string, targetpath: string, lstFiles: any, imageprofile: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.IMG_RES,
             { action: 'convertimages', bucketName: thisBucketName, targetpath, lstFiles, imageprofile }).toPromise().then((result: any) => {
-                return result.data || null;
+                return result || null;
             });
     }
 

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
-Description: CloudeeCMS Backend Auto Deployment 2023-05-22
+Description: CloudeeCMS Backend Auto Deployment 2023-06-06
 Parameters:
   AdminBucket:
     Type: String
@@ -291,7 +291,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Handler: index.handler
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       CodeUri: ./backend/aws-serverless-cms-img
       Description: CloudeeCMS API for image resizing
       MemorySize: 768
