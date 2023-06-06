@@ -37,21 +37,29 @@ export const handler = async (event, context, callback) => {
         const clientIP = getClientIP(event);
 
         let formID = params['formid'];
-        if (!formID || formID === '') return getResponse(redirectToFail);
+        if (!formID || formID === '') {
+            console.log("Form submission failed due to missing formid parameter");
+            return getResponse(redirectToFail);
+        }
 
         // check captcha type
         let captchaMode = 'static';
         const staticcaptcha = params['result'] || '';
         const reCAPTCHAResponse = params['g-recaptcha-response'] || '';
         if (reCAPTCHAResponse !== '') { // switch mode if google recaptcha supplied
+            console.log("Using reCAPTCHA");
             captchaMode = 'reCAPTCHAv3';
         } else {
+            console.log("Using static captcha", staticcaptcha );
             if (staticcaptcha === '') return getResponse(redirectToFail);
         }
 
         // lookup form by id
-        let formdoc = DDBGet({ TableName: tableName, Key: { id: formID } });
-        if (!formdoc || formdoc.otype !== 'Form') return getResponse(redirectToFail);
+        let formdoc = await DDBGet({ TableName: tableName, Key: { id: formID } });
+        if (!formdoc || formdoc.otype !== 'Form') {
+            console.log("Form submission failed due to missing form in DB", formID);
+            return getResponse(redirectToFail);
+        }
         if (formdoc.redirectFailure) redirectToFail = formdoc.redirectFailure;
 
         if (captchaMode === 'reCAPTCHAv3') {
@@ -101,7 +109,7 @@ async function notifyBySNS(userform, formdoc, fldList) {
             TopicArn: formdoc.snsTopicARN
         };
         console.log("Sending SNS message", params);
-        await client.send(new PublishCommand(params));
+        await snsclient.send(new PublishCommand(params));
     } catch (e) {
         console.error(e);
     }
