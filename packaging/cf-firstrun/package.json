@@ -1,0 +1,11 @@
+{
+  "name": "aws-serverless-cms-firstrun",
+  "version": "1.0.0",
+  "description": "CloudeeCMS first run lambda while deploying from CloudFormation template",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WebGate Consulting AG",
+  "license": "Apache-2.0"
+}

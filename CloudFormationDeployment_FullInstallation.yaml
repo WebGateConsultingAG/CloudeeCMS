@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2023-05-31 07:10
+Description: CloudeeCMS Auto Deployment Full Installation (Online Update) 2023-06-07 13:30
 Metadata:
   'AWS::CloudFormation::Interface':
     ParameterGroups:
@@ -926,7 +926,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: Run this once to finalize setup of CloudeeCMS
-      Runtime: nodejs16.x
+      Runtime: nodejs18.x
       Role: !GetAtt CFDeployerRole.Arn
       Handler: index.handler
       Timeout: 40
@@ -936,89 +936,8 @@ Resources:
           PIPELINE_BUCKET: !Sub ${CodePipelineSourceBucket}
           WEBAPP_BUCKET: !Sub ${AdminBucket.RegionalDomainName}
       Code:
-        ZipFile: |
-          const AWS = require('aws-sdk');
-          const s3 = new AWS.S3();
-          const fs = require('fs');
-          const http = require('https');
-          const response = require('cfn-response');
-          const updURL = 'https://notifications.cloudee-cms.com/api/notifications';
-          exports.handler = async function(event, context) {
-            try {
-              console.log( "*** URL of CloudeeCMS Editor will be: https://"+process.env.WEBAPP_BUCKET+'/scms/index.html');
-              const pipelineBucket = process.env.PIPELINE_BUCKET;
-              const pipelineName = process.env.PIPELINE_NAME;
-              const updateSourceFilename = '/tmp/deploy.zip';
-              let updateSrc = await httpGET(updURL+'?action=getlatestversion');
-              console.log(`Downloading ${updateSrc.data.availableVersion} from ${updateSrc.data.updateURL}`);
-              await httpDownload(updateSrc.data.updateURL, updateSourceFilename).then(
-                  () => { console.log("File downloaded")},
-                  async (err) => {
-                    console.log(err);
-                  }
-              );
-              if (!fs.existsSync(updateSourceFilename)) {
-                  console.warn( 'Failed to download update' );
-                  return response.send(event, context, response.FAILED, { status: "Download FAILED", version: updateSrc.data.availableVersion });
-              }
-              console.log(updateSourceFilename, fs.statSync(updateSourceFilename));
-              console.log('Uploading to S3', pipelineBucket);
-              let fbuf = fs.readFileSync(updateSourceFilename);
-
-              await s3.putObject({
-                  Bucket: pipelineBucket, Key: 'codepipeline/cloudeecms/deploy.zip', Body: fbuf, ContentType: 'application/zip'
-              }).promise().then(
-                  (data) => { },
-                  (err) => {
-                      console.warn( 'Failed to upload to s3', err);
-                      return response.send(event, context, response.SUCCESS, { status: "S3 Upload FAILED", version: updateSrc.data.availableVersion });
-                  }
-              );
-              return response.send(event, context, response.SUCCESS, { status: "OK", version: updateSrc.data.availableVersion });
-            } catch (e) {
-              return response.send(event, context, response.SUCCESS, { status: "Script Error", version: "unknown" });
-            }
-          };
-          const httpDownload = (url, dest) => {
-              return new Promise((resolve, reject) => {
-                    http.get(url, res => {
-                          let bytes = 0;
-                          let bodyChunks = [];
-                          res.on('data', chunk => {
-                                bodyChunks.push(chunk);
-                                bytes += chunk.length;
-                          });
-                          res.on('end', () => {
-                                var buf = new Buffer.alloc(bytes);
-                                var c = 0;
-                                for (var i = 0; i < bodyChunks.length; i++) {
-                                      bodyChunks[i].copy(buf, c, 0);
-                                      c += bodyChunks[i].length;
-                                }
-                                fs.writeFileSync(dest, buf, { flags: 'w', encoding: null, mode: 0o666 });
-                                resolve();
-                          });
-                    }).on('error', reject);
-              });
-          };
-          function httpGET(url) {
-              return new Promise((resolve, reject) => {
-                  const req = http.request(url, (res) => {
-                      if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error('statusCode=' + res.statusCode));
-                      var body = [];
-                      res.on('data', function (chunk) { body.push(chunk); });
-                      res.on('end', function () {
-                          try {
-                              resolve(JSON.parse(Buffer.concat(body).toString()));
-                          } catch (e) {
-                              reject(e);
-                          }
-                      });
-                  });
-                  req.on('error', (e) => { reject(e.message); });
-                  req.end();
-              });
-          }
+        S3Bucket: "cloudeecms-updates"
+        S3Key: "cloudeecms/firstrun/firstrun_20230607.zip"
 Outputs:
   AdminBucket:
     Value: !Sub 'https://${AdminBucket.RegionalDomainName}/scms/index.html'
