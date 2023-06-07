@@ -100,9 +100,14 @@ export class SettingsComponent implements OnInit {
         if (rc.success) {
           this.tabsSVC.printNotification('Configuration saved');
           this.setHasChanges(false);
-          if (this.restartRequired) {
-            if (confirm('Restart of Webapplication recommended.\nRestart now?')) { window.location.reload(); }
-          }
+          // Reload configuration in backendSVC, or updater dialog will have an empty config
+          this.backendSVC.getConfig(true).then(
+            ()=> {
+              if (this.restartRequired) {
+                if (confirm('Restart of Webapplication recommended.\nRestart now?')) { window.location.reload(); }
+              }
+            }
+          )
         }
       },
       (err) => {
@@ -288,7 +293,7 @@ export class SettingsComponent implements OnInit {
       return;
     }
     this.bkupLoading = true;
-    this.backendSVC.createDBBackup(this.selectedTargetEnv).then(
+    this.backendSVC.actionBkup('createBackup', { targetenv: this.selectedTargetEnv }).then(
       (data: any) => {
         this.bkupLoading = false;
         if (data.log) { this.backupLog = data.log; }

@@ -2,13 +2,13 @@
   "name": "aws-serverless-cms-algoliaindexer",
   "version": "1.0.0",
   "description": "Listens for indexing requests on SQS queue and forwards to algolia API",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "WebGate RSC",
   "license": "Apache-2.0",
   "dependencies": {
-    "algoliasearch": "^4.1.0"
+    "algoliasearch": "^4.17.1"
   }
 }

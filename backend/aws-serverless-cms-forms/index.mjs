@@ -1,5 +1,5 @@
 /*
- * Copyright WebGate Consulting AG, 2023
+ * Copyright WebGate Consulting AG, 2020
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,22 +13,23 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-05-31 06:53
+ * File Version: 2023-06-06 13:55 - RSC
  */
 
-const DynamoDB = require('aws-sdk/clients/dynamodb');
-const documentClient = new DynamoDB.DocumentClient({ convertEmptyValues: true });
-const querystring = require('querystring');
+// ES6 | nodejs18+ | AWS SDK v3
+
+import { reCAPTCHAv3 } from './functions/reCAPTCHAv3.mjs';
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+import { DDBGet, documentClient, getFormattedDate, getNewGUID } from './functions/lambda-utils.mjs';
+import querystring from 'querystring';
+import ejs from 'ejs';
+
 const tableName = process.env.DB_TABLE || '';
-const AWSSQS = require('aws-sdk/clients/sqs');
-const AWSSNS = require('aws-sdk/clients/sns');
-const sqs = new AWSSQS();
-const sns = new AWSSNS();
-const ejs = require('ejs');
+const sqsclient = new SQSClient();
+const snsclient = new SNSClient();
 
-const reCAPTCHA = require('./reCAPTCHAv3');
-
-exports.handler = async (event) => {
+export const handler = async (event, context, callback) => {
     let redirectToFail = event.headers.referer || '/';
     try {
         let params = querystring.parse(event.body);
@@ -36,26 +37,33 @@ exports.handler = async (event) => {
         const clientIP = getClientIP(event);
 
         let formID = params['formid'];
-        if (!formID || formID === '') return getResponse(redirectToFail);
+        if (!formID || formID === '') {
+            console.log("Form submission failed due to missing formid parameter");
+            return getResponse(redirectToFail);
+        }
 
         // check captcha type
         let captchaMode = 'static';
         const staticcaptcha = params['result'] || '';
         const reCAPTCHAResponse = params['g-recaptcha-response'] || '';
         if (reCAPTCHAResponse !== '') { // switch mode if google recaptcha supplied
+            console.log("Using reCAPTCHA");
             captchaMode = 'reCAPTCHAv3';
         } else {
+            console.log("Using static captcha", staticcaptcha );
             if (staticcaptcha === '') return getResponse(redirectToFail);
         }
 
         // lookup form by id
-        let fdoc = await documentClient.get({ TableName: tableName, Key: { id: formID } }).promise();
-        let formdoc = fdoc.Item || "";
-        if (!formdoc || formdoc.otype !== 'Form') return getResponse(redirectToFail);
+        let formdoc = await DDBGet({ TableName: tableName, Key: { id: formID } });
+        if (!formdoc || formdoc.otype !== 'Form') {
+            console.log("Form submission failed due to missing form in DB", formID);
+            return getResponse(redirectToFail);
+        }
         if (formdoc.redirectFailure) redirectToFail = formdoc.redirectFailure;
 
         if (captchaMode === 'reCAPTCHAv3') {
-            let gcrc = await reCAPTCHA.verifyResponse(formdoc.staticcaptcha, reCAPTCHAResponse, clientIP);
+            let gcrc = await reCAPTCHAv3.verifyResponse(formdoc.staticcaptcha, reCAPTCHAResponse, clientIP);
             console.log("reCAPTCHAv3 verify response", gcrc);
             if (!gcrc || !gcrc.success) return getResponse(redirectToFail);
             delete params['g-recaptcha-response']; // remove from form field list
@@ -68,7 +76,7 @@ exports.handler = async (event) => {
 
         // store the form in DB
         let userform = {};
-        userform.id = 'SF-' + guid();
+        userform.id = 'SF-' + getNewGUID('xxxxxxxx');
         userform.otype = 'SubmittedForm';
         userform.dt = new Date().getTime();
         userform.ip = clientIP || '';
@@ -79,7 +87,7 @@ exports.handler = async (event) => {
         userform.captchaMode = captchaMode;
         userform.GSI1SK = getFormattedDate(new Date()) + '/';
 
-        await documentClient.put({ TableName: tableName, Item: userform }).promise();
+        await documentClient.put({ TableName: tableName, Item: userform });
         if (formdoc.redirectSuccess) redirectToSuccess = formdoc.redirectSuccess;
 
         // notifiy someone
@@ -100,8 +108,8 @@ async function notifyBySNS(userform, formdoc, fldList) {
             Subject: formdoc.mailSubjectSNS || 'CloudeeCMS form notification',
             TopicArn: formdoc.snsTopicARN
         };
-        console.log("sending SNS message", params);
-        await sns.publish(params).promise();
+        console.log("Sending SNS message", params);
+        await snsclient.send(new PublishCommand(params));
     } catch (e) {
         console.error(e);
     }
@@ -151,41 +159,20 @@ function getResponse(redirectTo) {
         headers: { Location: redirectTo }
     };
 }
-function sendSQS(msg, SQS_QUEUE_URL) {
-    return new Promise((resolve, reject) => {
-        var params = {
-            MessageBody: JSON.stringify(msg),
-            QueueUrl: SQS_QUEUE_URL,
-            DelaySeconds: 0
-        };
-        sqs.sendMessage(params, function (err, data) {
-            if (err) {
-                console.log(err, err.stack); // an error occurred
-                reject(err);
-            } else {
-                resolve(data);
-            }
-        });
-    });
-}
-function guid() {
-    function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) }
-    return s4() + s4();
-}
-function getFormattedDate(strDT) {
+async function sendSQS(msg, SQS_QUEUE_URL) {
     try {
-        if (!strDT || strDT === '') return '';
-        let dt = new Date(strDT);
-        dt.setMinutes(dt.getMinutes());
-        const newDT = dt.getFullYear() + '-';
-        const m = dt.getMonth() + 1;
-        const d = dt.getDate();
-        return newDT + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d);
+        const params = {
+            MessageBody: JSON.stringify(msg),
+            QueueUrl: SQS_QUEUE_URL, DelaySeconds: 0
+        };
+        const command = new SendMessageCommand(params);
+        await sqsclient.send(command);
+        return true;
     } catch (e) {
         console.log(e);
-        return '';
+        return false;
     }
-};
+}
 function getClientIP(evt) {
     try {
         return evt.requestContext.identity.sourceIp || evt.headers['X-Forwarded-For'] || '';

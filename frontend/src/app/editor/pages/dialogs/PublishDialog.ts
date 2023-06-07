@@ -57,51 +57,55 @@ export class PublishDialogComponent implements OnInit {
   }
   btnPublish(): void {
     if (this.selectedTargetEnv === '') { return; }
-    const that = this;
     this.loading = true;
     this.published = false;
     this.unpublished = false;
     this.errorMessage = '';
     this.lstLog = null;
-    this.backendSVC.publishPage(this.selectedTargetEnv, this.page.id, this.page).then(
+    this.backendSVC.actionPublish('publishPage', { targetenv: this.selectedTargetEnv, id: this.page.id, page: this.page }).then(
       (data: any) => {
-        that.published = data.published;
-        that.publishedPageURL = that.getBucketWebURL(that.selectedTargetEnv) + that.page.opath;
-        if (data.errorMessage) { that.errorMessage = data.errorMessage; }
-        if (data.log) { that.lstLog = data.log; }
-        that.loading = false;
+        if (data.success) {
+          this.published = true;
+          this.publishedPageURL = this.getBucketWebURL(this.selectedTargetEnv) + this.page.opath;
+        } else {
+          this.errorMessage = data.message || 'Error while removing page';
+        }
+        this.lstLog = data.log || [];
+        this.loading = false;
       },
-      (err) => {
+      (err: any) => {
         console.log('Error while publishing page', err);
-        that.errorMessage = 'Error while publishing page';
-        that.loading = false;
+        this.errorMessage = 'Error while publishing page';
+        this.loading = false;
       }
     );
   }
   btnUnPublish(): void {
-    if (!confirm('This will remove the published page from the website bucket and the search index.\nContinue?')) { return; }
+    if (!confirm('This will remove the published page from the website bucket and the search index.\nContinue?')) return;
     if (this.selectedTargetEnv === '') { return; }
-    const that = this;
     this.loading = true;
     this.published = false;
     this.unpublished = false;
     this.errorMessage = '';
     this.lstLog = null;
-    this.backendSVC.unpublishPage(this.selectedTargetEnv, this.page.id, this.page.opath).then(
+    this.backendSVC.actionPublish('unpublishPage', { targetenv: this.selectedTargetEnv, id: this.page.id, opath: this.page.opath }).then(
       (data: any) => {
-        that.unpublished = data.unpublished;
-        if (data.errorMessage) { that.errorMessage = data.errorMessage; }
-        if (data.log) { that.lstLog = data.log; }
-        that.loading = false;
+        if (data.success) {
+          this.unpublished = true;
+        } else {
+          this.errorMessage = data.message || 'Error while removing page';
+        }
+        this.lstLog = data.log || [];
+        this.loading = false;
       },
-      (err) => {
+      (err: any) => {
         console.log('Error while removing page', err);
-        that.errorMessage = 'Error while removing page';
-        that.loading = false;
+        this.errorMessage = 'Error while removing page';
+        this.loading = false;
       }
     );
   }
-  btnViewLog() {
+  btnViewLog(): void {
     this.dialog.open(PublishLogDialogComponent, { width: '860px', disableClose: false, data: { log: this.lstLog } });
   }
   getBucketWebURL(selectedBucketName: string): string {
@@ -110,7 +114,7 @@ export class PublishDialogComponent implements OnInit {
     }
     return '';
   }
-  btnCFDialog() {
-    this.dialogRef.close( { action: 'openInvalidationDialog', opaths: ['/' + this.page.opath] });
+  btnCFDialog(): void {
+    this.dialogRef.close({ action: 'openInvalidationDialog', opaths: ['/' + this.page.opath] });
   }
 }

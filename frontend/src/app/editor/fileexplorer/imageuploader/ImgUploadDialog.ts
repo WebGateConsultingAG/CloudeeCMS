@@ -130,7 +130,7 @@ export class ImgUploadDialogComponent implements OnInit {
                     this.hasError = true;
                 }
             },
-            (err) => {
+            (err: any) => {
                 this.showUploader = false;
                 this.hasError = true;
                 this.errormsg = 'Error in getSignedUploadPolicy';
@@ -164,26 +164,23 @@ export class ImgUploadDialogComponent implements OnInit {
         const lstResize = filelist.map((f: any) => {
             return f.s3key;
         });
-        const that = this;
         this.fileSVC.resizeImages(this.targetEnv, this.uplPath, lstResize, this.selectedProfile).then(
             (reqdata: any) => {
-                console.log(reqdata);
-                if (reqdata.processed) {
-                    that.dialogRef.close({ reload: true });
+                if (reqdata.success) {
+                    this.dialogRef.close({ reload: true });
                 } else {
-                    that.lstLog = reqdata.log;
-                    that.hasError = true;
+                    this.lstLog = reqdata.log;
+                    this.hasError = true;
                 }
             },
-            (err) => {
-                that.hasError = true;
-                that.errormsg = 'Error while resizing images';
+            (err: any) => {
+                this.hasError = true;
+                this.errormsg = 'Error while resizing images';
                 console.log('Error while resizing images', err);
             }
         );
     }
     getBucketByLabel(bLabel: string): any {
-        // tslint:disable-next-line: prefer-for-of
         for (let i = 0; i < this.config.buckets.length; i++) {
             if (this.config.buckets[i].label === bLabel) {
                 return this.config.buckets[i];

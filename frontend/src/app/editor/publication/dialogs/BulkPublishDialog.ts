@@ -56,28 +56,29 @@ export class BulkPublishDialogComponent implements OnInit {
     this.dialogRef.close(null);
   }
   btnPublish(): void {
-    if (this.selectedTargetEnv === '') { return; }
-    const that = this;
+    if (this.selectedTargetEnv === '') return;
     this.loading = true;
     this.published = false;
     this.errorMessage = '';
     this.lstLog = null;
-    this.backendSVC.bulkPublishPage(this.selectedTargetEnv, this.pubtype, this.lstPageIDs, this.removeFromQueue).then(
+    this.backendSVC.actionPublish('bulkPublishPage', { targetenv: this.selectedTargetEnv, pubtype: this.pubtype, lstPageIDs: this.lstPageIDs, removeFromQueue: this.removeFromQueue }).then(
       (data: any) => {
-        that.published = data.published;
-        if (data.errorMessage) { that.errorMessage = data.errorMessage; }
-        if (data.log) { that.lstLog = data.log; }
-        that.loading = false;
+        if (data.success) {
+          this.published = true;
+        } else {
+          this.errorMessage = data.message || 'Error while publishing'
+        }
+        this.lstLog = data.log || [];
+        this.loading = false;
       },
-      (err) => {
+      (err: any) => {
         console.log('Error while publishing page', err);
-        // tslint:disable-next-line: max-line-length
-        that.errorMessage = (err.statusText === 'Unknown Error' ? 'Unable to track progress, this action takes longer to complete.' : err.statusText);
-        that.loading = false;
+        this.errorMessage = (err.statusText === 'Unknown Error' ? 'Unable to track progress, this action takes longer to complete.' : err.statusText);
+        this.loading = false;
       }
     );
   }
-  btnViewLog() {
+  btnViewLog(): void {
     this.dialog.open(PublishLogDialogComponent, { width: '860px', disableClose: false, data: { log: this.lstLog } });
   }
 }

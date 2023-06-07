@@ -81,14 +81,13 @@ export class UpdaterDialogComponent implements OnInit {
         if (rc.success) {
           this.updaterstatus = 2; // in progress
           this.waitForCompletion = true; // periodically check pipeline progress and display completed message when done
-          // rc.message rc.pStatus
           this.updProgress = rc;
           setTimeout(() => { this.checkPipelineStatus(); }, 30000);
         } else {
           this.errorMessage = rc.message;
         }
       },
-      (err) => {
+      (err: any) => {
         console.log('Error while starting update', err);
         this.loading = false;
         this.errorMessage = 'Error while starting update';
@@ -119,7 +118,7 @@ export class UpdaterDialogComponent implements OnInit {
           this.errorMessage = rc.message;
         }
       },
-      (err) => {
+      (err: any) => {
         console.log('Error while checking update status', err);
         this.loading = false;
         this.errorMessage = 'Error while checking CodePipeline status';
@@ -129,14 +128,15 @@ export class UpdaterDialogComponent implements OnInit {
   getBuildProjectInfo(): void {
     this.backendSVC.actionBkup('getbuildprojectinfo', {}).then(
       (rc: any) => {
-        if (rc.success) {
-          console.log(rc.buildinfo);
-          this.buildinfo = rc.buildinfo || {};
+        let data = rc.data; // for backwards compatibility
+        if (data.success) {
+          console.log(data.buildinfo);
+          this.buildinfo = data.buildinfo || {};
         } else {
-          console.log("Error while retrieving buildproject info:", rc.message);
+          console.log("Error while retrieving buildproject info:", data.message);
         }
       },
-      (err) => {
+      (err: any) => {
         console.log('Error while fetching buildproject information', err);
       }
     );

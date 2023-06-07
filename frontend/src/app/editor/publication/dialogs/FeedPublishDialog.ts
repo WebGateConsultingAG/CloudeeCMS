@@ -57,16 +57,15 @@ export class FeedPublishDialogComponent implements OnInit {
         if (!this.selectedFeeds || this.selectedFeeds.length < 1) return;
         this.errorMessage = '';
         this.loading = true;
-        this.backendSVC.publishFeeds(this.selectedTargetEnv, this.selectedFeeds).then(
+        this.backendSVC.actionPublish('publishFeeds', {targetenv: this.selectedTargetEnv, lstFeeds: this.selectedFeeds }).then(
             (data: any) => {
-                if (data.published) {
+                if (data.success) {
                     this.step = 2;
                 } else {
-                    this.errorMessage = data.errorMessage || 'There was an error while generating feeds.';
+                    this.errorMessage = data.message || 'There was an error while generating feeds.';
                     this.showLog = true;
                 }
-                if (data.errorMessage) this.errorMessage = data.errorMessage;
-                if (data.log) this.lstLog = data.log;
+                this.lstLog = data.log || [];
                 this.loading = false;
             },
             (err: any) => {
