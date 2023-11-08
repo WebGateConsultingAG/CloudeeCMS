@@ -197,7 +197,7 @@ export class BackendService {
         if (forceUpdate || !this.lstMicroTemplates) {
             return this.http.post(environment.API_Gateway_Endpoint + this.CONTENT_RES,
                 { action: 'getAllMT' }).toPromise().then((result: any) => {
-                    this.lstMicroTemplates = result || null;
+                    this.lstMicroTemplates = (result.lst || []);
                     return this.lstMicroTemplates;
                 });
         } else {

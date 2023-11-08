@@ -50,14 +50,10 @@ export class MTListComponent implements OnInit {
     if (forceUpdate) this.setLoading(true);
     this.backendSVC.getAllMicroTemplates(forceUpdate).then(
       (data: any) => {
-        if (data.success) {
-          this.viewList = data.lst;
-          this.selectAll = false;
-          this.setSelectAll();
-          this.tabsSVC.setTabDataExpired(this.tabID, false); // mark data of tab as up to date
-        } else {
-          this.tabsSVC.printNotification(data.message || 'Error while loading');
-        }
+        this.viewList = data;
+        this.selectAll = false;
+        this.setSelectAll();
+        this.tabsSVC.setTabDataExpired(this.tabID, false); // mark data of tab as up to date
         this.setLoading(false);
       },
       (err: any) => {
