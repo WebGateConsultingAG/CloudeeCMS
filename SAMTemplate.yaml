@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
-Description: CloudeeCMS Backend Auto Deployment 2023-06-06
+Description: CloudeeCMS Backend Auto Deployment 2024-01-24
 Parameters:
   AdminBucket:
     Type: String
@@ -164,7 +164,7 @@ Resources:
       BinaryMediaTypes:
         - multipart~1form-data
       Cors:
-        AllowHeaders: "'*'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
       Auth:
         AddDefaultAuthorizerToCorsPreflight: False
