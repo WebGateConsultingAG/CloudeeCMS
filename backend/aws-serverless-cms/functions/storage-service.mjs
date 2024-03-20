@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2024-03-20 09:41
+ * File Version: 2024-03-20 12:15
  */
 
 import { documentClient, DDBGet, DDBQuery, DDBScan, getNewGUID } from './lambda-utils.mjs'
@@ -27,7 +27,6 @@ storage.checkGSI = async function () {
     if (USE_GSI >= 0) return; // already checked
     await DDBQuery({ TableName: tableName, IndexName: GSI1_NAME, KeyConditionExpression: 'otype = :hkey', ExpressionAttributeValues: { ':hkey': 'TEST' } });
     USE_GSI = 1;
-    console.log("Using GSI");
   } catch (e) {
     USE_GSI = 0;
   }
@@ -263,7 +262,7 @@ storage.getAllSubmittedForms = async function () {
 };
 storage.getAllMicroTemplates = async function () {
   try {
-    let lst = [];
+    let lst;
     if (USE_GSI > 0) {
       lst = await DDBQuery({
         TableName: tableName, IndexName: GSI1_NAME,
