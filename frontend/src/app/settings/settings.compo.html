@@ -4,6 +4,9 @@
             title="Some of your changes will not be effective until you reload the webapplication">
             <mat-icon>sync_problem</mat-icon> Restart recommended
         </button>
+        <button mat-stroked-button (click)="btnDBUpgrade()" *ngIf="showGSI1Message" style="background-color: orange;">
+            <mat-icon>warning</mat-icon> DB upgrade required
+        </button>
         <button mat-stroked-button (click)="btnShowBuildInfoDialog()">
             <mat-icon>handyman</mat-icon> CodePipeline..
         </button>

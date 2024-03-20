@@ -27,7 +27,7 @@ async function createInitialConfig() {
         return;
     } else { // Create initial config
         console.log('Creating initial configuration document in DynamoDB');
-        const cfgdoc = { id: 'config', apptitle: CFDIST_PROD_URL, buckets: [], cfdists: [] };
+        const cfgdoc = { id: 'config', apptitle: CFDIST_PROD_URL, buckets: [], cfdists: [], GSI1MIG: true };
 
         cfgdoc.buckets.push({
             bucketname: S3BUCKET_CDN,

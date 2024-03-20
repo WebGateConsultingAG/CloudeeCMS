@@ -1,0 +1,88 @@
+<div>
+    <div mat-dialog-content>
+        <img src="assets/img/CloudeeCMS.svg" alt="CloudeeCMS" class="logo dmLogo" />
+        <h1 mat-dialog-title>Database Migration</h1>
+        <div class="loader" *ngIf="loading">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+        <div class="isErrorBox" *ngIf="errorMessage">
+            {{errorMessage}}
+        </div>
+
+        <div *ngIf="!loading && migstatus.success">
+            <table class="viewTable">
+                <thead>
+                    <tr>
+                        <th style="width: 46px">&nbsp;</th>
+                        <th>Task</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <mat-icon *ngIf="migstatus.USE_GSI" title="GSI1 is present"
+                                style="color: green">check_circle</mat-icon>
+                            <mat-icon *ngIf="!migstatus.USE_GSI" title="GSI1 not found"
+                                style="color: rgb(255, 81, 0)">warning</mat-icon>
+                        </td>
+                        <td>
+                            <div *ngIf="migstatus.USE_GSI">Global Secondary Index GSI1 is present</div>
+                            <div *ngIf="!migstatus.USE_GSI">Global Secondary Index GSI1 is missing</div>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <mat-icon *ngIf="migstatus.MIG_DONE" title="Content migration completed"
+                                style="color: green">check_circle</mat-icon>
+                            <mat-icon *ngIf="!migstatus.MIG_DONE" title="Content migration pending"
+                                style="color: rgb(255, 81, 0)">warning</mat-icon>
+                        </td>
+                        <td>
+                            <div *ngIf="migstatus.MIG_DONE">Content migration done</div>
+                            <div *ngIf="!migstatus.MIG_DONE">Content migration pending</div>
+                        </td>
+                        <td style="text-align: right;">
+                            <button mat-stroked-button (click)="btnStartUpgrade()" *ngIf="!migstatus.MIG_DONE">Start
+                                upgrade</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div *ngIf="showMigResult">
+                <br/>
+                <table class="viewTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 46px">&nbsp;</th>
+                            <th>Migration result</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let itm of lstMigResult">
+                            <td>
+                                <mat-icon *ngIf="itm.success" style="color: green">check_circle</mat-icon>
+                                <mat-icon *ngIf="!itm.success" style="color: rgb(255, 81, 0)">warning</mat-icon>
+                            </td>
+                            <td>{{itm.message}}</td>
+                            <td>{{itm.cnt}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <div *ngIf="loaded && !migstatus.USE_GSI" class="warn">
+            Upgrade of database table required! Please <a href="https://www.cloudee-cms.com/news/2024/dbtable-upgrade"
+                target="_blank">read how to
+                update</a> the CloudFormation stack.
+        </div>
+        <br />
+    </div>
+    <div mat-dialog-actions>
+        <button mat-button (click)="btnCancel()">Close</button>
+    </div>
+</div>
