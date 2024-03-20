@@ -75,7 +75,7 @@
             </div>
         </div>
         <br />
-        <div *ngIf="loaded && !migstatus.USE_GSI" class="warn">
+        <div *ngIf="!loading && !migstatus.USE_GSI" class="warn">
             Upgrade of database table required! Please <a href="https://www.cloudee-cms.com/news/2024/dbtable-upgrade"
                 target="_blank">read how to
                 update</a> the CloudFormation stack.

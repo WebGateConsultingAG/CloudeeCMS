@@ -31,9 +31,9 @@ export class MigrationDialogComponent implements OnInit {
 
   errorMessage = '';
   loading = true;
-  migstatus = {};
+  migstatus: any = {};
   showMigResult = false;
-  lstMigResult = [];
+  lstMigResult: Array<any> = [];
 
   ngOnInit(): void {
     this.getGSI1Status();
