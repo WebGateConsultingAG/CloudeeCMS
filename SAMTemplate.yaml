@@ -127,7 +127,10 @@ Resources:
                 "dynamodb:DescribeTable",
                 "dynamodb:ConditionCheckItem",
               ]
-            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}"
+            Resource: [
+              !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}",
+              !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}/*",
+            ]
           - Sid: codepipeline
             Effect: Allow
             Action:

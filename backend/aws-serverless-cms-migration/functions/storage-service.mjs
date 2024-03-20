@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2024-03-19 14:06
+ * File Version: 2024-03-20 11:30
  */
 
 import { documentClient, DDBQuery, DDBScan, DDBGet, getFormattedDate } from './lambda-utils.mjs'
@@ -29,7 +29,7 @@ storage.getGSI1Status = async function () {
     await DDBQuery({ TableName: tableName, IndexName: GSI1_NAME, KeyConditionExpression: 'otype = :hkey', ExpressionAttributeValues: { ':hkey': 'TEST' } });
     return { success: true, USE_GSI: true, MIG_DONE, TableName: tableName, IndexName: GSI1_NAME };
   } catch (e) {
-    return { success: true, USE_GSI: false, MIG_DONE, TableName: tableName, IndexName: GSI1_NAME };
+    return { success: true, USE_GSI: false, MIG_DONE, TableName: tableName, IndexName: GSI1_NAME, message: e.message || '' };
   }
 };
 
