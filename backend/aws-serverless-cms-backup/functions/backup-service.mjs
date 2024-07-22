@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-06-06 13:01 - RSC
+ * File Version: 2024-07-22 16:30 - RSC
  */
 
 import { documentClient, DDBGet, DDBScan, getNewGUID, getFormattedDate } from './lambda-utils.mjs';
@@ -199,6 +199,7 @@ backupSVC.importPackage = async function (s3BucketName, s3key) {
                     var fi = fs.readFileSync(xDir + dbimportpath + file);
                     var obj = JSON.parse(fi);
                     if (obj.id && obj.id !== 'config') {
+                        if (!obj.GSI1SK) obj.GSI1SK = "/"; // if package was exported from a version without GSI
                         pc++;
                         await documentClient.put({ TableName: tableName, Item: obj });
                     }
