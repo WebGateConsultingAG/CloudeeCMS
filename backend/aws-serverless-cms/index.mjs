@@ -13,7 +13,7 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-05-31 14:50 - RSC
+ * File Version: 2024-03-19 14:06
  */
 
 // ES6 | nodejs18+ | AWS SDK v3
@@ -35,6 +35,9 @@ export const handler = async (event, context, callback) => {
     if (method === 'POST') {
         const payload = JSON.parse(event.body);
         const action = payload.action || '';
+
+        // check if GSI1 exists
+        await storage.checkGSI();
 
         if (action === 'getAllLayouts') {
             return cbHandler.success(await storage.getAllLayouts());

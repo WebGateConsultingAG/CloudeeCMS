@@ -112,7 +112,13 @@ export class ImgUploadDialogComponent implements OnInit {
     btnDialogClose(): void {
         this.dialogRef.close(null);
     }
-
+    onDragOver(event) {
+        event.preventDefault();
+    }
+    onDropSuccess(event) {
+        event.preventDefault();
+        this.startFileUpload(event.dataTransfer.files);
+    }
     public startFileUpload(selectedFiles) {
         console.log('startFileUpload');
         this.showProfileSelection = false;

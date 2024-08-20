@@ -30,6 +30,7 @@ export class BackendService {
     BACKUP_RES = '/content-backup';
     COGNITO_RES = '/cognito-admin';
     CF_RES = '/cf-admin';
+    MIG_RES = '/migration';
 
     NOTIFICATIONS_ENDPOINT = 'https://notifications.cloudee-cms.com/api';
     APP_VERSION_INFO = versioninfo;
@@ -259,6 +260,12 @@ export class BackendService {
     // Cognito user admin API
     public cognitoAction(action: string, params: any) {
         return this.http.post(environment.API_Gateway_Endpoint + this.COGNITO_RES, { action, params }).toPromise().then((result: any) => {
+            return result || null;
+        });
+    }
+    // Migration functions
+    public migrationAction(action: string, params: any): any {
+        return this.http.post(environment.API_Gateway_Endpoint + this.MIG_RES, { action, params }).toPromise().then((result: any) => {
             return result || null;
         });
     }

@@ -3,11 +3,12 @@
         <h1 mat-dialog-title>File upload</h1>
         <p>Destination folder: /{{uplPath}}</p>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" (dragover)="onDragOver($event)" (drop)="onDropSuccess($event)">
                 <input style="display:none;" id="input-file-upl" type="file" accept="{{accept}}" multiple (change)="startFileUpload($event.target.files)"/>
                 <label for="input-file-upl" class="mat-stroked-button mat-default" title="Upload files" *ngIf="!uploading">
                         <mat-icon>add_box</mat-icon><span> &nbsp;Select files..</span>
                 </label>
+                <div class="filedrop">or drop files here</div>
             </div>
             <div class="col-md-6">
                 <mat-form-field class="full-width">

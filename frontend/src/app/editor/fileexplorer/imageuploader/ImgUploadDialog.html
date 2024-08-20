@@ -20,13 +20,14 @@
 
             <!-- file uploader visible when a profile has been selected -->
             <div *ngIf="selectedProfile">
-                <div *ngIf="showFileSelector">
+                <div *ngIf="showFileSelector" (dragover)="onDragOver($event)" (drop)="onDropSuccess($event)">
                     <input style="display:none;" id="input-file-upl" type="file" accept="{{accept}}" multiple
                         (change)="startFileUpload($event.target.files)" />
                     <label for="input-file-upl" class="mat-stroked-button mat-default" title="Upload files"
                         *ngIf="!uploading">
                         <mat-icon>add_box</mat-icon><span> &nbsp;Select files..</span>
                     </label>
+                    <div class="filedrop">or drop files here</div>
                 </div>
                 <div class="uplProgress" *ngIf="showUploader">
                     <div class="uplFile" *ngFor="let file of files">

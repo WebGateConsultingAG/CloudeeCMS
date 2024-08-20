@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
-Description: CloudeeCMS Backend Auto Deployment 2024-01-24
+Description: CloudeeCMS Backend Auto Deployment 2024-03-20
 Parameters:
   AdminBucket:
     Type: String
@@ -127,7 +127,10 @@ Resources:
                 "dynamodb:DescribeTable",
                 "dynamodb:ConditionCheckItem",
               ]
-            Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}"
+            Resource: [
+              !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}",
+              !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DBTableName}/*",
+            ]
           - Sid: codepipeline
             Effect: Allow
             Action:
@@ -397,6 +400,31 @@ Resources:
           Properties:
             Path: /getnews
             Method: get
+            RestApiId:
+              Ref: WebGateSCMSAPI
+
+  scmsmigapi:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs20.x
+      CodeUri: ./backend/aws-serverless-cms-migration
+      Description: CloudeeCMS API for DB migration tools
+      MemorySize: 512
+      Timeout: 180
+      Role: !GetAtt SCMSLambdaRole.Arn
+      Environment:
+        Variables:
+          CognitoUserPoolID: !Ref CognitoUserPoolID
+          DB_TABLE: !Ref DBTableName
+      Events:
+        Api1GET:
+          Type: Api
+          Properties:
+            Path: /migration
+            Method: post
+            Auth:
+              Authorizer: MyCognitoAuthorizer
             RestApiId:
               Ref: WebGateSCMSAPI
 

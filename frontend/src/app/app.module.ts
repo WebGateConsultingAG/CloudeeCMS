@@ -108,6 +108,7 @@ import { IconSelectDialogComponent } from './editor/microtemplates/dialogs/IconS
 import { UserLoginService } from './auth/userlogin.service';
 import { LoginDialogComponent } from './login-dialog/logindialog.component';
 import { BuildprojectDialogComponent } from './settings/dialogs/buildproject-dialog';
+import { MigrationDialogComponent } from './settings/migration-dialog/migration-dialog';
 
 @NgModule({
     declarations: [
@@ -119,6 +120,7 @@ import { BuildprojectDialogComponent } from './settings/dialogs/buildproject-dia
         FormEditComponent,
         CFInvalidationDialogComponent,
         FeedPublishDialogComponent,
+        MigrationDialogComponent,
         PubQueueComponent,
         SearchFilterPipe,
         GroupAddDialogComponent,

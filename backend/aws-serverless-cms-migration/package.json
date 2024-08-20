@@ -1,0 +1,13 @@
+{
+  "name": "aws-serverless-cms-migration",
+  "version": "1.0.0",
+  "description": "AWS Lambda update migration tools",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WebGate RSC",
+  "license": "Apache-2.0",
+  "dependencies": {
+  }
+}

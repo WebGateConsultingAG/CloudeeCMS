@@ -13,27 +13,45 @@
  * implied. See the License for the specific language governing 
  * permissions and limitations under the License.
  * 
- * File Version: 2023-05-31 14:57 - RSC
+ * File Version: 2024-03-20 12:15
  */
 
 import { documentClient, DDBGet, DDBQuery, DDBScan, getNewGUID } from './lambda-utils.mjs'
 const tableName = process.env.DB_TABLE || '';
 const GSI1_NAME = 'GSI1-index';
+let USE_GSI = -1;
 const storage = {};
 
+storage.checkGSI = async function () {
+  try { // check if GSI1 on table exists (for legacy installations)
+    if (USE_GSI >= 0) return; // already checked
+    await DDBQuery({ TableName: tableName, IndexName: GSI1_NAME, KeyConditionExpression: 'otype = :hkey', ExpressionAttributeValues: { ':hkey': 'TEST' } });
+    USE_GSI = 1;
+  } catch (e) {
+    USE_GSI = 0;
+  }
+}
 storage.addAllToPublicationQueue = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Page' },
-      ProjectionExpression: 'id, opath, title, queue'
-    };
-    let lst = await DDBScan(params);
+    let lst;
+    if (USE_GSI) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Page' },
+        ProjectionExpression: 'id, opath, title, queue'
+      });
+    } else {
+      lst = await DDBScan({  // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
+        ProjectionExpression: 'id, opath, title, queue'
+      });
+    }
     lst.forEach((pg) => {
       if (pg.queue !== true) addPageToQueue(pg.id);
     });
-
     return { success: true, lstPages: lst };
   } catch (e) {
     console.log(e);
@@ -42,13 +60,22 @@ storage.addAllToPublicationQueue = async function () {
 };
 storage.getAllMTIDsInUse = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Page' },
-      ProjectionExpression: 'id, lstMTObj'
-    };
-    let lstPages = await DDBScan(params);
+    let lstPages;
+    if (USE_GSI) {
+      lstPages = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Page' },
+        ProjectionExpression: 'id, lstMTObj'
+      });
+    } else {
+      lstPages = await DDBScan({  // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
+        ProjectionExpression: 'id, lstMTObj'
+      });
+    }
     let lstMTIDs = [];
     for (let i = 0; i < lstPages.length; i++) {
       for (let f in lstPages[i].lstMTObj) {
@@ -63,13 +90,22 @@ storage.getAllMTIDsInUse = async function () {
 };
 storage.getAllPagesByMT = async function (mtid) {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Page' },
-      ProjectionExpression: 'id, title, opath, lstMTObj'
-    };
-    let lstPages = await DDBScan(params); // TODO: use GSI query
+    let lstPages;
+    if (USE_GSI) {
+      lstPages = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Page' },
+        ProjectionExpression: 'id, title, opath, lstMTObj'
+      });
+    } else {
+      lstPages = await DDBScan({  // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
+        ProjectionExpression: 'id, title, opath, lstMTObj'
+      });
+    }
     let lstPagesInUse = [];
 
     // Search through all pages if MTID exists
@@ -162,16 +198,24 @@ storage.getPageByID = async function (id) {
     } else {
       doc = await DDBGet({ TableName: tableName, Key: { id: id } });
     }
-    let params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Layout' },
-      ProjectionExpression: 'id, okey, title, custFields'
-    };
-
-    let lstLayouts = await DDBScan(params); // TODO: use GSI query
-
-    return { success: true, item: doc, layouts: lstLayouts };
+    // Get all layouts
+    let layouts;
+    if (USE_GSI) {
+      layouts = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Layout' },
+        ProjectionExpression: 'id, okey, title, custFields'
+      });
+    } else {
+      layouts = await DDBScan({  // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Layout' },
+        ProjectionExpression: 'id, okey, title, custFields'
+      });
+    }
+    return { success: true, item: doc, layouts };
   } catch (e) {
     console.log(e);
     return { success: false, message: e.message || 'Error' };
@@ -194,13 +238,22 @@ storage.getPublicationQueue = async function () {
 };
 storage.getAllSubmittedForms = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'SubmittedForm' },
-      ProjectionExpression: 'id, title, dt, email'
-    };
-    let lst = await DDBScan(params); // TODO: use GSI query
+    let lst;
+    if (USE_GSI) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'SubmittedForm' },
+        ProjectionExpression: 'id, title, dt, email'
+      });
+    } else {
+      lst = await DDBScan({ // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'SubmittedForm' },
+        ProjectionExpression: 'id, title, dt, email'
+      });
+    }
     return { success: true, lst };
   } catch (e) {
     console.log(e);
@@ -209,13 +262,22 @@ storage.getAllSubmittedForms = async function () {
 };
 storage.getAllMicroTemplates = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'MT' },
-      ProjectionExpression: 'id, custFields, otype, title, descr, fldPreview, icon'
-    };
-    let lst = await DDBScan(params); // TODO: use GSI query
+    let lst;
+    if (USE_GSI > 0) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'MT' },
+        ProjectionExpression: 'id, custFields, otype, title, descr, fldPreview, icon'
+      });
+    } else {
+      lst = await DDBScan({  // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'MT' },
+        ProjectionExpression: 'id, custFields, otype, title, descr, fldPreview, icon'
+      });
+    }
     return { success: true, lst };
   } catch (e) {
     console.log(e);
@@ -224,13 +286,22 @@ storage.getAllMicroTemplates = async function () {
 };
 storage.getAllBlocks = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Block' },
-      ProjectionExpression: 'id, okey, title, descr'
-    };
-    let lst = await DDBScan(params); // TODO: use GSI query
+    let lst;
+    if (USE_GSI) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Block' },
+        ProjectionExpression: 'id, okey, title, descr'
+      });
+    } else {
+      lst = await DDBScan({ // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Block' },
+        ProjectionExpression: 'id, okey, title, descr'
+      });
+    }
     return { success: true, lst };
   } catch (e) {
     console.log(e);
@@ -239,13 +310,22 @@ storage.getAllBlocks = async function () {
 };
 storage.getAllPages = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Page' },
-      ProjectionExpression: 'id, opath, title'
-    };
-    let lst = await DDBScan(params); // TODO: use GSI query
+    let lst;
+    if (USE_GSI) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Page' },
+        ProjectionExpression: 'id, opath, title'
+      });
+    } else {
+      lst = await DDBScan({ // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Page' },
+        ProjectionExpression: 'id, opath, title'
+      });
+    }
     // build a category tree
     let tree = flxTree.makeTree(lst);
     return { success: true, lstPages: lst, tree };
@@ -256,13 +336,22 @@ storage.getAllPages = async function () {
 };
 storage.getAllForms = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Form' },
-      ProjectionExpression: 'id, title, descr'
-    };
-    let lst = await DDBScan(params); // TODO: use GSI query
+    let lst;
+    if (USE_GSI) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Form' },
+        ProjectionExpression: 'id, title, descr'
+      });
+    } else {
+      lst = await DDBScan({ // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Form' },
+        ProjectionExpression: 'id, title, descr'
+      });
+    }
     return { success: true, lst };
   } catch (e) {
     console.log(e);
@@ -271,13 +360,22 @@ storage.getAllForms = async function () {
 };
 storage.getAllLayouts = async function () {
   try {
-    const params = {
-      TableName: tableName,
-      FilterExpression: 'otype = :fld',
-      ExpressionAttributeValues: { ':fld': 'Layout' },
-      ProjectionExpression: 'id, okey, title, descr'
-    };
-    let lst = await DDBScan(params);  // TODO: use GSI query
+    let lst;
+    if (USE_GSI) {
+      lst = await DDBQuery({
+        TableName: tableName, IndexName: GSI1_NAME,
+        KeyConditionExpression: 'otype = :hkey',
+        ExpressionAttributeValues: { ':hkey': 'Layout' },
+        ProjectionExpression: 'id, okey, title, descr'
+      });
+    } else {
+      lst = await DDBScan({ // Legacy call
+        TableName: tableName,
+        FilterExpression: 'otype = :fld',
+        ExpressionAttributeValues: { ':fld': 'Layout' },
+        ProjectionExpression: 'id, okey, title, descr'
+      });
+    }
     return { success: true, lst };
   } catch (e) {
     console.log(e);
@@ -290,7 +388,7 @@ storage.getConfig = async function (userGroups) {
     if (cfg) {
       return { success: true, cfg, userGroups };
     } else { // Create initial config
-      let cfgNew = { "id": "config", "apptitle": "CloudeeCMS" };
+      let cfgNew = { "id": "config", "apptitle": "CloudeeCMS", "GSI1MIG": true };
       await documentClient.put({ TableName: tableName, Item: cfgNew });
       return { success: true, cfg: cfgNew, userGroups: userGroups };
     }
@@ -412,13 +510,11 @@ function collectNestedMTIDs(lstObj, lstMTIDs) {
 
 async function addPageToQueue(id) {
   try {
-    const params = {
-      TableName: tableName,
-      Key: { id: id },
+    await documentClient.update({
+      TableName: tableName, Key: { id: id },
       UpdateExpression: "set queue = :q",
       ExpressionAttributeValues: { ":q": true }
-    };
-    await documentClient.update(params);
+    });
   } catch (e) {
     console.log(e);
   }

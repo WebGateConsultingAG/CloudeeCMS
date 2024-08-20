@@ -32,6 +32,7 @@ import { GlobalFunctionEditDialogComponent } from './dialogs/fnedit-dialog';
 import { ImageProfileEditDialogComponent } from './dialogs/imgprofileedit-dialog';
 import { FeedEditDialogComponent } from './dialogs/feededit-dialog';
 import { BuildprojectDialogComponent } from './dialogs/buildproject-dialog';
+import { MigrationDialogComponent } from './migration-dialog/migration-dialog';
 
 @Component({
   selector: 'app-settings',
@@ -60,6 +61,7 @@ export class SettingsComponent implements OnInit {
   APIGWURL = '';
   hasChanges = false;
   tabID = 'tab-settings';
+  showGSI1Message = false;
 
   ngOnInit() {
     this.APIGWURL = environment.API_Gateway_Endpoint;
@@ -90,8 +92,28 @@ export class SettingsComponent implements OnInit {
         console.error(err);
       }
     );
+    this.checkGSI1Status();
   }
-
+  checkGSI1Status(): void {
+    this.backendSVC.migrationAction('getGSI1Status', {}).then(
+      (rc: any) => {
+        if (rc.success && (rc.USE_GSI === false || !rc.MIG_DONE)) {
+          this.showGSI1Message = true;
+        } else {
+          this.showGSI1Message = false;
+        }
+      },
+      (err: any) => {
+        this.tabsSVC.printNotification('Error while checking GSI1-Status');
+        console.error(err);
+      }
+    );
+  }
+  btnDBUpgrade(): void {
+    this.dialog.open(MigrationDialogComponent, { width: '600px', disableClose: false, data: {  } }).afterClosed().subscribe(result => {
+      this.checkGSI1Status();
+    });
+  }
   btnSave(): void {
     this.setLoading(true);
     this.backendSVC.saveConfig(this.config).then(
