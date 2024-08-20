@@ -61,7 +61,13 @@ export class FileUploadDialogComponent implements OnInit {
     btnDialogClose(): void {
         this.dialogRef.close(null);
     }
-
+    onDragOver(event) {
+        event.preventDefault();
+    }
+    onDropSuccess(event) {
+        event.preventDefault();
+        this.startFileUpload(event.dataTransfer.files);
+    }
     public startFileUpload(selectedFiles) {
         console.log('startFileUpload');
         this.showUploader = true;
