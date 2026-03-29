@@ -1,27 +1,26 @@
 version: 0.2
 
 phases:
-    build:
-        commands:
-        - node --version
-        - cd ./backend/aws-serverless-cms-publish
-        - npm install
-        - cd ../..
-        - cd ./backend/aws-serverless-cms-fileupload
-        - npm install
-        - cd ../..
-        - cd ./backend/aws-serverless-cms-img
-        - npm install
-        - cd ../..
-        - cd ./backend/aws-serverless-cms-forms
-        - npm install
-        - cd ../..
-        - cd ./backend/aws-serverless-cms-backup
-        - npm install
-        - cd ../..
-    post_build:
-        commands:
-        - aws cloudformation package --template-file SAMTemplate.yaml --s3-bucket ${PIPELINE_BUCKET} --output-template-file outputSAMTemplate_backend.yaml
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - node --version
+      - npm --version
+
+  build:
+    commands:
+      - cd backend/aws-serverless-cms-publish && npm ci && cd ../..
+      - cd backend/aws-serverless-cms-fileupload && npm ci && cd ../..
+      - cd backend/aws-serverless-cms-img && npm ci && cd ../..
+      - cd backend/aws-serverless-cms-forms && npm ci && cd ../..
+      - cd backend/aws-serverless-cms-backup && npm ci && cd ../..
+
+  post_build:
+    commands:
+      - ls -la
+      - aws cloudformation package --template-file SAMTemplate.yaml --s3-bucket ${PIPELINE_BUCKET} --output-template-file outputSAMTemplate_backend.yaml
+
 artifacts:
   files:
     - outputSAMTemplate_backend.yaml
